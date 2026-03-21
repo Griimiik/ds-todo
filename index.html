@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0a0a0f">
 <title>✦ Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2.4">
+<link rel="stylesheet" href="style.css?v=2.5">
 </head>
 <body>
 
@@ -85,19 +85,26 @@
         <div class="tb tb-pink" id="hdr-tb-pink" onclick="setTheme('pink')" title="Růžový"></div>
         <div class="tb tb-bdsm" id="hdr-tb-bdsm" onclick="setTheme('bdsm')" title="BDSM"></div>
       </div>
-      <span class="role-badge" id="role-badge">DOM</span>
-      <button class="bsm role-switch-btn" id="role-switch-btn" onclick="requestDomAccess()" style="display:none">🔓 Dom</button>
       <span class="ss2" id="sync-s">—</span>
       <button class="bsm" onclick="syncNow()">↻</button>
     </div>
   </div>
 
   <div class="scard">
-    <div class="slbl">Celkové body</div>
-    <div class="sval" id="score">0</div>
-    <div class="ssub">
-      <div class="sstat"><div class="dot dg"></div><span>+<span id="splus">0</span> získáno</span></div>
-      <div class="sstat"><div class="dot dr"></div><span>−<span id="sminus">0</span> odečteno</span></div>
+    <div class="scard-top">
+      <div>
+        <div class="slbl">Celkové body</div>
+        <div class="sval" id="score">0</div>
+        <div class="ssub">
+          <div class="sstat"><div class="dot dg"></div><span>+<span id="splus">0</span> získáno</span></div>
+          <div class="sstat"><div class="dot dr"></div><span>−<span id="sminus">0</span> odečteno</span></div>
+        </div>
+      </div>
+      <div class="role-block">
+        <div class="role-icon" id="role-icon">🔑</div>
+        <div class="role-badge" id="role-badge">DOM</div>
+        <button class="role-switch-btn" id="role-switch-btn" onclick="requestDomAccess()" style="display:none">Odemknout</button>
+      </div>
     </div>
   </div>
 
@@ -292,6 +299,6 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=2.4"></script>
+<script src="app.js?v=2.5"></script>
 </body>
 </html>

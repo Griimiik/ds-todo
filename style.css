@@ -82,15 +82,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .bsm{background:none;border:1px solid var(--border);border-radius:var(--rs);color:var(--dim);font-size:12px;padding:4px 6px;cursor:pointer;transition:all .2s;font-family:inherit;flex-shrink:0;white-space:nowrap}
 .bsm:hover{border-color:var(--border-h);color:var(--text)}
 
-/* ROLE BADGE */
-.role-badge{font-size:8px;padding:3px 6px;border-radius:20px;letter-spacing:.12em;font-weight:400;white-space:nowrap;flex-shrink:0}
-.role-badge.dom{background:rgba(201,169,110,.15);color:var(--accent);border:1px solid rgba(201,169,110,.3)}
-.role-badge.sub{background:rgba(155,142,196,.15);color:var(--purple);border:1px solid rgba(155,142,196,.3)}
-.role-switch-btn{font-size:10px;padding:4px 8px;border-color:rgba(155,142,196,.3);color:var(--purple)}
-
 /* SCORE */
 .scard{margin:14px 12px 0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;overflow:hidden}
 .scard::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,var(--accent-g) 0%,transparent 70%);pointer-events:none}
+.scard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .slbl{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
 .sval{font-family:var(--ff);font-size:62px;font-weight:300;line-height:1;color:var(--accent);letter-spacing:-.02em}
 .sval.neg{color:var(--red)}
@@ -98,6 +93,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .sstat{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
 .dot{width:6px;height:6px;border-radius:50%}
 .dg{background:var(--green)} .dr{background:var(--red)}
+
+/* ROLE BLOCK */
+.role-block{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;padding-top:2px;z-index:1}
+.role-icon{font-size:30px;line-height:1}
+.role-badge{font-size:9px;padding:3px 8px;border-radius:20px;letter-spacing:.12em;font-weight:400;white-space:nowrap}
+.role-badge.dom{background:rgba(201,169,110,.15);color:var(--accent);border:1px solid rgba(201,169,110,.3)}
+.role-badge.sub{background:rgba(155,142,196,.15);color:var(--purple);border:1px solid rgba(155,142,196,.3)}
+.role-switch-btn{font-size:9px;padding:4px 8px;border-radius:var(--rs);background:var(--purple-d);border:1px solid rgba(155,142,196,.3);color:var(--purple);cursor:pointer;font-family:inherit;white-space:nowrap}
 
 /* QUICK ACTIONS */
 .qa{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 12px 0}

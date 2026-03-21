@@ -292,6 +292,8 @@ function applyRole(){
 
   document.getElementById('role-badge').textContent=isDom?'DOM':'SUB';
   document.getElementById('role-badge').className='role-badge '+(isDom?'dom':'sub');
+  const icon=document.getElementById('role-icon');
+  if(icon) icon.textContent=isDom?'🔑':'🦮';
 
   // Quick actions — sub vidí ale jsou zablokované
   document.querySelectorAll('.qa-locked').forEach(el=>{
