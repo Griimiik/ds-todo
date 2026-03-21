@@ -11,8 +11,10 @@
 </head>
 <body>
 
+<!-- LOADING -->
 <div id="ls"><div class="ll">✦</div><div class="lt" id="lt">Načítám...</div></div>
 
+<!-- SETUP (první spuštění) -->
 <div id="ss" style="display:none">
   <div class="sl">✦</div>
   <div class="ss">D/s Tracker — Nastavení</div>
@@ -25,18 +27,42 @@
     </div>
     <div class="sdiv"></div>
     <div class="sf">
-      <div class="slb">Šifrovací heslo</div>
-      <input class="inp" id="s-pw" type="password" placeholder="Sdílené heslo (min. 6 znaků)..." />
-      <div class="sh">Stejné heslo musí mít Dom i Sub. Bez něj nelze data číst.</div>
+      <div class="slb">Dom heslo</div>
+      <input class="inp" id="s-pw" type="password" placeholder="Heslo pro Dom (min. 6 znaků)..." />
+      <div class="sh">Plný přístup — šifruje data. Nikdy nesdílet se Sub.</div>
+    </div>
+    <div class="sf">
+      <div class="slb">Sub heslo</div>
+      <input class="inp" id="s-subpw" type="password" placeholder="Heslo pro Sub (min. 4 znaky)..." />
+      <div class="sh">Pouze pro čtení a plnění úkolů. Sdílej se Sub.</div>
     </div>
     <button class="bsetup" onclick="setupApp()">✦ Spustit Tracker</button>
   </div>
 </div>
 
+<!-- LOGIN (každé další spuštění) -->
+<div id="login-screen" style="display:none">
+  <div class="sl">✦</div>
+  <div class="ss">D/s Tracker</div>
+  <div class="sc">
+    <div class="sct">Přihlášení</div>
+    <div class="sf">
+      <div class="slb">Heslo</div>
+      <input class="inp" id="login-pw" type="password" placeholder="Dom nebo Sub heslo..." />
+      <div class="sh">Dom heslo = plný přístup · Sub heslo = čtení a úkoly</div>
+    </div>
+    <button class="bsetup" onclick="loginSubmit()">✦ Vstoupit</button>
+  </div>
+</div>
+
+<!-- APP -->
 <div id="app" style="display:none">
+
   <div class="hdr">
     <div class="ht">✦ Tracker</div>
     <div class="hr2">
+      <span class="role-badge" id="role-badge">DOM</span>
+      <button class="bsm role-switch-btn" id="role-switch-btn" onclick="requestDomAccess()" style="display:none">🔓 Dom</button>
       <span class="ss2" id="sync-s">—</span>
       <button class="bsm" onclick="syncNow()">↻</button>
     </div>
@@ -52,11 +78,11 @@
   </div>
 
   <div class="qa">
-    <button class="ba add" onclick="openModal('add')">
+    <button class="ba add qa-locked" data-locked-msg="Pouze Dom může měnit body" onclick="openModal('add')">
       <div class="bai">＋</div>
       <div><div class="btm">Přidat body</div><div class="bts">Splněný úkol</div></div>
     </button>
-    <button class="ba sub" onclick="openModal('sub')">
+    <button class="ba sub qa-locked" data-locked-msg="Pouze Dom může měnit body" onclick="openModal('sub')">
       <div class="bai">－</div>
       <div><div class="btm">Odebrat body</div><div class="bts">Trest</div></div>
     </button>
@@ -67,14 +93,16 @@
     <button class="tab" onclick="sw('legend')">Legenda</button>
     <button class="tab" onclick="sw('history')">Historie</button>
     <button class="tab" onclick="sw('rewards')">Odměny</button>
-    <button class="tab" onclick="sw('settings')">⚙</button>
+    <button class="tab" onclick="sw('active')">⚡ <span id="active-count"></span></button>
+    <button class="tab dom-only" id="tab-settings" onclick="sw('settings')">⚙</button>
   </div>
 
+  <!-- TODO -->
   <div class="sec active" id="sec-todo">
     <div class="card">
       <div class="ch"><span>Aktivní úkoly</span><span id="tcnt" style="color:var(--accent)"></span></div>
       <div id="tlist"></div>
-      <div class="af">
+      <div class="af dom-only">
         <input class="inp" id="t-name" placeholder="Název úkolu..." style="flex:1;min-width:110px" />
         <input class="inp ipts" id="t-pts" type="number" placeholder="Body" />
         <button class="badd" onclick="addTodo()">+ Přidat</button>
@@ -82,11 +110,12 @@
     </div>
   </div>
 
+  <!-- LEGEND -->
   <div class="sec" id="sec-legend">
     <div class="card">
       <div class="ch">Akce a jejich hodnota</div>
       <div id="llist"></div>
-      <div class="af">
+      <div class="af dom-only">
         <input class="inp" id="l-name" placeholder="Název akce..." style="flex:1;min-width:100px" />
         <input class="inp ipts" id="l-pts" type="number" placeholder="Body" />
         <select class="inp" id="l-type" style="flex:none;width:100px;font-family:inherit">
@@ -98,18 +127,23 @@
     </div>
   </div>
 
+  <!-- HISTORY -->
   <div class="sec" id="sec-history">
     <div class="card">
-      <div class="ch"><span>Log akcí</span><button class="bm d" onclick="clearHistory()">Vymazat</button></div>
+      <div class="ch">
+        <span>Log akcí</span>
+        <button class="bm d dom-only" onclick="clearHistory()">Vymazat</button>
+      </div>
       <div id="hlist"></div>
     </div>
   </div>
 
+  <!-- REWARDS -->
   <div class="sec" id="sec-rewards">
     <div class="card">
       <div class="ch"><span>Odměny</span><span id="rscore" style="font-size:10px;color:var(--accent)"></span></div>
       <div id="rlist"></div>
-      <div class="af">
+      <div class="af dom-only">
         <input class="inp" id="r-name" placeholder="Název odměny..." style="flex:1;min-width:110px" />
         <input class="inp ipts" id="r-cost" type="number" placeholder="Body" />
         <button class="badd" onclick="addReward()">+ Přidat</button>
@@ -118,18 +152,33 @@
     <div class="card">
       <div class="ch">Tresty</div>
       <div id="plist"></div>
-      <div class="af">
+      <div class="af dom-only">
         <input class="inp" id="p-name" placeholder="Název trestu..." style="flex:1;min-width:110px" />
         <input class="inp ipts" id="p-cost" type="number" placeholder="Body" />
         <button class="badd" onclick="addPunishment()">+ Přidat</button>
       </div>
     </div>
-    <div class="dz">
+    <div class="dz dom-only">
       <div><div style="font-size:12px;color:var(--text)">Resetovat body</div><div class="dlbl">Zachová historii, vynuluje skóre</div></div>
       <button class="bdng" onclick="resetScore()">Reset</button>
     </div>
   </div>
 
+  <!-- ACTIVE PUNISHMENTS -->
+  <div class="sec" id="sec-active">
+    <div class="card">
+      <div class="ch">
+        <span>Aktivní tresty</span>
+        <button class="badd dom-only" onclick="openAddActivePunishment()" style="font-size:11px;padding:5px 10px">+ Přidat</button>
+      </div>
+      <div id="active-punishments-list"></div>
+    </div>
+    <div style="padding:8px 0;font-size:10px;color:var(--dimmer);text-align:center">
+      Tresty expirují automaticky po uplynutí data
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
   <div class="sec" id="sec-settings">
     <div class="stcard">
       <div class="str">
@@ -145,20 +194,30 @@
         <button class="bst" onclick="syncNow()">↻ Sync</button>
       </div>
       <div class="str">
-        <div><div class="strl">Změnit heslo</div><div class="strs">Přešifruje data novým heslem</div></div>
+        <div><div class="strl">Změnit Dom heslo</div><div class="strs">Přešifruje data novým heslem</div></div>
         <button class="bst" onclick="changePassword()">Změnit</button>
       </div>
       <div class="str">
-        <div><div class="strl">Odpojit zařízení</div><div class="strs">Smaže token a heslo lokálně</div></div>
-        <button class="bdng" onclick="logout()">Odpojit</button>
+        <div><div class="strl">Změnit Sub heslo</div><div class="strs">Heslo pro přístup Sub</div></div>
+        <button class="bst" onclick="changeSubPassword()">Změnit</button>
+      </div>
+      <div class="str">
+        <div><div class="strl">Přepnout na Sub</div><div class="strs">Dom → Sub režim</div></div>
+        <button class="bst" onclick="switchToSub()">Přepnout</button>
+      </div>
+      <div class="str">
+        <div><div class="strl">Odhlásit</div><div class="strs">Smaže přihlašovací údaje lokálně</div></div>
+        <button class="bdng" onclick="logout()">Odhlásit</button>
       </div>
     </div>
     <div style="padding:10px 0;font-size:10px;color:var(--dimmer);text-align:center;line-height:2">
       Data šifrována AES-256-GCM<br>GitHub vidí pouze zašifrovaný blob<br>✦ griimiik/ds-todo
     </div>
   </div>
-</div>
 
+</div><!-- /app -->
+
+<!-- MODAL — body -->
 <div class="mo" id="modal" onclick="cmo(event)">
   <div class="modal">
     <div class="mt" id="modal-t">Přidat body</div>
@@ -171,8 +230,37 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- MODAL — PIN pro Dom -->
+<div class="mo" id="pin-modal" onclick="if(event.target.id==='pin-modal')document.getElementById('pin-modal').classList.remove('open')">
+  <div class="modal">
+    <div class="mt">🔓 Dom přístup</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Zadej Dom heslo pro plný přístup</div>
+    <input class="inp" id="pin-input" type="password" placeholder="Dom heslo..." />
+    <div class="mr">
+      <button class="bc pos" onclick="submitPin()">Odemknout</button>
+      <button class="bcan" onclick="document.getElementById('pin-modal').classList.remove('open')">Zrušit</button>
+    </div>
+  </div>
+</div>
 
+<!-- MODAL — přidat aktivní trest -->
+<div class="mo" id="ap-modal" onclick="if(event.target.id==='ap-modal')document.getElementById('ap-modal').classList.remove('open')">
+  <div class="modal">
+    <div class="mt">⚡ Nový aktivní trest</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Nastavit trest s časovým odpočtem</div>
+    <input class="inp" id="ap-name" placeholder="Název trestu..." />
+    <div style="margin-top:8px">
+      <div class="slb" style="margin-bottom:5px">Platí do:</div>
+      <input class="inp" id="ap-until" type="datetime-local" />
+    </div>
+    <div class="mr">
+      <button class="bc neg" onclick="addActivePunishment()">Uložit trest</button>
+      <button class="bcan" onclick="document.getElementById('ap-modal').classList.remove('open')">Zrušit</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 <script src="app.js"></script>
 </body>
 </html>

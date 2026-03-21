@@ -40,8 +40,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .lt{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dimmer)}
 
-/* SETUP */
-#ss{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px}
+/* SETUP / LOGIN */
+#ss,#login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px}
 .sl{font-family:var(--ff);font-size:50px;font-weight:300;color:var(--accent);margin-bottom:6px;letter-spacing:.1em}
 .ss{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin-bottom:36px}
 .sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:26px 22px;width:100%;max-width:400px}
@@ -63,11 +63,17 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 [data-theme="light"] .hdr{background:rgba(245,242,236,.93)}
 [data-theme="bdsm"] .hdr{background:rgba(13,5,8,.93)}
 .ht{font-family:var(--ff);font-size:20px;font-weight:300;letter-spacing:.15em;color:var(--accent)}
-.hr2{display:flex;align-items:center;gap:9px}
+.hr2{display:flex;align-items:center;gap:8px}
 .ss2{font-size:10px;color:var(--dimmer);letter-spacing:.05em}
 .ss2.syncing{color:var(--accent)} .ss2.synced{color:var(--green)} .ss2.error{color:var(--red)}
 .bsm{background:none;border:1px solid var(--border);border-radius:var(--rs);color:var(--dim);font-size:14px;padding:5px 8px;cursor:pointer;transition:all .2s;font-family:inherit}
 .bsm:hover{border-color:var(--border-h);color:var(--text)}
+
+/* ROLE BADGE */
+.role-badge{font-size:9px;padding:3px 8px;border-radius:20px;letter-spacing:.15em;font-weight:400}
+.role-badge.dom{background:rgba(201,169,110,.15);color:var(--accent);border:1px solid rgba(201,169,110,.3)}
+.role-badge.sub{background:rgba(155,142,196,.15);color:var(--purple);border:1px solid rgba(155,142,196,.3)}
+.role-switch-btn{font-size:11px;padding:5px 10px;border-color:rgba(155,142,196,.3);color:var(--purple)}
 
 /* SCORE */
 .scard{margin:14px 16px 0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:relative;overflow:hidden}
@@ -94,7 +100,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 /* TABS */
 .tabs{display:flex;margin:13px 16px 0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:3px}
-.tab{flex:1;padding:8px 3px;text-align:center;cursor:pointer;border-radius:6px;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);transition:all .2s;border:none;background:none;font-family:inherit}
+.tab{flex:1;padding:8px 3px;text-align:center;cursor:pointer;border-radius:6px;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--dim);transition:all .2s;border:none;background:none;font-family:inherit}
 .tab.active{background:var(--bg4);color:var(--accent);border:1px solid var(--border-h)}
 
 /* SECTIONS */
@@ -154,6 +160,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .rpb:hover{border-color:var(--accent);color:var(--accent)}
 .rpb.na{border-color:rgba(201,110,110,.35);color:var(--red);cursor:not-allowed;opacity:.65}
 
+/* ACTIVE PUNISHMENTS */
+.ap-item{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid var(--border);gap:12px}
+.ap-item:last-child{border-bottom:none}
+.ap-info{flex:1}
+.ap-name{font-size:13px;color:var(--text)}
+.ap-until{font-size:10px;color:var(--dim);margin-top:3px}
+.ap-countdown{font-family:var(--ff);font-size:22px;font-weight:300;color:var(--red);white-space:nowrap}
+.ap-countdown.urgent{color:var(--red);animation:pulse .8s ease-in-out infinite}
+
 /* DANGER */
 .dz{margin-bottom:10px;padding:13px 16px;border:1px solid rgba(201,110,110,.15);border-radius:var(--r);background:rgba(201,110,110,.03);display:flex;align-items:center;justify-content:space-between}
 .dlbl{font-size:11px;color:var(--dim);margin-top:2px}
@@ -195,6 +210,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* EMPTY */
 .empty{text-align:center;padding:34px 20px;color:var(--dimmer);font-size:12px;line-height:1.8}
 .ei{font-size:26px;margin-bottom:10px;opacity:.5}
+
+/* DOM-ONLY hidden in sub mode (handled by JS) */
+.dom-only{}
 
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--border-h);border-radius:2px}
