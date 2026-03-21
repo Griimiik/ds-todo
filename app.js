@@ -3,9 +3,21 @@ const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
 let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],activePunishments:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
-let role=''; // 'dom' nebo 'sub'
+let role='';
 let countdownInterval=null;
-let isSubUrl=window.location.hash==='#sub'; // detekce Sub URL
+
+// Detekce Sub URL — parsuj hash: #sub&token=ghp_xxx&enc=XXXXX
+function parseSubHash(){
+  const hash=window.location.hash.slice(1); // odstraň #
+  if(!hash.startsWith('sub')) return null;
+  const params={};
+  hash.split('&').forEach(part=>{
+    const [k,v]=part.split('=');
+    if(k&&v) params[k]=decodeURIComponent(v);
+  });
+  return params; // { token, enc } nebo null
+}
+const subHashParams=parseSubHash();
 
 // ── THEME ──────────────────────────────────────────────────────────────
 function setTheme(t){
@@ -125,32 +137,40 @@ async function setupApp(){
   applyRole();
 }
 
-// ── SUB LOGIN (bez tokenu) ─────────────────────────────────────────────
+// ── SUB LOGIN ──────────────────────────────────────────────────────────
 async function subLogin(){
   const pw=document.getElementById('sub-login-pw').value;
   if(!pw){showToast('✗ Zadej Sub heslo');return;}
 
-  // Sub heslo je uloženo lokálně pokud bylo zařízení již použito
-  // nebo ho Sub zadá a appka ověří dešifrováním
-  encPw=pw; // Sub používá Sub heslo pro dešifrování — viz níže
-  // Pozn: data jsou šifrována Dom heslem, ale Sub heslo
-  // odemyká "sub_enc_pw" uložený v localStorage při setupu
-
   const storedSubPw=localStorage.getItem('sub_pw');
   const storedEncPw=localStorage.getItem('enc_pw');
+  const storedToken=localStorage.getItem('gh_token');
 
-  if(storedSubPw&&storedEncPw){
-    // Zařízení již bylo nastaveno (Dom sem přihlásil)
-    if(pw!==storedSubPw){showToast('✗ Nesprávné Sub heslo');return;}
-    encPw=storedEncPw; // použij Dom enc heslo pro dešifrování
-  } else {
-    // Čerstvé zařízení — Sub zadá Sub heslo, ale data jsou šifrována Dom heslem
-    // Potřebujeme "bootstrap" — Dom musí nejdřív přihlásit Sub zařízení
-    showToast('✗ Zařízení není nastaveno — požádej Dom o první přihlášení');
+  if(!storedEncPw||!storedToken){
+    showToast('✗ Chybí přístupové údaje v URL — požádej Dom o nový odkaz');
     return;
   }
 
+  if(!storedSubPw){
+    // První přihlášení — Sub heslo ještě neznáme, zkusíme dešifrovat data
+    // jako ověření že heslo je správné
+    try{
+      const raw=await ghGetRaw();
+      await decrypt(raw.trim(), storedEncPw); // ověř že enc heslo funguje
+      // Sub heslo uložíme pro příští ověření
+      localStorage.setItem('sub_pw', pw);
+    }catch(e){
+      showToast('✗ Nepodařilo se ověřit — zkontroluj URL odkaz');
+      return;
+    }
+  } else {
+    if(pw!==storedSubPw){showToast('✗ Nesprávné Sub heslo');return;}
+  }
+
+  ghToken=storedToken;
+  encPw=storedEncPw;
   role='sub';
+
   document.getElementById('sub-login').style.display='none';
   document.getElementById('ls').style.display='flex';
   document.getElementById('lt').textContent='Načítám data...';
@@ -194,25 +214,26 @@ async function domLogin(){
 async function init(){
   const th=localStorage.getItem('theme')||'dark';
   setTheme(th);
-
-  const hasSetup=localStorage.getItem('gh_token')&&localStorage.getItem('enc_pw');
-
   document.getElementById('ls').style.display='none';
 
-  if(isSubUrl){
-    // Sub URL (#sub) — zobraz Sub login
-    if(!hasSetup){
-      // Sub zařízení — Dom musí nejdřív provést bootstrap
-      showScreen('sub-bootstrap');
-    } else {
-      showScreen('sub-login');
+  if(subHashParams){
+    // ── SUB přístup přes URL s tokenem ──
+    // Token a enc heslo jsou zakódované v URL hashu
+    // Sub zadá pouze Sub heslo
+    if(subHashParams.token && subHashParams.enc){
+      // Uložíme do localStorage pro příští návštěvy
+      localStorage.setItem('gh_token', subHashParams.token);
+      localStorage.setItem('enc_pw', subHashParams.enc);
     }
+    // Zobraz Sub login — jen Sub heslo
+    showScreen('sub-login');
   } else {
-    // Normální URL — Dom
+    // ── DOM přístup — normální URL ──
+    const hasSetup=localStorage.getItem('gh_token')&&localStorage.getItem('enc_pw');
     if(!hasSetup){
-      showScreen('ss'); // Setup
+      showScreen('ss'); // první spuštění
     } else {
-      showScreen('dom-login'); // Dom login
+      showScreen('dom-login'); // opakované přihlášení
     }
   }
 }
@@ -405,9 +426,15 @@ async function changePassword(){
 }
 
 function copySubUrl(){
-  const url=window.location.origin+window.location.pathname+'#sub';
-  navigator.clipboard.writeText(url).then(()=>showToast('✓ Sub URL zkopírována: '+url))
-    .catch(()=>showToast('Sub URL: '+url));
+  const token=localStorage.getItem('gh_token')||'';
+  const enc=localStorage.getItem('enc_pw')||'';
+  const base=window.location.origin+window.location.pathname;
+  const url=`${base}#sub&token=${encodeURIComponent(token)}&enc=${encodeURIComponent(enc)}`;
+  navigator.clipboard.writeText(url)
+    .then(()=>showToast('✓ Sub URL zkopírována — pošli ji Sub'))
+    .catch(()=>{
+      prompt('Zkopíruj tuto Sub URL a pošli Sub:',url);
+    });
 }
 
 async function changeSubPassword(){
