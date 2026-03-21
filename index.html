@@ -1,1 +1,1384 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0f">
+<title>✦ Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #18181f;
+  --bg4: #1e1e28;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.15);
+  --text: #e8e4dc;
+  --text-dim: #7a7580;
+  --text-dimmer: #3d3a45;
+  --gold: #c9a96e;
+  --gold-dim: rgba(201,169,110,0.15);
+  --gold-glow: rgba(201,169,110,0.06);
+  --red: #c96e6e;
+  --red-dim: rgba(201,110,110,0.15);
+  --green: #6ec98a;
+  --green-dim: rgba(110,201,138,0.15);
+  --purple: #9b8ec4;
+  --purple-dim: rgba(155,142,196,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
 
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+/* SETUP SCREEN */
+#setup-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+}
+
+.setup-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  font-weight: 300;
+  color: var(--gold);
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+
+.setup-sub {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 40px;
+}
+
+.setup-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.setup-card-title {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+
+.setup-field {
+  margin-bottom: 14px;
+}
+
+.setup-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.setup-hint {
+  font-size: 10px;
+  color: var(--text-dimmer);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.input-field {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.input-field:focus { border-color: var(--gold); }
+.input-field::placeholder { color: var(--text-dimmer); }
+
+.btn-setup {
+  width: 100%;
+  margin-top: 20px;
+  padding: 13px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,169,110,0.3);
+  border-radius: var(--radius-sm);
+  color: var(--gold);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.btn-setup:active { transform: scale(0.98); }
+
+.setup-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* HEADER */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sync-status {
+  font-size: 10px;
+  color: var(--text-dimmer);
+  letter-spacing: 0.05em;
+}
+
+.sync-status.syncing { color: var(--gold); }
+.sync-status.synced { color: var(--green); }
+.sync-status.error { color: var(--red); }
+
+.btn-icon-sm {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-size: 14px;
+  padding: 5px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btn-icon-sm:hover { border-color: var(--border-hover); color: var(--text); }
+
+/* SCORE CARD */
+.score-card {
+  margin: 16px 16px 0;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.score-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.score-label {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.score-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 68px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+}
+
+.score-value.negative { color: var(--red); }
+
+.score-sub {
+  margin-top: 10px;
+  display: flex;
+  gap: 20px;
+}
+
+.score-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot-green { background: var(--green); }
+.dot-red { background: var(--red); }
+
+/* QUICK ACTIONS */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 16px 0;
+}
+
+.btn-action {
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.btn-action:active { transform: scale(0.97); }
+.btn-action.add { border-color: rgba(110,201,138,0.2); background: rgba(110,201,138,0.04); }
+.btn-action.add:hover { background: var(--green-dim); }
+.btn-action.sub { border-color: rgba(201,110,110,0.2); background: rgba(201,110,110,0.04); }
+.btn-action.sub:hover { background: var(--red-dim); }
+
+.btn-icon { font-size: 18px; line-height: 1; }
+.btn-text-main { font-weight: 400; }
+.btn-text-sub { color: var(--text-dim); font-size: 10px; margin-top: 2px; }
+
+/* TABS */
+.tabs {
+  display: flex;
+  margin: 16px 16px 0;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+.tab.active {
+  background: var(--bg4);
+  color: var(--gold);
+  border: 1px solid var(--border-hover);
+}
+
+/* SECTIONS */
+.section { display: none; padding: 14px 16px 90px; }
+.section.active { display: block; }
+
+/* CARDS */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 12px 16px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* TODO */
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.todo-item:last-child { border-bottom: none; }
+.todo-item:active { background: var(--bg3); }
+.todo-item.done { opacity: 0.4; }
+
+.todo-check {
+  width: 18px; height: 18px;
+  border: 1px solid var(--border-hover);
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+
+.todo-item.done .todo-check {
+  background: var(--green-dim);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.todo-text { flex: 1; }
+.todo-name { font-size: 13px; line-height: 1.4; }
+.todo-item.done .todo-name { text-decoration: line-through; }
+.todo-pts { font-size: 10px; color: var(--gold); margin-top: 3px; }
+
+.btn-mini {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-dim);
+  font-size: 11px;
+  padding: 3px 7px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-mini.danger:hover { border-color: var(--red); color: var(--red); }
+
+/* ADD FORM */
+.add-form {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.input-pts {
+  width: 70px;
+  flex: none;
+  text-align: center;
+}
+
+.btn-add {
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,169,110,0.3);
+  border-radius: var(--radius-sm);
+  color: var(--gold);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-add:active { transform: scale(0.97); }
+
+/* LEGEND */
+.legend-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+
+.legend-item:last-child { border-bottom: none; }
+
+.legend-badge {
+  font-size: 9px;
+  padding: 3px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.badge-reward { background: var(--green-dim); color: var(--green); border: 1px solid rgba(110,201,138,0.2); }
+.badge-punishment { background: var(--red-dim); color: var(--red); border: 1px solid rgba(201,110,110,0.2); }
+
+.legend-name { flex: 1; font-size: 13px; }
+.legend-pts { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; }
+.pts-pos { color: var(--green); }
+.pts-neg { color: var(--red); }
+
+/* HISTORY */
+.history-item {
+  display: flex;
+  align-items: center;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.history-item:last-child { border-bottom: none; }
+.history-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.history-info { flex: 1; }
+.history-name { font-size: 12px; }
+.history-time { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+.history-pts { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; }
+
+/* REWARDS */
+.rp-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+
+.rp-item:last-child { border-bottom: none; }
+.rp-info { flex: 1; }
+.rp-name { font-size: 13px; }
+.rp-cost { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+.rp-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.rp-btn:hover { border-color: var(--gold); color: var(--gold); }
+.rp-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+/* DANGER ZONE */
+.danger-zone {
+  margin-bottom: 10px;
+  padding: 14px 16px;
+  border: 1px solid rgba(201,110,110,0.15);
+  border-radius: var(--radius);
+  background: rgba(201,110,110,0.03);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.danger-label { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+.btn-danger {
+  background: none;
+  border: 1px solid rgba(201,110,110,0.3);
+  border-radius: var(--radius-sm);
+  color: var(--red);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* SETTINGS CARD */
+.settings-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.settings-row:last-child { border-bottom: none; }
+.settings-row-label { font-size: 12px; }
+.settings-row-sub { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+
+.btn-settings {
+  background: var(--purple-dim);
+  border: 1px solid rgba(155,142,196,0.25);
+  border-radius: var(--radius-sm);
+  color: var(--purple);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  align-items: flex-end;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 24px 20px 44px;
+  width: 100%;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 300;
+  margin-bottom: 16px;
+  color: var(--gold);
+}
+
+.modal-row { display: flex; gap: 10px; margin-top: 12px; }
+
+.btn-confirm {
+  flex: 1;
+  padding: 13px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-confirm.positive { background: var(--green-dim); color: var(--green); border: 1px solid rgba(110,201,138,0.3); }
+.btn-confirm.negative { background: var(--red-dim); color: var(--red); border: 1px solid rgba(201,110,110,0.3); }
+
+.btn-cancel {
+  padding: 13px 20px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg4);
+  border: 1px solid var(--border-hover);
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 500;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  padding: 36px 20px;
+  color: var(--text-dimmer);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.5; }
+
+/* LOADING */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  gap: 16px;
+}
+
+.loading-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 42px;
+  color: var(--gold);
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.loading-text {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-dimmer);
+}
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loading-logo">✦</div>
+  <div class="loading-text">Načítám...</div>
+</div>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" style="display:none">
+  <div class="setup-logo">✦</div>
+  <div class="setup-sub">D/s Tracker — Nastavení</div>
+
+  <div class="setup-card">
+    <div class="setup-card-title">Připojení k GitHub</div>
+
+    <div class="setup-field">
+      <div class="setup-label">GitHub Token</div>
+      <input class="input-field" id="setup-token" type="password" placeholder="ghp_xxxxxxxxxxxx" />
+      <div class="setup-hint">Settings → Developer settings → Personal access tokens → Classic → repo ✓</div>
+    </div>
+
+    <div class="setup-divider"></div>
+
+    <div class="setup-field">
+      <div class="setup-label">Šifrovací heslo</div>
+      <input class="input-field" id="setup-password" type="password" placeholder="Silné sdílené heslo..." />
+      <div class="setup-hint">Stejné heslo musí mít Dom i Sub. Bez něj nelze data číst.</div>
+    </div>
+
+    <button class="btn-setup" onclick="setupApp()">✦ Spustit Tracker</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+
+  <div class="header">
+    <div class="header-title">✦ Tracker</div>
+    <div class="header-right">
+      <span class="sync-status" id="sync-status">—</span>
+      <button class="btn-icon-sm" onclick="syncNow()" title="Synchronizovat">↻</button>
+    </div>
+  </div>
+
+  <div class="score-card">
+    <div class="score-label">Celkové body</div>
+    <div class="score-value" id="total-score">0</div>
+    <div class="score-sub">
+      <div class="score-stat">
+        <div class="dot dot-green"></div>
+        <span>+<span id="total-plus">0</span> získáno</span>
+      </div>
+      <div class="score-stat">
+        <div class="dot dot-red"></div>
+        <span>−<span id="total-minus">0</span> odečteno</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <button class="btn-action add" onclick="openModal('add')">
+      <div class="btn-icon">＋</div>
+      <div>
+        <div class="btn-text-main">Přidat body</div>
+        <div class="btn-text-sub">Splněný úkol</div>
+      </div>
+    </button>
+    <button class="btn-action sub" onclick="openModal('sub')">
+      <div class="btn-icon">－</div>
+      <div>
+        <div class="btn-text-main">Odebrat body</div>
+        <div class="btn-text-sub">Trest</div>
+      </div>
+    </button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('todo')">Úkoly</button>
+    <button class="tab" onclick="switchTab('legend')">Legenda</button>
+    <button class="tab" onclick="switchTab('history')">Historie</button>
+    <button class="tab" onclick="switchTab('rewards')">Odměny</button>
+    <button class="tab" onclick="switchTab('settings')">⚙</button>
+  </div>
+
+  <!-- TODO -->
+  <div class="section active" id="sec-todo">
+    <div class="card">
+      <div class="card-header">
+        <span>Aktivní úkoly</span>
+        <span id="todo-count" style="color:var(--gold)"></span>
+      </div>
+      <div id="todo-list"></div>
+      <div class="add-form">
+        <input class="input-field" id="todo-input" placeholder="Název úkolu..." style="flex:1;min-width:120px" />
+        <input class="input-field input-pts" id="todo-pts" type="number" placeholder="Body" />
+        <button class="btn-add" onclick="addTodo()">+ Přidat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="section" id="sec-legend">
+    <div class="card">
+      <div class="card-header">Akce a jejich hodnota</div>
+      <div id="legend-list"></div>
+      <div class="add-form">
+        <input class="input-field" id="legend-input" placeholder="Název akce..." style="flex:1;min-width:100px" />
+        <input class="input-field input-pts" id="legend-pts" type="number" placeholder="Body" />
+        <select class="input-field" id="legend-type" style="flex:none;width:100px;font-family:inherit">
+          <option value="reward">+ odměna</option>
+          <option value="punishment">− trest</option>
+        </select>
+        <button class="btn-add" onclick="addLegend()">+ Přidat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="section" id="sec-history">
+    <div class="card">
+      <div class="card-header">
+        <span>Log akcí</span>
+        <button class="btn-mini danger" onclick="clearHistory()">Vymazat</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <!-- REWARDS -->
+  <div class="section" id="sec-rewards">
+    <div class="card">
+      <div class="card-header">Odměny</div>
+      <div id="rewards-list"></div>
+      <div class="add-form">
+        <input class="input-field" id="reward-input" placeholder="Název odměny..." style="flex:1;min-width:120px" />
+        <input class="input-field input-pts" id="reward-cost" type="number" placeholder="Body" />
+        <button class="btn-add" onclick="addReward()">+ Přidat</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Tresty</div>
+      <div id="punishments-list"></div>
+      <div class="add-form">
+        <input class="input-field" id="punishment-input" placeholder="Název trestu..." style="flex:1;min-width:120px" />
+        <input class="input-field input-pts" id="punishment-cost" type="number" placeholder="Body" />
+        <button class="btn-add" onclick="addPunishment()">+ Přidat</button>
+      </div>
+    </div>
+    <div class="danger-zone">
+      <div>
+        <div style="font-size:12px">Resetovat body</div>
+        <div class="danger-label">Zachová historii, vynuluje skóre</div>
+      </div>
+      <button class="btn-danger" onclick="resetScore()">Reset</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="section" id="sec-settings">
+    <div class="settings-card">
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Synchronizace</div>
+          <div class="settings-row-sub">Načíst nejnovější data z GitHubu</div>
+        </div>
+        <button class="btn-settings" onclick="syncNow()">↻ Sync</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Změnit heslo</div>
+          <div class="settings-row-sub">Přešifruje data novým heslem</div>
+        </div>
+        <button class="btn-settings" onclick="changePassword()">Změnit</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Odpojit zařízení</div>
+          <div class="settings-row-sub">Smaže token a heslo z tohoto zařízení</div>
+        </div>
+        <button class="btn-danger" onclick="logout()">Odpojit</button>
+      </div>
+    </div>
+    <div style="padding:10px 0;font-size:10px;color:var(--text-dimmer);text-align:center;line-height:1.8">
+      Data jsou šifrována AES-256-GCM<br>
+      GitHub vidí pouze zašifrovaný blob<br>
+      ✦ griimiik/ds-todo
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Přidat body</div>
+    <input class="input-field" id="modal-pts" type="number" placeholder="Počet bodů..." />
+    <input class="input-field" id="modal-reason" placeholder="Důvod (volitelné)..." style="margin-top:8px" />
+    <div class="modal-row">
+      <button class="btn-confirm positive" id="modal-confirm" onclick="confirmModal()">Potvrdit</button>
+      <button class="btn-cancel" onclick="closeModal()">Zrušit</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────────────
+const REPO_OWNER = 'Griimiik';
+const REPO_NAME  = 'ds-todo';
+const DATA_FILE  = 'data.json';
+
+// ── STATE ──────────────────────────────────────────────────────────────
+let state = {
+  score: 0, totalPlus: 0, totalMinus: 0,
+  todos: [], legend: [], history: [], rewards: [], punishments: []
+};
+
+let githubToken = '';
+let encPassword = '';
+let modalMode = 'add';
+let fileSha = null; // GitHub file SHA for updates
+
+// ── CRYPTO (AES-256-GCM) ───────────────────────────────────────────────
+async function getKey(password) {
+  const enc = new TextEncoder();
+  const raw = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: enc.encode('ds-tracker-salt-v1'), iterations: 100000, hash: 'SHA-256' },
+    raw,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function encrypt(data, password) {
+  const key = await getKey(password);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(data)));
+  const combined = new Uint8Array(iv.length + ciphertext.byteLength);
+  combined.set(iv);
+  combined.set(new Uint8Array(ciphertext), iv.length);
+  return btoa(String.fromCharCode(...combined));
+}
+
+async function decrypt(b64, password) {
+  const combined = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const iv = combined.slice(0, 12);
+  const ciphertext = combined.slice(12);
+  const key = await getKey(password);
+  const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+  return JSON.parse(new TextDecoder().decode(dec));
+}
+
+// ── GITHUB API ─────────────────────────────────────────────────────────
+async function githubGet() {
+  const r = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`, {
+    headers: { Authorization: `token ${githubToken}`, Accept: 'application/vnd.github.v3+json' }
+  });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error('GitHub GET selhal');
+  return r.json();
+}
+
+async function githubPut(encryptedContent) {
+  const body = {
+    message: 'update tracker data',
+    content: btoa(unescape(encodeURIComponent(encryptedContent))),
+  };
+  if (fileSha) body.sha = fileSha;
+
+  const r = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `token ${githubToken}`,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error('GitHub PUT selhal');
+  const data = await r.json();
+  fileSha = data.content.sha;
+}
+
+// ── SYNC ───────────────────────────────────────────────────────────────
+function setSyncStatus(status, text) {
+  const el = document.getElementById('sync-status');
+  el.textContent = text;
+  el.className = 'sync-status ' + status;
+}
+
+async function syncNow() {
+  setSyncStatus('syncing', '↻ sync...');
+  try {
+    const file = await githubGet();
+    if (file) {
+      fileSha = file.sha;
+      const raw = decodeURIComponent(escape(atob(file.content.replace(/\n/g, ''))));
+      state = await decrypt(raw, encPassword);
+    }
+    renderAll();
+    setSyncStatus('synced', '✓ synced');
+    showToast('✓ Data synchronizována');
+  } catch(e) {
+    setSyncStatus('error', '✗ chyba');
+    showToast('✗ Sync selhal — ' + e.message);
+  }
+}
+
+async function saveToGitHub() {
+  setSyncStatus('syncing', '↑ ukládám...');
+  try {
+    const encrypted = await encrypt(state, encPassword);
+    await githubPut(encrypted);
+    setSyncStatus('synced', '✓ uloženo');
+  } catch(e) {
+    setSyncStatus('error', '✗ chyba');
+    showToast('✗ Uložení selhalo — ' + e.message);
+  }
+}
+
+// ── SETUP ──────────────────────────────────────────────────────────────
+async function setupApp() {
+  const token = document.getElementById('setup-token').value.trim();
+  const password = document.getElementById('setup-password').value;
+  if (!token || !password) { showToast('✗ Vyplň token i heslo'); return; }
+  if (password.length < 6) { showToast('✗ Heslo musí mít alespoň 6 znaků'); return; }
+
+  githubToken = token;
+  encPassword = password;
+
+  localStorage.setItem('gh_token', token);
+  localStorage.setItem('enc_pw', password);
+
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('loading-screen').style.display = 'flex';
+  document.querySelector('.loading-text').textContent = 'Připojuji...';
+
+  await syncNow();
+
+  // If no data yet, save defaults
+  if (!fileSha) {
+    setDefaults();
+    await saveToGitHub();
+  }
+
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+}
+
+function setDefaults() {
+  state.legend = [
+    { id: uid(), name: 'Splněný denní úkol', pts: 10, type: 'reward' },
+    { id: uid(), name: 'Splněný týdenní úkol', pts: 25, type: 'reward' },
+    { id: uid(), name: 'Výjimečné chování', pts: 50, type: 'reward' },
+    { id: uid(), name: 'Nesplněný úkol', pts: -15, type: 'punishment' },
+    { id: uid(), name: 'Porušení pravidla', pts: -30, type: 'punishment' },
+  ];
+  state.rewards = [
+    { id: uid(), name: '🎬 Výběr večerního filmu', cost: 50 },
+    { id: uid(), name: '🍫 Oblíbená sladkost', cost: 30 },
+    { id: uid(), name: '💆 Masáž', cost: 80 },
+    { id: uid(), name: '🌟 Volný večer', cost: 100 },
+  ];
+  state.punishments = [
+    { id: uid(), name: '📝 Psaní věty 20×', cost: 20 },
+    { id: uid(), name: '📵 Bez telefonu 2 hodiny', cost: 15 },
+    { id: uid(), name: '🛌 Brzy spát bez zábavy', cost: 25 },
+  ];
+}
+
+function logout() {
+  if (!confirm('Odpojit toto zařízení? Data na GitHubu zůstanou.')) return;
+  localStorage.removeItem('gh_token');
+  localStorage.removeItem('enc_pw');
+  location.reload();
+}
+
+async function changePassword() {
+  const newPw = prompt('Zadej nové heslo (min. 6 znaků):');
+  if (!newPw || newPw.length < 6) { showToast('✗ Příliš krátké heslo'); return; }
+  encPassword = newPw;
+  localStorage.setItem('enc_pw', newPw);
+  await saveToGitHub();
+  showToast('✓ Heslo změněno a data přešifrována');
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────
+async function init() {
+  const token = localStorage.getItem('gh_token');
+  const pw    = localStorage.getItem('enc_pw');
+
+  if (token && pw) {
+    githubToken = token;
+    encPassword = pw;
+    document.querySelector('.loading-text').textContent = 'Synchronizuji...';
+    await syncNow();
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  } else {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('setup-screen').style.display = 'flex';
+  }
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────
+function renderAll() {
+  renderScore(); renderTodo(); renderLegend(); renderHistory(); renderRewards();
+}
+
+function renderScore() {
+  const el = document.getElementById('total-score');
+  el.textContent = state.score;
+  el.className = 'score-value' + (state.score < 0 ? ' negative' : '');
+  document.getElementById('total-plus').textContent = state.totalPlus;
+  document.getElementById('total-minus').textContent = state.totalMinus;
+}
+
+function renderTodo() {
+  const list = document.getElementById('todo-list');
+  const count = document.getElementById('todo-count');
+  const done = state.todos.filter(t => t.done).length;
+  count.textContent = `${done}/${state.todos.length}`;
+  if (!state.todos.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Žádné úkoly<br><span style="font-size:11px">Přidej první úkol níže</span></div>';
+    return;
+  }
+  list.innerHTML = state.todos.map(t => `
+    <div class="todo-item ${t.done ? 'done' : ''}" onclick="toggleTodo('${t.id}')">
+      <div class="todo-check">${t.done ? '✓' : ''}</div>
+      <div class="todo-text">
+        <div class="todo-name">${t.name}</div>
+        ${t.pts ? `<div class="todo-pts">+${t.pts} bodů</div>` : ''}
+      </div>
+      <button class="btn-mini danger" onclick="event.stopPropagation();deleteTodo('${t.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function renderLegend() {
+  const list = document.getElementById('legend-list');
+  if (!state.legend.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">📖</div>Prázdná legenda</div>';
+    return;
+  }
+  list.innerHTML = state.legend.map(l => `
+    <div class="legend-item">
+      <span class="legend-badge ${l.type === 'reward' ? 'badge-reward' : 'badge-punishment'}">${l.type === 'reward' ? 'odměna' : 'trest'}</span>
+      <span class="legend-name">${l.name}</span>
+      <span class="legend-pts ${l.pts > 0 ? 'pts-pos' : 'pts-neg'}">${l.pts > 0 ? '+' : ''}${l.pts}</span>
+      <button class="btn-mini danger" onclick="deleteLegend('${l.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (!state.history.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🕐</div>Žádná historie</div>';
+    return;
+  }
+  list.innerHTML = [...state.history].reverse().map(h => `
+    <div class="history-item">
+      <div class="history-dot" style="background:${h.pts > 0 ? 'var(--green)' : 'var(--red)'}"></div>
+      <div class="history-info">
+        <div class="history-name">${h.reason || (h.pts > 0 ? 'Body přidány' : 'Body odebrány')}</div>
+        <div class="history-time">${h.time}</div>
+      </div>
+      <div class="history-pts" style="color:${h.pts > 0 ? 'var(--green)' : 'var(--red)'}">${h.pts > 0 ? '+' : ''}${h.pts}</div>
+    </div>
+  `).join('');
+}
+
+function renderRewards() {
+  const rList = document.getElementById('rewards-list');
+  const pList = document.getElementById('punishments-list');
+  rList.innerHTML = state.rewards.length
+    ? state.rewards.map(r => `
+      <div class="rp-item">
+        <div class="rp-info">
+          <div class="rp-name">${r.name}</div>
+          <div class="rp-cost">${r.cost} bodů</div>
+        </div>
+        <button class="rp-btn" onclick="useReward('${r.id}')">Uplatnit</button>
+        <button class="btn-mini danger" onclick="deleteReward('${r.id}')">✕</button>
+      </div>
+    `).join('')
+    : '<div class="empty" style="padding:20px"><div class="empty-icon">🏆</div>Žádné odměny</div>';
+
+  pList.innerHTML = state.punishments.length
+    ? state.punishments.map(p => `
+      <div class="rp-item">
+        <div class="rp-info">
+          <div class="rp-name">${p.name}</div>
+          <div class="rp-cost">${p.cost} bodů</div>
+        </div>
+        <button class="rp-btn danger" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,0.3);color:var(--red)">Aplikovat</button>
+        <button class="btn-mini danger" onclick="deletePunishment('${p.id}')">✕</button>
+      </div>
+    `).join('')
+    : '<div class="empty" style="padding:20px"><div class="empty-icon">⚡</div>Žádné tresty</div>';
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────────
+function uid() { return Math.random().toString(36).slice(2, 9); }
+
+function tsNow() {
+  const n = new Date();
+  return n.toLocaleDateString('cs-CZ') + ' ' + n.toLocaleTimeString('cs-CZ', {hour:'2-digit',minute:'2-digit'});
+}
+
+async function addPoints(pts, reason) {
+  state.score += pts;
+  if (pts > 0) state.totalPlus += pts;
+  else state.totalMinus += Math.abs(pts);
+  state.history.push({ id: uid(), pts, reason, time: tsNow() });
+  renderAll();
+  await saveToGitHub();
+}
+
+async function toggleTodo(id) {
+  const t = state.todos.find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  renderTodo();
+  if (t.done && t.pts) await addPoints(t.pts, `✓ ${t.name}`);
+  else await saveToGitHub();
+}
+
+async function addTodo() {
+  const name = document.getElementById('todo-input').value.trim();
+  const pts = parseInt(document.getElementById('todo-pts').value) || 0;
+  if (!name) return;
+  state.todos.push({ id: uid(), name, pts, done: false });
+  document.getElementById('todo-input').value = '';
+  document.getElementById('todo-pts').value = '';
+  renderTodo();
+  await saveToGitHub();
+}
+
+async function deleteTodo(id) {
+  state.todos = state.todos.filter(x => x.id !== id);
+  renderTodo();
+  await saveToGitHub();
+}
+
+async function addLegend() {
+  const name = document.getElementById('legend-input').value.trim();
+  const ptsRaw = parseInt(document.getElementById('legend-pts').value) || 0;
+  const type = document.getElementById('legend-type').value;
+  if (!name) return;
+  const pts = type === 'punishment' ? -Math.abs(ptsRaw) : Math.abs(ptsRaw);
+  state.legend.push({ id: uid(), name, pts, type });
+  document.getElementById('legend-input').value = '';
+  document.getElementById('legend-pts').value = '';
+  renderLegend();
+  await saveToGitHub();
+}
+
+async function deleteLegend(id) {
+  state.legend = state.legend.filter(x => x.id !== id);
+  renderLegend();
+  await saveToGitHub();
+}
+
+async function addReward() {
+  const name = document.getElementById('reward-input').value.trim();
+  const cost = parseInt(document.getElementById('reward-cost').value) || 0;
+  if (!name) return;
+  state.rewards.push({ id: uid(), name, cost });
+  document.getElementById('reward-input').value = '';
+  document.getElementById('reward-cost').value = '';
+  renderRewards();
+  await saveToGitHub();
+}
+
+async function deleteReward(id) {
+  state.rewards = state.rewards.filter(x => x.id !== id);
+  renderRewards();
+  await saveToGitHub();
+}
+
+async function useReward(id) {
+  const r = state.rewards.find(x => x.id === id);
+  if (!r) return;
+  if (confirm(`Uplatnit odměnu "${r.name}" za ${r.cost} bodů?`)) await addPoints(-r.cost, `🏆 ${r.name}`);
+}
+
+async function addPunishment() {
+  const name = document.getElementById('punishment-input').value.trim();
+  const cost = parseInt(document.getElementById('punishment-cost').value) || 0;
+  if (!name) return;
+  state.punishments.push({ id: uid(), name, cost });
+  document.getElementById('punishment-input').value = '';
+  document.getElementById('punishment-cost').value = '';
+  renderRewards();
+  await saveToGitHub();
+}
+
+async function deletePunishment(id) {
+  state.punishments = state.punishments.filter(x => x.id !== id);
+  renderRewards();
+  await saveToGitHub();
+}
+
+async function usePunishment(id) {
+  const p = state.punishments.find(x => x.id === id);
+  if (!p) return;
+  if (confirm(`Aplikovat trest "${p.name}" (−${p.cost} bodů)?`)) await addPoints(-p.cost, `⚡ ${p.name}`);
+}
+
+async function clearHistory() {
+  if (!confirm('Opravdu vymazat celou historii?')) return;
+  state.history = [];
+  renderHistory();
+  await saveToGitHub();
+}
+
+async function resetScore() {
+  if (!confirm('Vynulovat skóre? Historie zůstane zachována.')) return;
+  state.score = 0;
+  state.totalPlus = 0;
+  state.totalMinus = 0;
+  renderScore();
+  await saveToGitHub();
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────
+function openModal(mode) {
+  modalMode = mode;
+  document.getElementById('modal-title').textContent = mode === 'add' ? '+ Přidat body' : '− Odebrat body';
+  document.getElementById('modal-confirm').className = 'btn-confirm ' + (mode === 'add' ? 'positive' : 'negative');
+  document.getElementById('modal-pts').value = '';
+  document.getElementById('modal-reason').value = '';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('modal-pts').focus(), 300);
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target.id === 'modal') closeModal(); }
+
+async function confirmModal() {
+  const pts = parseInt(document.getElementById('modal-pts').value);
+  if (!pts || pts <= 0) return;
+  const reason = document.getElementById('modal-reason').value.trim();
+  closeModal();
+  await addPoints(modalMode === 'add' ? pts : -pts, reason);
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────
+function switchTab(name) {
+  const names = ['todo','legend','history','rewards','settings'];
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', names[i] === name));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── ENTER ──────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('modal').classList.contains('open')) confirmModal();
+});
+
+// ── START ──────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
