@@ -25,8 +25,10 @@ function setTheme(t){
   if(t==='dark') document.documentElement.removeAttribute('data-theme');
   else document.documentElement.setAttribute('data-theme',t);
   localStorage.setItem('theme',t);
+  // Odstraň active ze všech tb tlačítek
   document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('#tb-'+t).forEach(b=>b.classList.add('active'));
+  // Přidej active všem tlačítkům daného tématu (header i settings)
+  document.querySelectorAll('.tb-'+t).forEach(b=>b.classList.add('active'));
 }
 
 // ── CRYPTO ─────────────────────────────────────────────────────────────
