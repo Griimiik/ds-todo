@@ -26,8 +26,7 @@ function setTheme(t){
   else document.documentElement.setAttribute('data-theme',t);
   localStorage.setItem('theme',t);
   document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
-  const el=document.getElementById('tb-'+t);
-  if(el) el.classList.add('active');
+  document.querySelectorAll('#tb-'+t).forEach(b=>b.classList.add('active'));
 }
 
 // ── CRYPTO ─────────────────────────────────────────────────────────────
