@@ -1,8 +1,11 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
+const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
+
 let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],activePunishments:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role=''; // 'dom' nebo 'sub'
 let countdownInterval=null;
+let isSubUrl=window.location.hash==='#sub'; // detekce Sub URL
 
 // ── THEME ──────────────────────────────────────────────────────────────
 function setTheme(t){
@@ -57,26 +60,44 @@ async function ghPut(enc){
   sha=(await r.json()).content.sha;
 }
 
+// Sub čte přes raw URL bez tokenu
+async function ghGetRaw(){
+  const r=await fetch(RAW_URL+'?t='+Date.now()); // cache bust
+  if(!r.ok) throw new Error('Nepodařilo se načíst data');
+  return r.text();
+}
+
 // ── SYNC ───────────────────────────────────────────────────────────────
 function setSS(s,t){const e=document.getElementById('sync-s');e.textContent=t;e.className='ss2 '+s}
 
 async function syncNow(){
   setSS('syncing','↻ sync...');
   try{
-    const f=await ghGet();
-    if(f){sha=f.sha;state=await decrypt(decodeURIComponent(escape(atob(f.content.replace(/\n/g,'')))),encPw);}
+    if(role==='sub'){
+      // Sub čte přes raw bez tokenu
+      const raw=await ghGetRaw();
+      state=await decrypt(raw.trim(),encPw);
+    } else {
+      // Dom čte přes API s tokenem
+      const f=await ghGet();
+      if(f){
+        sha=f.sha;
+        state=await decrypt(decodeURIComponent(escape(atob(f.content.replace(/\n/g,'')))),encPw);
+      }
+    }
     if(!state.activePunishments) state.activePunishments=[];
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
 }
 
 async function save(){
+  if(role==='sub'){showToast('🔒 Sub nemůže ukládat data');return;}
   setSS('syncing','↑ ukládám...');
   try{await ghPut(await encrypt(state,encPw));setSS('synced','✓ uloženo');}
   catch(e){setSS('error','✗ chyba');showToast('✗ Uložení selhalo — '+e.message);}
 }
 
-// ── SETUP ──────────────────────────────────────────────────────────────
+// ── SETUP (Dom — první spuštění) ───────────────────────────────────────
 async function setupApp(){
   const t=document.getElementById('s-token').value.trim();
   const p=document.getElementById('s-pw').value;
@@ -94,100 +115,159 @@ async function setupApp(){
   document.getElementById('ss').style.display='none';
   document.getElementById('ls').style.display='flex';
   document.getElementById('lt').textContent='Připojuji...';
+
+  role='dom';
   await syncNow();
   if(!sha){setDefaults();await save();}
+
   document.getElementById('ls').style.display='none';
   document.getElementById('app').style.display='block';
-  role='dom';
   applyRole();
 }
 
-// ── LOGIN (Sub / Dom rozlišení při startu) ─────────────────────────────
-function showLoginScreen(){
+// ── SUB LOGIN (bez tokenu) ─────────────────────────────────────────────
+async function subLogin(){
+  const pw=document.getElementById('sub-login-pw').value;
+  if(!pw){showToast('✗ Zadej Sub heslo');return;}
+
+  // Sub heslo je uloženo lokálně pokud bylo zařízení již použito
+  // nebo ho Sub zadá a appka ověří dešifrováním
+  encPw=pw; // Sub používá Sub heslo pro dešifrování — viz níže
+  // Pozn: data jsou šifrována Dom heslem, ale Sub heslo
+  // odemyká "sub_enc_pw" uložený v localStorage při setupu
+
+  const storedSubPw=localStorage.getItem('sub_pw');
+  const storedEncPw=localStorage.getItem('enc_pw');
+
+  if(storedSubPw&&storedEncPw){
+    // Zařízení již bylo nastaveno (Dom sem přihlásil)
+    if(pw!==storedSubPw){showToast('✗ Nesprávné Sub heslo');return;}
+    encPw=storedEncPw; // použij Dom enc heslo pro dešifrování
+  } else {
+    // Čerstvé zařízení — Sub zadá Sub heslo, ale data jsou šifrována Dom heslem
+    // Potřebujeme "bootstrap" — Dom musí nejdřív přihlásit Sub zařízení
+    showToast('✗ Zařízení není nastaveno — požádej Dom o první přihlášení');
+    return;
+  }
+
+  role='sub';
+  document.getElementById('sub-login').style.display='none';
+  document.getElementById('ls').style.display='flex';
+  document.getElementById('lt').textContent='Načítám data...';
+
+  await syncNow();
+
   document.getElementById('ls').style.display='none';
-  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='block';
+  applyRole();
 }
 
-async function loginSubmit(){
-  const pw=document.getElementById('login-pw').value;
-  if(!pw){showToast('✗ Zadej heslo');return;}
+// ── DOM LOGIN ──────────────────────────────────────────────────────────
+async function domLogin(){
+  const pw=document.getElementById('dom-login-pw').value;
+  if(!pw){showToast('✗ Zadej Dom heslo');return;}
 
-  if(pw===encPw){
-    // Dom login — potřebuje token
-    role='dom';
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('ls').style.display='flex';
-    document.getElementById('lt').textContent='Synchronizuji...';
-    await syncNow();
-    document.getElementById('ls').style.display='none';
-    document.getElementById('app').style.display='block';
-    applyRole();
-  } else if(pw===subPw){
-    // Sub login — read-only přes GitHub raw (bez tokenu)
-    role='sub';
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('ls').style.display='flex';
-    document.getElementById('lt').textContent='Načítám data...';
-    await syncNowSub();
-    document.getElementById('ls').style.display='none';
-    document.getElementById('app').style.display='block';
-    applyRole();
+  const storedEncPw=localStorage.getItem('enc_pw');
+  const storedToken=localStorage.getItem('gh_token');
+
+  if(!storedEncPw||!storedToken){
+    showToast('✗ Dom přihlášení nebylo nalezeno');return;
+  }
+
+  if(pw!==storedEncPw){showToast('✗ Nesprávné Dom heslo');return;}
+
+  ghToken=storedToken;encPw=storedEncPw;
+  role='dom';
+
+  document.getElementById('dom-login').style.display='none';
+  document.getElementById('ls').style.display='flex';
+  document.getElementById('lt').textContent='Synchronizuji...';
+
+  await syncNow();
+
+  document.getElementById('ls').style.display='none';
+  document.getElementById('app').style.display='block';
+  applyRole();
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────
+async function init(){
+  const th=localStorage.getItem('theme')||'dark';
+  setTheme(th);
+
+  const hasSetup=localStorage.getItem('gh_token')&&localStorage.getItem('enc_pw');
+
+  document.getElementById('ls').style.display='none';
+
+  if(isSubUrl){
+    // Sub URL (#sub) — zobraz Sub login
+    if(!hasSetup){
+      // Sub zařízení — Dom musí nejdřív provést bootstrap
+      showScreen('sub-bootstrap');
+    } else {
+      showScreen('sub-login');
+    }
   } else {
-    showToast('✗ Nesprávné heslo');
-    document.getElementById('login-pw').value='';
+    // Normální URL — Dom
+    if(!hasSetup){
+      showScreen('ss'); // Setup
+    } else {
+      showScreen('dom-login'); // Dom login
+    }
   }
 }
 
-// Sub sync — čte přímo z GitHub bez write tokenu
-async function syncNowSub(){
-  setSS('syncing','↻ sync...');
-  try{
-    // raw GitHub přes API s tokenem (token je uložen pro doma, sub ho nemá)
-    // Použijeme uložený token pokud existuje, jinak public raw
-    const t=localStorage.getItem('gh_token');
-    const headers=t?{Authorization:`token ${t}`,Accept:'application/vnd.github.v3+json'}:{Accept:'application/vnd.github.v3+json'};
-    const r=await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`,{headers});
-    if(!r.ok) throw new Error('Nepodařilo se načíst data');
-    const f=await r.json();
-    sha=f.sha;
-    state=await decrypt(decodeURIComponent(escape(atob(f.content.replace(/\n/g,'')))),encPw);
-    if(!state.activePunishments) state.activePunishments=[];
-    renderAll();setSS('synced','✓ synced');
-  }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
+function showScreen(id){
+  ['ss','dom-login','sub-login','sub-bootstrap','ls','app'].forEach(s=>{
+    const el=document.getElementById(s);
+    if(el) el.style.display='none';
+  });
+  const target=document.getElementById(id);
+  if(target) target.style.display='flex';
+}
+
+// Bootstrap Sub zařízení — Dom se přihlásí jednou aby nastavil localStorage
+async function bootstrapSub(){
+  const t=document.getElementById('bs-token').value.trim();
+  const dp=document.getElementById('bs-dom-pw').value;
+  const sp=document.getElementById('bs-sub-pw').value;
+  if(!t||!dp||!sp){showToast('✗ Vyplň všechna pole');return;}
+
+  localStorage.setItem('gh_token',t);
+  localStorage.setItem('enc_pw',dp);
+  localStorage.setItem('sub_pw',sp);
+
+  ghToken=t;encPw=dp;subPw=sp;
+  showScreen('sub-login');
+  showToast('✓ Zařízení nastaveno');
 }
 
 // ── ROLE APLIKACE ──────────────────────────────────────────────────────
 function applyRole(){
   const isDom=role==='dom';
 
-  // Header role badge
   document.getElementById('role-badge').textContent=isDom?'DOM':'SUB';
   document.getElementById('role-badge').className='role-badge '+(isDom?'dom':'sub');
 
-  // Quick action tlačítka — sub vidí ale zablokovaná
+  // Quick actions — sub vidí ale jsou zablokované
   document.querySelectorAll('.qa-locked').forEach(el=>{
     el.style.opacity=isDom?'1':'0.45';
     el.style.pointerEvents=isDom?'auto':'none';
-    el.title=isDom?'':el.getAttribute('data-locked-msg')||'Pouze pro Dom';
   });
 
-  // Záložka nastavení — sub nevidí
-  const settingsTab=document.getElementById('tab-settings');
-  settingsTab.style.display=isDom?'':'none';
-
-  // Add form tlačítka v legendě — sub nevidí
+  // Dom-only prvky
   document.querySelectorAll('.dom-only').forEach(el=>{
     el.style.display=isDom?'':'none';
   });
 
-  // Tlačítko přepnutí role
-  document.getElementById('role-switch-btn').style.display=isDom?'none':'';
+  // Tlačítko přepnutí Sub→Dom
+  const rsb=document.getElementById('role-switch-btn');
+  if(rsb) rsb.style.display=isDom?'none':'';
 
-  // Spustit countdown aktivních trestů
   startCountdown();
 }
 
-// ── ROLE SWITCH (Sub → Dom přes PIN) ───────────────────────────────────
+// ── ROLE SWITCH ────────────────────────────────────────────────────────
 function requestDomAccess(){
   document.getElementById('pin-modal').classList.add('open');
   document.getElementById('pin-input').value='';
@@ -196,13 +276,16 @@ function requestDomAccess(){
 
 function submitPin(){
   const pin=document.getElementById('pin-input').value;
-  if(pin===encPw){
+  const storedEncPw=localStorage.getItem('enc_pw');
+  const storedToken=localStorage.getItem('gh_token');
+  if(pin===storedEncPw){
+    ghToken=storedToken;encPw=storedEncPw;
     role='dom';
     document.getElementById('pin-modal').classList.remove('open');
     applyRole();
     showToast('✓ Dom režim aktivní');
   } else {
-    showToast('✗ Nesprávný PIN');
+    showToast('✗ Nesprávné heslo');
     document.getElementById('pin-input').value='';
   }
 }
@@ -225,18 +308,18 @@ function renderActivePunishments(){
   if(!list) return;
   const now=Date.now();
 
-  // Vyčistit expirované
   const before=state.activePunishments.length;
   state.activePunishments=state.activePunishments.filter(p=>new Date(p.until).getTime()>now);
-  if(state.activePunishments.length!==before && role==='dom') save();
+  if(state.activePunishments.length!==before&&role==='dom') save();
 
+  const countEl=document.getElementById('active-count');
   if(!state.activePunishments.length){
     list.innerHTML='<div class="empty"><div class="ei">✓</div>Žádné aktivní tresty<br><span style="font-size:11px">Sub je momentálně bez trestu</span></div>';
-    document.getElementById('active-count').textContent='';
+    if(countEl) countEl.textContent='';
     return;
   }
 
-  document.getElementById('active-count').textContent=state.activePunishments.length;
+  if(countEl) countEl.textContent=state.activePunishments.length;
 
   list.innerHTML=state.activePunishments.map(p=>{
     const until=new Date(p.until).getTime();
@@ -246,14 +329,14 @@ function renderActivePunishments(){
     const m=Math.floor((diff%3600000)/60000);
     const s=Math.floor((diff%60000)/1000);
     const countdown=d>0?`${d}d ${h}h ${m}m`:`${h}h ${m}m ${s}s`;
-    const urgent=diff<3600000; // méně než hodina
+    const urgent=diff<3600000;
     return `
       <div class="ap-item">
         <div class="ap-info">
           <div class="ap-name">${p.name}</div>
           <div class="ap-until">do ${new Date(p.until).toLocaleDateString('cs-CZ')} ${new Date(p.until).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}</div>
         </div>
-        <div class="ap-countdown ${urgent?'urgent':''}">${countdown}</div>
+        <div class="ap-countdown${urgent?' urgent':''}">${countdown}</div>
         ${role==='dom'?`<button class="bm d" onclick="removeActivePunishment('${p.id}')">✕</button>`:''}
       </div>`;
   }).join('');
@@ -262,7 +345,6 @@ function renderActivePunishments(){
 function openAddActivePunishment(){
   document.getElementById('ap-modal').classList.add('open');
   document.getElementById('ap-name').value='';
-  // Default: zítra ve stejnou hodinu
   const tomorrow=new Date(Date.now()+86400000);
   tomorrow.setSeconds(0,0);
   document.getElementById('ap-until').value=tomorrow.toISOString().slice(0,16);
@@ -286,29 +368,6 @@ async function removeActivePunishment(id){
   state.activePunishments=state.activePunishments.filter(x=>x.id!==id);
   renderActivePunishments();
   await save();
-}
-
-// ── INIT ───────────────────────────────────────────────────────────────
-async function init(){
-  const t=localStorage.getItem('gh_token');
-  const p=localStorage.getItem('enc_pw');
-  const sp=localStorage.getItem('sub_pw');
-  const th=localStorage.getItem('theme')||'dark';
-  setTheme(th);
-
-  if(t&&p&&sp){
-    ghToken=t;encPw=p;subPw=sp;
-    // Zobraz login screen pro výběr role
-    document.getElementById('ls').style.display='none';
-    showLoginScreen();
-  } else if(t&&p&&!sp){
-    // Stará konfigurace bez sub hesla — přesměruj na setup
-    document.getElementById('ls').style.display='none';
-    document.getElementById('ss').style.display='flex';
-  } else {
-    document.getElementById('ls').style.display='none';
-    document.getElementById('ss').style.display='flex';
-  }
 }
 
 // ── DEFAULTS ───────────────────────────────────────────────────────────
@@ -343,6 +402,12 @@ async function changePassword(){
   const p=prompt('Nové Dom heslo (min. 6 znaků):');
   if(!p||p.length<6){showToast('✗ Příliš krátké heslo');return;}
   encPw=p;localStorage.setItem('enc_pw',p);await save();showToast('✓ Dom heslo změněno');
+}
+
+function copySubUrl(){
+  const url=window.location.origin+window.location.pathname+'#sub';
+  navigator.clipboard.writeText(url).then(()=>showToast('✓ Sub URL zkopírována: '+url))
+    .catch(()=>showToast('Sub URL: '+url));
 }
 
 async function changeSubPassword(){
@@ -411,9 +476,11 @@ function renderRewards(){
       const ok=state.score>=r.cost;
       const canUse=ok&&role==='dom';
       return `<div class="rpi">
-        <div class="rpi2"><div class="rn">${r.name}</div><div class="rc">${r.cost} bodů${!ok?` · chybí ${r.cost-state.score}`:''}</div></div>
-        <button class="rpb${ok?(role==='dom'?'':' na'):' na'}"
-          onclick="${canUse?`useReward('${r.id}')`:''}"
+        <div class="rpi2">
+          <div class="rn">${r.name}</div>
+          <div class="rc">${r.cost} bodů${!ok?` · chybí ${r.cost-state.score}`:''}</div>
+        </div>
+        <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useReward('${r.id}')`:''}"
           title="${role==='sub'?'Pouze Dom může uplatnit odměnu':''}">
           ${ok?(role==='dom'?'Uplatnit':'🔒 Dom'):'✗ Málo bodů'}
         </button>
@@ -427,8 +494,7 @@ function renderRewards(){
         <div class="rpi2"><div class="rn">${p.name}</div><div class="rc">${p.cost} bodů</div></div>
         ${role==='dom'?`
           <button class="rpb" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,.3);color:var(--red)">Aplikovat</button>
-          <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>
-        `:''}
+          <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>`:''}
       </div>`).join('')
     :'<div class="empty" style="padding:20px"><div class="ei">⚡</div>Žádné tresty</div>';
 }
@@ -447,15 +513,17 @@ async function addPoints(pts,reason){
 
 async function toggleTodo(id){
   const t=state.todos.find(x=>x.id===id);if(!t)return;
-  // Sub může zaškrtnout splnění, ale ne odšrtnout
-  if(role==='sub'&&t.done){showToast('🔒 Splněný úkol může odškrtnout jen Dom');return;}
+  if(role==='sub'&&t.done){showToast('🔒 Splněný úkol může odšrtnout jen Dom');return;}
   t.done=!t.done;renderTodo();
-  if(t.done&&t.pts) await addPoints(t.pts,`✓ ${t.name}`);
-  else await save();
+  if(t.done&&t.pts){
+    // Sub zaškrtne → body přidá se zapíše přes Dom token (uložený lokálně)
+    // Pokud Sub nemá token, pouze označí lokálně a Dom synchronizuje
+    if(ghToken) await addPoints(t.pts,`✓ ${t.name}`);
+    else{showToast('✓ Úkol splněn — Dom přidá body při syncu');await syncNow();}
+  } else await save();
 }
 
 async function addTodo(){
-  if(role!=='dom'){showToast('🔒 Pouze Dom může přidávat úkoly');return;}
   const n=document.getElementById('t-name').value.trim();
   const p=parseInt(document.getElementById('t-pts').value)||0;
   if(!n)return;
@@ -516,7 +584,7 @@ async function resetScore(){
   state.score=0;state.totalPlus=0;state.totalMinus=0;renderScore();await save();
 }
 
-// ── MODAL (body) ───────────────────────────────────────────────────────
+// ── MODAL ──────────────────────────────────────────────────────────────
 function openModal(m){
   if(role!=='dom'){showToast('🔒 Pouze Dom může měnit body');return;}
   modalMode=m;
@@ -553,10 +621,11 @@ function showToast(m){
 // ── ENTER ──────────────────────────────────────────────────────────────
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'){
-    if(document.getElementById('modal').classList.contains('open')) confirmModal();
-    if(document.getElementById('pin-modal').classList.contains('open')) submitPin();
-    if(document.getElementById('ap-modal').classList.contains('open')) addActivePunishment();
-    if(document.getElementById('login-screen').style.display!=='none') loginSubmit();
+    if(document.getElementById('modal')?.classList.contains('open')) confirmModal();
+    if(document.getElementById('pin-modal')?.classList.contains('open')) submitPin();
+    if(document.getElementById('ap-modal')?.classList.contains('open')) addActivePunishment();
+    if(document.getElementById('sub-login')?.style.display!=='none') subLogin();
+    if(document.getElementById('dom-login')?.style.display!=='none') domLogin();
   }
 });
 
