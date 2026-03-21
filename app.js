@@ -114,32 +114,20 @@ async function syncNow(){
 }
 
 async function save(){
-  if(role==='sub'){showToast('🔒 Sub nemůže ukládat data');return;}
+  // Sub může ukládat přes addPoints(force=true) — zde neblokujeme
   setSS('syncing','↑ ukládám...');
   try{
-    // Pokud nemáme SHA, načti ho nejdřív aby zápis neselhal
-    if(!sha){
-      const f=await ghGet();
-      if(f) sha=f.sha;
-    }
+    if(!sha){const f=await ghGet();if(f) sha=f.sha;}
     await ghPut(await encrypt(state,encPw));
     setSS('synced','✓ uloženo');
   }catch(e){
-    // Pokud selže kvůli konfliktu SHA, zkus znovu s čerstvým SHA
     if(e.message.includes('PUT')){
       try{
-        const f=await ghGet();
-        if(f) sha=f.sha;
+        const f=await ghGet();if(f) sha=f.sha;
         await ghPut(await encrypt(state,encPw));
         setSS('synced','✓ uloženo');
-      }catch(e2){
-        setSS('error','✗ chyba');
-        showToast('✗ Uložení selhalo — '+e2.message);
-      }
-    } else {
-      setSS('error','✗ chyba');
-      showToast('✗ Uložení selhalo — '+e.message);
-    }
+      }catch(e2){setSS('error','✗ chyba');showToast('✗ Uložení selhalo — '+e2.message);}
+    } else {setSS('error','✗ chyba');showToast('✗ Uložení selhalo — '+e.message);}
   }
 }
 
@@ -569,7 +557,8 @@ async function addPoints(pts,reason,force=false){
   state.score+=pts;
   if(pts>0)state.totalPlus+=pts;else state.totalMinus+=Math.abs(pts);
   state.history.push({id:uid(),pts,reason,time:ts()});
-  renderAll();await save();
+  renderAll();
+  await save();
 }
 
 async function toggleTodo(id){
@@ -579,9 +568,8 @@ async function toggleTodo(id){
   renderTodo();
   if(!wasDone&&t.pts){
     await addPoints(t.pts,`✓ ${t.name}`,true);
-  } else if(wasDone&&t.pts&&role==='dom'){
-    // Odškrtnutí → odebrat body zpět (jen Dom)
-    await addPoints(-t.pts,`↩ ${t.name} odškrtnuto`);
+  } else if(wasDone&&t.pts){
+    await addPoints(-t.pts,`↩ ${t.name} odškrtnuto`,true);
   } else {
     await save();
   }
