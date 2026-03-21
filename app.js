@@ -72,11 +72,23 @@ async function ghPut(enc){
   sha=(await r.json()).content.sha;
 }
 
-// Sub čte přes raw URL bez tokenu
+// Sub čte přes GitHub API (ne raw) aby obešel cache — token má z URL
 async function ghGetRaw(){
-  const r=await fetch(RAW_URL+'?t='+Date.now()); // cache bust
-  if(!r.ok) throw new Error('Nepodařilo se načíst data');
-  return r.text();
+  // Použij GitHub API s tokenem pokud ho máme (přesný, bez cache)
+  // jinak fallback na raw s cache-bust
+  if(ghToken){
+    const r=await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`,
+      {headers:{Authorization:`token ${ghToken}`,Accept:'application/vnd.github.v3+json','Cache-Control':'no-cache'}});
+    if(!r.ok) throw new Error('Nepodařilo se načíst data');
+    const f=await r.json();
+    sha=f.sha; // uložíme SHA i pro sub (pro případ přepnutí na dom)
+    return decodeURIComponent(escape(atob(f.content.replace(/\n/g,''))));
+  } else {
+    // Fallback bez tokenu — přidej náhodný parametr pro obejití cache
+    const r=await fetch(RAW_URL+'?nocache='+Date.now());
+    if(!r.ok) throw new Error('Nepodařilo se načíst data');
+    return r.text();
+  }
 }
 
 // ── SYNC ───────────────────────────────────────────────────────────────
@@ -86,11 +98,10 @@ async function syncNow(){
   setSS('syncing','↻ sync...');
   try{
     if(role==='sub'){
-      // Sub čte přes raw bez tokenu
       const raw=await ghGetRaw();
       state=await decrypt(raw.trim(),encPw);
     } else {
-      // Dom čte přes API s tokenem
+      // Dom — vždy načte čerstvé SHA z API
       const f=await ghGet();
       if(f){
         sha=f.sha;
@@ -105,8 +116,31 @@ async function syncNow(){
 async function save(){
   if(role==='sub'){showToast('🔒 Sub nemůže ukládat data');return;}
   setSS('syncing','↑ ukládám...');
-  try{await ghPut(await encrypt(state,encPw));setSS('synced','✓ uloženo');}
-  catch(e){setSS('error','✗ chyba');showToast('✗ Uložení selhalo — '+e.message);}
+  try{
+    // Pokud nemáme SHA, načti ho nejdřív aby zápis neselhal
+    if(!sha){
+      const f=await ghGet();
+      if(f) sha=f.sha;
+    }
+    await ghPut(await encrypt(state,encPw));
+    setSS('synced','✓ uloženo');
+  }catch(e){
+    // Pokud selže kvůli konfliktu SHA, zkus znovu s čerstvým SHA
+    if(e.message.includes('PUT')){
+      try{
+        const f=await ghGet();
+        if(f) sha=f.sha;
+        await ghPut(await encrypt(state,encPw));
+        setSS('synced','✓ uloženo');
+      }catch(e2){
+        setSS('error','✗ chyba');
+        showToast('✗ Uložení selhalo — '+e2.message);
+      }
+    } else {
+      setSS('error','✗ chyba');
+      showToast('✗ Uložení selhalo — '+e.message);
+    }
+  }
 }
 
 // ── SETUP (Dom — první spuštění) ───────────────────────────────────────
