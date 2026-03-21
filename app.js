@@ -77,8 +77,8 @@ async function ghGetRaw(){
   // Použij GitHub API s tokenem pokud ho máme (přesný, bez cache)
   // jinak fallback na raw s cache-bust
   if(ghToken){
-    const r=await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`,
-      {headers:{Authorization:`token ${ghToken}`,Accept:'application/vnd.github.v3+json','Cache-Control':'no-cache'}});
+    const r=await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}?nocache=`+Date.now(),
+      {headers:{Authorization:`token ${ghToken}`,Accept:'application/vnd.github.v3+json'}});
     if(!r.ok) throw new Error('Nepodařilo se načíst data');
     const f=await r.json();
     sha=f.sha; // uložíme SHA i pro sub (pro případ přepnutí na dom)
