@@ -4,906 +4,370 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0a0a0f">
 <title>✦ Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 <style>
+/* DARK (default) */
 :root {
-  --bg: #0a0a0f;
-  --bg2: #111118;
-  --bg3: #18181f;
-  --bg4: #1e1e28;
-  --border: rgba(255,255,255,0.07);
-  --border-hover: rgba(255,255,255,0.15);
-  --text: #e8e4dc;
-  --text-dim: #7a7580;
-  --text-dimmer: #3d3a45;
-  --gold: #c9a96e;
-  --gold-dim: rgba(201,169,110,0.15);
-  --gold-glow: rgba(201,169,110,0.06);
-  --red: #c96e6e;
-  --red-dim: rgba(201,110,110,0.15);
-  --green: #6ec98a;
-  --green-dim: rgba(110,201,138,0.15);
-  --purple: #9b8ec4;
-  --purple-dim: rgba(155,142,196,0.12);
-  --radius: 12px;
-  --radius-sm: 8px;
+  --bg:#0a0a0f; --bg2:#111118; --bg3:#18181f; --bg4:#1e1e28;
+  --border:rgba(255,255,255,0.09); --border-h:rgba(255,255,255,0.2);
+  --text:#f0ece2; --dim:#9a95a0; --dimmer:#4d4a55;
+  --accent:#c9a96e; --accent-d:rgba(201,169,110,0.15); --accent-g:rgba(201,169,110,0.07);
+  --red:#c96e6e; --red-d:rgba(201,110,110,0.15);
+  --green:#6ec98a; --green-d:rgba(110,201,138,0.15);
+  --purple:#9b8ec4; --purple-d:rgba(155,142,196,0.12);
+  --r:12px; --rs:8px;
+  --ff:'Cormorant Garamond',serif; --fm:'JetBrains Mono',monospace;
 }
-
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  min-height: 100vh;
-  overflow-x: hidden;
+[data-theme="light"] {
+  --bg:#f5f2ec; --bg2:#ffffff; --bg3:#ede9e1; --bg4:#e4e0d8;
+  --border:rgba(0,0,0,0.08); --border-h:rgba(0,0,0,0.2);
+  --text:#1a1814; --dim:#6b6560; --dimmer:#b0aba5;
+  --accent:#8b6914; --accent-d:rgba(139,105,20,0.12); --accent-g:rgba(139,105,20,0.05);
+  --red:#b94040; --red-d:rgba(185,64,64,0.1);
+  --green:#2d8a4e; --green-d:rgba(45,138,78,0.1);
+  --purple:#6b5aab; --purple-d:rgba(107,90,171,0.1);
 }
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 999;
-  opacity: 0.4;
+[data-theme="bdsm"] {
+  --bg:#0d0508; --bg2:#150a0f; --bg3:#1c0e14; --bg4:#23121a;
+  --border:rgba(180,40,80,0.13); --border-h:rgba(180,40,80,0.3);
+  --text:#f5e8ee; --dim:#a07888; --dimmer:#4a2a35;
+  --accent:#c4405a; --accent-d:rgba(196,64,90,0.18); --accent-g:rgba(196,64,90,0.08);
+  --red:#e05555; --red-d:rgba(224,85,85,0.15);
+  --green:#7ec48a; --green-d:rgba(126,196,138,0.15);
+  --purple:#b87aaa; --purple-d:rgba(184,122,170,0.15);
+  --ff:'Playfair Display',serif;
 }
-
-/* SETUP SCREEN */
-#setup-screen {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px 20px;
-}
-
-.setup-logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 48px;
-  font-weight: 300;
-  color: var(--gold);
-  margin-bottom: 8px;
-  letter-spacing: 0.1em;
-}
-
-.setup-sub {
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 40px;
-}
-
-.setup-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px 24px;
-  width: 100%;
-  max-width: 420px;
-}
-
-.setup-card-title {
-  font-size: 10px;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 20px;
-}
-
-.setup-field {
-  margin-bottom: 14px;
-}
-
-.setup-label {
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 6px;
-}
-
-.setup-hint {
-  font-size: 10px;
-  color: var(--text-dimmer);
-  margin-top: 4px;
-  line-height: 1.5;
-}
-
-.input-field {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 12px;
-  padding: 10px 12px;
-  outline: none;
-  transition: border-color 0.2s;
-  width: 100%;
-}
-
-.input-field:focus { border-color: var(--gold); }
-.input-field::placeholder { color: var(--text-dimmer); }
-
-.btn-setup {
-  width: 100%;
-  margin-top: 20px;
-  padding: 13px;
-  background: var(--gold-dim);
-  border: 1px solid rgba(201,169,110,0.3);
-  border-radius: var(--radius-sm);
-  color: var(--gold);
-  font-family: inherit;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.05em;
-}
-
-.btn-setup:active { transform: scale(0.98); }
-
-.setup-divider {
-  height: 1px;
-  background: var(--border);
-  margin: 20px 0;
-}
-
-/* HEADER */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(10,10,15,0.92);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 20px;
-  font-weight: 300;
-  letter-spacing: 0.15em;
-  color: var(--gold);
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sync-status {
-  font-size: 10px;
-  color: var(--text-dimmer);
-  letter-spacing: 0.05em;
-}
-
-.sync-status.syncing { color: var(--gold); }
-.sync-status.synced { color: var(--green); }
-.sync-status.error { color: var(--red); }
-
-.btn-icon-sm {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-dim);
-  font-size: 14px;
-  padding: 5px 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-
-.btn-icon-sm:hover { border-color: var(--border-hover); color: var(--text); }
-
-/* SCORE CARD */
-.score-card {
-  margin: 16px 16px 0;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 22px;
-  position: relative;
-  overflow: hidden;
-}
-
-.score-card::before {
-  content: '';
-  position: absolute;
-  top: -40px; right: -40px;
-  width: 160px; height: 160px;
-  background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.score-label {
-  font-size: 10px;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 6px;
-}
-
-.score-value {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 68px;
-  font-weight: 300;
-  line-height: 1;
-  color: var(--gold);
-  letter-spacing: -0.02em;
-}
-
-.score-value.negative { color: var(--red); }
-
-.score-sub {
-  margin-top: 10px;
-  display: flex;
-  gap: 20px;
-}
-
-.score-stat {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-.dot { width: 6px; height: 6px; border-radius: 50%; }
-.dot-green { background: var(--green); }
-.dot-red { background: var(--red); }
-
-/* QUICK ACTIONS */
-.quick-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 12px 16px 0;
-}
-
-.btn-action {
-  border: 1px solid var(--border);
-  background: var(--bg2);
-  border-radius: var(--radius-sm);
-  padding: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--text);
-  font-family: inherit;
-  font-size: 12px;
-}
-
-.btn-action:active { transform: scale(0.97); }
-.btn-action.add { border-color: rgba(110,201,138,0.2); background: rgba(110,201,138,0.04); }
-.btn-action.add:hover { background: var(--green-dim); }
-.btn-action.sub { border-color: rgba(201,110,110,0.2); background: rgba(201,110,110,0.04); }
-.btn-action.sub:hover { background: var(--red-dim); }
-
-.btn-icon { font-size: 18px; line-height: 1; }
-.btn-text-main { font-weight: 400; }
-.btn-text-sub { color: var(--text-dim); font-size: 10px; margin-top: 2px; }
-
-/* TABS */
-.tabs {
-  display: flex;
-  margin: 16px 16px 0;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 3px;
-}
-
-.tab {
-  flex: 1;
-  padding: 8px 4px;
-  text-align: center;
-  cursor: pointer;
-  border-radius: 6px;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  transition: all 0.2s;
-  border: none;
-  background: none;
-  font-family: inherit;
-}
-
-.tab.active {
-  background: var(--bg4);
-  color: var(--gold);
-  border: 1px solid var(--border-hover);
-}
-
-/* SECTIONS */
-.section { display: none; padding: 14px 16px 90px; }
-.section.active { display: block; }
-
-/* CARDS */
-.card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 10px;
-  overflow: hidden;
-}
-
-.card-header {
-  padding: 12px 16px;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* TODO */
-.todo-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 13px 16px;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.15s;
-  cursor: pointer;
-}
-
-.todo-item:last-child { border-bottom: none; }
-.todo-item:active { background: var(--bg3); }
-.todo-item.done { opacity: 0.4; }
-
-.todo-check {
-  width: 18px; height: 18px;
-  border: 1px solid var(--border-hover);
-  border-radius: 4px;
-  flex-shrink: 0;
-  margin-top: 1px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  transition: all 0.2s;
-}
-
-.todo-item.done .todo-check {
-  background: var(--green-dim);
-  border-color: var(--green);
-  color: var(--green);
-}
-
-.todo-text { flex: 1; }
-.todo-name { font-size: 13px; line-height: 1.4; }
-.todo-item.done .todo-name { text-decoration: line-through; }
-.todo-pts { font-size: 10px; color: var(--gold); margin-top: 3px; }
-
-.btn-mini {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text-dim);
-  font-size: 11px;
-  padding: 3px 7px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-
-.btn-mini.danger:hover { border-color: var(--red); color: var(--red); }
-
-/* ADD FORM */
-.add-form {
-  padding: 12px 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.input-pts {
-  width: 70px;
-  flex: none;
-  text-align: center;
-}
-
-.btn-add {
-  background: var(--gold-dim);
-  border: 1px solid rgba(201,169,110,0.3);
-  border-radius: var(--radius-sm);
-  color: var(--gold);
-  font-family: inherit;
-  font-size: 12px;
-  padding: 9px 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.btn-add:active { transform: scale(0.97); }
-
-/* LEGEND */
-.legend-item {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  gap: 10px;
-}
-
-.legend-item:last-child { border-bottom: none; }
-
-.legend-badge {
-  font-size: 9px;
-  padding: 3px 7px;
-  border-radius: 20px;
-  white-space: nowrap;
-}
-
-.badge-reward { background: var(--green-dim); color: var(--green); border: 1px solid rgba(110,201,138,0.2); }
-.badge-punishment { background: var(--red-dim); color: var(--red); border: 1px solid rgba(201,110,110,0.2); }
-
-.legend-name { flex: 1; font-size: 13px; }
-.legend-pts { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; }
-.pts-pos { color: var(--green); }
-.pts-neg { color: var(--red); }
-
-/* HISTORY */
-.history-item {
-  display: flex;
-  align-items: center;
-  padding: 11px 16px;
-  border-bottom: 1px solid var(--border);
-  gap: 12px;
-}
-
-.history-item:last-child { border-bottom: none; }
-.history-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.history-info { flex: 1; }
-.history-name { font-size: 12px; }
-.history-time { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
-.history-pts { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; }
-
-/* REWARDS */
-.rp-item {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  gap: 10px;
-}
-
-.rp-item:last-child { border-bottom: none; }
-.rp-info { flex: 1; }
-.rp-name { font-size: 13px; }
-.rp-cost { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
-
-.rp-btn {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-dim);
-  font-family: inherit;
-  font-size: 10px;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.rp-btn:hover { border-color: var(--gold); color: var(--gold); }
-.rp-btn.danger:hover { border-color: var(--red); color: var(--red); }
-
-/* DANGER ZONE */
-.danger-zone {
-  margin-bottom: 10px;
-  padding: 14px 16px;
-  border: 1px solid rgba(201,110,110,0.15);
-  border-radius: var(--radius);
-  background: rgba(201,110,110,0.03);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.danger-label { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-
-.btn-danger {
-  background: none;
-  border: 1px solid rgba(201,110,110,0.3);
-  border-radius: var(--radius-sm);
-  color: var(--red);
-  font-family: inherit;
-  font-size: 11px;
-  padding: 7px 14px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* SETTINGS CARD */
-.settings-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-
-.settings-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  gap: 12px;
-}
-
-.settings-row:last-child { border-bottom: none; }
-.settings-row-label { font-size: 12px; }
-.settings-row-sub { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
-
-.btn-settings {
-  background: var(--purple-dim);
-  border: 1px solid rgba(155,142,196,0.25);
-  border-radius: var(--radius-sm);
-  color: var(--purple);
-  font-family: inherit;
-  font-size: 11px;
-  padding: 7px 14px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* MODAL */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(8px);
-  z-index: 200;
-  align-items: flex-end;
-}
-
-.modal-overlay.open { display: flex; }
-
-.modal {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius) var(--radius) 0 0;
-  padding: 24px 20px 44px;
-  width: 100%;
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 24px;
-  font-weight: 300;
-  margin-bottom: 16px;
-  color: var(--gold);
-}
-
-.modal-row { display: flex; gap: 10px; margin-top: 12px; }
-
-.btn-confirm {
-  flex: 1;
-  padding: 13px;
-  border-radius: var(--radius-sm);
-  font-family: inherit;
-  font-size: 13px;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-}
-
-.btn-confirm.positive { background: var(--green-dim); color: var(--green); border: 1px solid rgba(110,201,138,0.3); }
-.btn-confirm.negative { background: var(--red-dim); color: var(--red); border: 1px solid rgba(201,110,110,0.3); }
-
-.btn-cancel {
-  padding: 13px 20px;
-  border-radius: var(--radius-sm);
-  font-family: inherit;
-  font-size: 13px;
-  cursor: pointer;
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-}
-
-/* TOAST */
-.toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--bg4);
-  border: 1px solid var(--border-hover);
-  border-radius: 30px;
-  padding: 10px 20px;
-  font-size: 12px;
-  color: var(--text);
-  opacity: 0;
-  transition: all 0.3s;
-  z-index: 500;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* EMPTY */
-.empty {
-  text-align: center;
-  padding: 36px 20px;
-  color: var(--text-dimmer);
-  font-size: 12px;
-  line-height: 1.8;
-}
-
-.empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.5; }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:var(--fm);font-size:13px;min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.5}
 
 /* LOADING */
-#loading-screen {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  gap: 16px;
-}
+#ls{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:14px}
+.ll{font-family:var(--ff);font-size:44px;color:var(--accent);font-weight:300;letter-spacing:.1em;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.lt{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dimmer)}
 
-.loading-logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 42px;
-  color: var(--gold);
-  font-weight: 300;
-  letter-spacing: 0.1em;
-  animation: pulse 2s ease-in-out infinite;
-}
+/* SETUP */
+#ss{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px}
+.sl{font-family:var(--ff);font-size:50px;font-weight:300;color:var(--accent);margin-bottom:6px;letter-spacing:.1em}
+.ss{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin-bottom:36px}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:26px 22px;width:100%;max-width:400px}
+.sct{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
+.sf{margin-bottom:12px}
+.slb{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.sh{font-size:10px;color:var(--dimmer);margin-top:4px;line-height:1.6}
+.sdiv{height:1px;background:var(--border);margin:16px 0}
+.bsetup{width:100%;margin-top:18px;padding:13px;background:var(--accent-d);border:1px solid var(--border-h);border-radius:var(--rs);color:var(--accent);font-family:inherit;font-size:13px;cursor:pointer;transition:all .2s;letter-spacing:.05em}
+.bsetup:active{transform:scale(.98)}
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
+/* INPUT */
+.inp{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:inherit;font-size:12px;padding:10px 12px;outline:none;transition:border-color .2s;width:100%}
+.inp:focus{border-color:var(--accent)}
+.inp::placeholder{color:var(--dimmer)}
 
-.loading-text {
-  font-size: 10px;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--text-dimmer);
-}
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.93);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+[data-theme="light"] .hdr{background:rgba(245,242,236,.93)}
+[data-theme="bdsm"] .hdr{background:rgba(13,5,8,.93)}
+.ht{font-family:var(--ff);font-size:20px;font-weight:300;letter-spacing:.15em;color:var(--accent)}
+.hr2{display:flex;align-items:center;gap:9px}
+.ss2{font-size:10px;color:var(--dimmer);letter-spacing:.05em}
+.ss2.syncing{color:var(--accent)} .ss2.synced{color:var(--green)} .ss2.error{color:var(--red)}
+.bsm{background:none;border:1px solid var(--border);border-radius:var(--rs);color:var(--dim);font-size:14px;padding:5px 8px;cursor:pointer;transition:all .2s;font-family:inherit}
+.bsm:hover{border-color:var(--border-h);color:var(--text)}
 
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 2px; }
+/* SCORE */
+.scard{margin:14px 16px 0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:relative;overflow:hidden}
+.scard::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,var(--accent-g) 0%,transparent 70%);pointer-events:none}
+.slbl{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.sval{font-family:var(--ff);font-size:66px;font-weight:300;line-height:1;color:var(--accent);letter-spacing:-.02em}
+.sval.neg{color:var(--red)}
+.ssub{margin-top:10px;display:flex;gap:18px}
+.sstat{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
+.dot{width:6px;height:6px;border-radius:50%}
+.dg{background:var(--green)} .dr{background:var(--red)}
+
+/* QUICK ACTIONS */
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 16px 0}
+.ba{border:1px solid var(--border);background:var(--bg2);border-radius:var(--rs);padding:13px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;color:var(--text);font-family:inherit;font-size:12px}
+.ba:active{transform:scale(.97)}
+.ba.add{border-color:rgba(110,201,138,.25);background:rgba(110,201,138,.05)}
+.ba.add:hover{background:var(--green-d)}
+.ba.sub{border-color:rgba(201,110,110,.25);background:rgba(201,110,110,.05)}
+.ba.sub:hover{background:var(--red-d)}
+.bai{font-size:18px;line-height:1}
+.btm{font-weight:400;color:var(--text)}
+.bts{color:var(--dim);font-size:10px;margin-top:2px}
+
+/* TABS */
+.tabs{display:flex;margin:13px 16px 0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:3px}
+.tab{flex:1;padding:8px 3px;text-align:center;cursor:pointer;border-radius:6px;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);transition:all .2s;border:none;background:none;font-family:inherit}
+.tab.active{background:var(--bg4);color:var(--accent);border:1px solid var(--border-h)}
+
+/* SECTIONS */
+.sec{display:none;padding:13px 16px 90px}
+.sec.active{display:block}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.ch{padding:11px 16px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+
+/* TODO */
+.ti{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);transition:background .15s;cursor:pointer}
+.ti:last-child{border-bottom:none}
+.ti:active{background:var(--bg3)}
+.ti.done{opacity:.4}
+.tck{width:18px;height:18px;border:1px solid var(--border-h);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s}
+.ti.done .tck{background:var(--green-d);border-color:var(--green);color:var(--green)}
+.ttx{flex:1}
+.tn{font-size:13px;line-height:1.4;color:var(--text)}
+.ti.done .tn{text-decoration:line-through}
+.tp{font-size:10px;color:var(--accent);margin-top:3px}
+
+.bm{background:none;border:1px solid var(--border);border-radius:4px;color:var(--dim);font-size:11px;padding:3px 7px;cursor:pointer;font-family:inherit;transition:all .2s;flex-shrink:0}
+.bm.d:hover{border-color:var(--red);color:var(--red)}
+
+/* ADD FORM */
+.af{padding:11px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+.ipts{width:70px;flex:none;text-align:center}
+.badd{background:var(--accent-d);border:1px solid var(--border-h);border-radius:var(--rs);color:var(--accent);font-family:inherit;font-size:12px;padding:9px 13px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.badd:active{transform:scale(.97)}
+
+/* LEGEND */
+.li{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);gap:10px}
+.li:last-child{border-bottom:none}
+.lb{font-size:9px;padding:3px 7px;border-radius:20px;white-space:nowrap}
+.lr{background:var(--green-d);color:var(--green);border:1px solid rgba(110,201,138,.2)}
+.lp{background:var(--red-d);color:var(--red);border:1px solid rgba(201,110,110,.2)}
+.ln{flex:1;font-size:13px;color:var(--text)}
+.lv{font-family:var(--ff);font-size:20px;font-weight:300}
+.vp{color:var(--green)} .vn{color:var(--red)}
+
+/* HISTORY */
+.hsti{display:flex;align-items:center;padding:11px 16px;border-bottom:1px solid var(--border);gap:12px}
+.hsti:last-child{border-bottom:none}
+.hd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.hi2{flex:1}
+.hn{font-size:12px;color:var(--text)}
+.htm{font-size:10px;color:var(--dim);margin-top:2px}
+.hv{font-family:var(--ff);font-size:20px;font-weight:300}
+
+/* REWARDS */
+.rpi{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);gap:10px}
+.rpi:last-child{border-bottom:none}
+.rpi2{flex:1}
+.rn{font-size:13px;color:var(--text)}
+.rc{font-size:10px;color:var(--dim);margin-top:2px}
+.rpb{background:none;border:1px solid var(--border);border-radius:var(--rs);color:var(--dim);font-family:inherit;font-size:10px;padding:5px 10px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.rpb:hover{border-color:var(--accent);color:var(--accent)}
+.rpb.na{border-color:rgba(201,110,110,.35);color:var(--red);cursor:not-allowed;opacity:.65}
+
+/* DANGER */
+.dz{margin-bottom:10px;padding:13px 16px;border:1px solid rgba(201,110,110,.15);border-radius:var(--r);background:rgba(201,110,110,.03);display:flex;align-items:center;justify-content:space-between}
+.dlbl{font-size:11px;color:var(--dim);margin-top:2px}
+.bdng{background:none;border:1px solid rgba(201,110,110,.3);border-radius:var(--rs);color:var(--red);font-family:inherit;font-size:11px;padding:7px 13px;cursor:pointer;white-space:nowrap}
+
+/* SETTINGS */
+.stcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.str{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);gap:12px}
+.str:last-child{border-bottom:none}
+.strl{font-size:12px;color:var(--text)}
+.strs{font-size:10px;color:var(--dim);margin-top:3px}
+.bst{background:var(--purple-d);border:1px solid rgba(155,142,196,.25);border-radius:var(--rs);color:var(--purple);font-family:inherit;font-size:11px;padding:7px 13px;cursor:pointer;white-space:nowrap}
+
+/* THEME SWITCHER */
+.tsw{display:flex;gap:8px}
+.tb{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);cursor:pointer;transition:all .2s}
+.tb.active{border-color:var(--accent);transform:scale(1.12)}
+.tb:active{transform:scale(.93)}
+.tb-dark{background:linear-gradient(135deg,#0a0a0f 50%,#c9a96e 50%)}
+.tb-light{background:linear-gradient(135deg,#f5f2ec 50%,#8b6914 50%)}
+.tb-bdsm{background:linear-gradient(135deg,#0d0508 50%,#c4405a 50%)}
+
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);z-index:200;align-items:flex-end}
+.mo.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0;padding:24px 20px 44px;width:100%;animation:su .3s cubic-bezier(.16,1,.3,1)}
+@keyframes su{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.mt{font-family:var(--ff);font-size:24px;font-weight:300;margin-bottom:16px;color:var(--accent)}
+.mr{display:flex;gap:10px;margin-top:12px}
+.bc{flex:1;padding:13px;border-radius:var(--rs);font-family:inherit;font-size:13px;cursor:pointer;transition:all .2s}
+.bc.pos{background:var(--green-d);color:var(--green);border:1px solid rgba(110,201,138,.3)}
+.bc.neg{background:var(--red-d);color:var(--red);border:1px solid rgba(201,110,110,.3)}
+.bcan{padding:13px 20px;border-radius:var(--rs);font-family:inherit;font-size:13px;cursor:pointer;background:none;border:1px solid var(--border);color:var(--dim)}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(18px);background:var(--bg4);border:1px solid var(--border-h);border-radius:30px;padding:10px 20px;font-size:12px;color:var(--text);opacity:0;transition:all .3s;z-index:500;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* EMPTY */
+.empty{text-align:center;padding:34px 20px;color:var(--dimmer);font-size:12px;line-height:1.8}
+.ei{font-size:26px;margin-bottom:10px;opacity:.5}
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border-h);border-radius:2px}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
-<div id="loading-screen">
-  <div class="loading-logo">✦</div>
-  <div class="loading-text">Načítám...</div>
-</div>
+<div id="ls"><div class="ll">✦</div><div class="lt" id="lt">Načítám...</div></div>
 
-<!-- SETUP SCREEN -->
-<div id="setup-screen" style="display:none">
-  <div class="setup-logo">✦</div>
-  <div class="setup-sub">D/s Tracker — Nastavení</div>
-
-  <div class="setup-card">
-    <div class="setup-card-title">Připojení k GitHub</div>
-
-    <div class="setup-field">
-      <div class="setup-label">GitHub Token</div>
-      <input class="input-field" id="setup-token" type="password" placeholder="ghp_xxxxxxxxxxxx" />
-      <div class="setup-hint">Settings → Developer settings → Personal access tokens → Classic → repo ✓</div>
+<div id="ss" style="display:none">
+  <div class="sl">✦</div>
+  <div class="ss">D/s Tracker — Nastavení</div>
+  <div class="sc">
+    <div class="sct">Připojení k GitHub</div>
+    <div class="sf">
+      <div class="slb">GitHub Token</div>
+      <input class="inp" id="s-token" type="password" placeholder="ghp_xxxxxxxxxxxx" />
+      <div class="sh">Settings → Developer settings → Personal access tokens → Classic → repo ✓</div>
     </div>
-
-    <div class="setup-divider"></div>
-
-    <div class="setup-field">
-      <div class="setup-label">Šifrovací heslo</div>
-      <input class="input-field" id="setup-password" type="password" placeholder="Silné sdílené heslo..." />
-      <div class="setup-hint">Stejné heslo musí mít Dom i Sub. Bez něj nelze data číst.</div>
+    <div class="sdiv"></div>
+    <div class="sf">
+      <div class="slb">Šifrovací heslo</div>
+      <input class="inp" id="s-pw" type="password" placeholder="Sdílené heslo (min. 6 znaků)..." />
+      <div class="sh">Stejné heslo musí mít Dom i Sub. Bez něj nelze data číst.</div>
     </div>
-
-    <button class="btn-setup" onclick="setupApp()">✦ Spustit Tracker</button>
+    <button class="bsetup" onclick="setupApp()">✦ Spustit Tracker</button>
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app" style="display:none">
-
-  <div class="header">
-    <div class="header-title">✦ Tracker</div>
-    <div class="header-right">
-      <span class="sync-status" id="sync-status">—</span>
-      <button class="btn-icon-sm" onclick="syncNow()" title="Synchronizovat">↻</button>
+  <div class="hdr">
+    <div class="ht">✦ Tracker</div>
+    <div class="hr2">
+      <span class="ss2" id="sync-s">—</span>
+      <button class="bsm" onclick="syncNow()">↻</button>
     </div>
   </div>
 
-  <div class="score-card">
-    <div class="score-label">Celkové body</div>
-    <div class="score-value" id="total-score">0</div>
-    <div class="score-sub">
-      <div class="score-stat">
-        <div class="dot dot-green"></div>
-        <span>+<span id="total-plus">0</span> získáno</span>
-      </div>
-      <div class="score-stat">
-        <div class="dot dot-red"></div>
-        <span>−<span id="total-minus">0</span> odečteno</span>
-      </div>
+  <div class="scard">
+    <div class="slbl">Celkové body</div>
+    <div class="sval" id="score">0</div>
+    <div class="ssub">
+      <div class="sstat"><div class="dot dg"></div><span>+<span id="splus">0</span> získáno</span></div>
+      <div class="sstat"><div class="dot dr"></div><span>−<span id="sminus">0</span> odečteno</span></div>
     </div>
   </div>
 
-  <div class="quick-actions">
-    <button class="btn-action add" onclick="openModal('add')">
-      <div class="btn-icon">＋</div>
-      <div>
-        <div class="btn-text-main">Přidat body</div>
-        <div class="btn-text-sub">Splněný úkol</div>
-      </div>
+  <div class="qa">
+    <button class="ba add" onclick="openModal('add')">
+      <div class="bai">＋</div>
+      <div><div class="btm">Přidat body</div><div class="bts">Splněný úkol</div></div>
     </button>
-    <button class="btn-action sub" onclick="openModal('sub')">
-      <div class="btn-icon">－</div>
-      <div>
-        <div class="btn-text-main">Odebrat body</div>
-        <div class="btn-text-sub">Trest</div>
-      </div>
+    <button class="ba sub" onclick="openModal('sub')">
+      <div class="bai">－</div>
+      <div><div class="btm">Odebrat body</div><div class="bts">Trest</div></div>
     </button>
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('todo')">Úkoly</button>
-    <button class="tab" onclick="switchTab('legend')">Legenda</button>
-    <button class="tab" onclick="switchTab('history')">Historie</button>
-    <button class="tab" onclick="switchTab('rewards')">Odměny</button>
-    <button class="tab" onclick="switchTab('settings')">⚙</button>
+    <button class="tab active" onclick="sw('todo')">Úkoly</button>
+    <button class="tab" onclick="sw('legend')">Legenda</button>
+    <button class="tab" onclick="sw('history')">Historie</button>
+    <button class="tab" onclick="sw('rewards')">Odměny</button>
+    <button class="tab" onclick="sw('settings')">⚙</button>
   </div>
 
-  <!-- TODO -->
-  <div class="section active" id="sec-todo">
+  <div class="sec active" id="sec-todo">
     <div class="card">
-      <div class="card-header">
-        <span>Aktivní úkoly</span>
-        <span id="todo-count" style="color:var(--gold)"></span>
-      </div>
-      <div id="todo-list"></div>
-      <div class="add-form">
-        <input class="input-field" id="todo-input" placeholder="Název úkolu..." style="flex:1;min-width:120px" />
-        <input class="input-field input-pts" id="todo-pts" type="number" placeholder="Body" />
-        <button class="btn-add" onclick="addTodo()">+ Přidat</button>
+      <div class="ch"><span>Aktivní úkoly</span><span id="tcnt" style="color:var(--accent)"></span></div>
+      <div id="tlist"></div>
+      <div class="af">
+        <input class="inp" id="t-name" placeholder="Název úkolu..." style="flex:1;min-width:110px" />
+        <input class="inp ipts" id="t-pts" type="number" placeholder="Body" />
+        <button class="badd" onclick="addTodo()">+ Přidat</button>
       </div>
     </div>
   </div>
 
-  <!-- LEGEND -->
-  <div class="section" id="sec-legend">
+  <div class="sec" id="sec-legend">
     <div class="card">
-      <div class="card-header">Akce a jejich hodnota</div>
-      <div id="legend-list"></div>
-      <div class="add-form">
-        <input class="input-field" id="legend-input" placeholder="Název akce..." style="flex:1;min-width:100px" />
-        <input class="input-field input-pts" id="legend-pts" type="number" placeholder="Body" />
-        <select class="input-field" id="legend-type" style="flex:none;width:100px;font-family:inherit">
+      <div class="ch">Akce a jejich hodnota</div>
+      <div id="llist"></div>
+      <div class="af">
+        <input class="inp" id="l-name" placeholder="Název akce..." style="flex:1;min-width:100px" />
+        <input class="inp ipts" id="l-pts" type="number" placeholder="Body" />
+        <select class="inp" id="l-type" style="flex:none;width:100px;font-family:inherit">
           <option value="reward">+ odměna</option>
           <option value="punishment">− trest</option>
         </select>
-        <button class="btn-add" onclick="addLegend()">+ Přidat</button>
+        <button class="badd" onclick="addLegend()">+ Přidat</button>
       </div>
     </div>
   </div>
 
-  <!-- HISTORY -->
-  <div class="section" id="sec-history">
+  <div class="sec" id="sec-history">
     <div class="card">
-      <div class="card-header">
-        <span>Log akcí</span>
-        <button class="btn-mini danger" onclick="clearHistory()">Vymazat</button>
-      </div>
-      <div id="history-list"></div>
+      <div class="ch"><span>Log akcí</span><button class="bm d" onclick="clearHistory()">Vymazat</button></div>
+      <div id="hlist"></div>
     </div>
   </div>
 
-  <!-- REWARDS -->
-  <div class="section" id="sec-rewards">
+  <div class="sec" id="sec-rewards">
     <div class="card">
-      <div class="card-header">Odměny</div>
-      <div id="rewards-list"></div>
-      <div class="add-form">
-        <input class="input-field" id="reward-input" placeholder="Název odměny..." style="flex:1;min-width:120px" />
-        <input class="input-field input-pts" id="reward-cost" type="number" placeholder="Body" />
-        <button class="btn-add" onclick="addReward()">+ Přidat</button>
+      <div class="ch"><span>Odměny</span><span id="rscore" style="font-size:10px;color:var(--accent)"></span></div>
+      <div id="rlist"></div>
+      <div class="af">
+        <input class="inp" id="r-name" placeholder="Název odměny..." style="flex:1;min-width:110px" />
+        <input class="inp ipts" id="r-cost" type="number" placeholder="Body" />
+        <button class="badd" onclick="addReward()">+ Přidat</button>
       </div>
     </div>
     <div class="card">
-      <div class="card-header">Tresty</div>
-      <div id="punishments-list"></div>
-      <div class="add-form">
-        <input class="input-field" id="punishment-input" placeholder="Název trestu..." style="flex:1;min-width:120px" />
-        <input class="input-field input-pts" id="punishment-cost" type="number" placeholder="Body" />
-        <button class="btn-add" onclick="addPunishment()">+ Přidat</button>
+      <div class="ch">Tresty</div>
+      <div id="plist"></div>
+      <div class="af">
+        <input class="inp" id="p-name" placeholder="Název trestu..." style="flex:1;min-width:110px" />
+        <input class="inp ipts" id="p-cost" type="number" placeholder="Body" />
+        <button class="badd" onclick="addPunishment()">+ Přidat</button>
       </div>
     </div>
-    <div class="danger-zone">
-      <div>
-        <div style="font-size:12px">Resetovat body</div>
-        <div class="danger-label">Zachová historii, vynuluje skóre</div>
-      </div>
-      <button class="btn-danger" onclick="resetScore()">Reset</button>
+    <div class="dz">
+      <div><div style="font-size:12px;color:var(--text)">Resetovat body</div><div class="dlbl">Zachová historii, vynuluje skóre</div></div>
+      <button class="bdng" onclick="resetScore()">Reset</button>
     </div>
   </div>
 
-  <!-- SETTINGS -->
-  <div class="section" id="sec-settings">
-    <div class="settings-card">
-      <div class="settings-row">
-        <div>
-          <div class="settings-row-label">Synchronizace</div>
-          <div class="settings-row-sub">Načíst nejnovější data z GitHubu</div>
+  <div class="sec" id="sec-settings">
+    <div class="stcard">
+      <div class="str">
+        <div><div class="strl">Motiv</div><div class="strs">Vzhled aplikace</div></div>
+        <div class="tsw">
+          <div class="tb tb-dark active" id="tb-dark" onclick="setTheme('dark')" title="Tmavý"></div>
+          <div class="tb tb-light" id="tb-light" onclick="setTheme('light')" title="Světlý"></div>
+          <div class="tb tb-bdsm" id="tb-bdsm" onclick="setTheme('bdsm')" title="BDSM"></div>
         </div>
-        <button class="btn-settings" onclick="syncNow()">↻ Sync</button>
       </div>
-      <div class="settings-row">
-        <div>
-          <div class="settings-row-label">Změnit heslo</div>
-          <div class="settings-row-sub">Přešifruje data novým heslem</div>
-        </div>
-        <button class="btn-settings" onclick="changePassword()">Změnit</button>
+      <div class="str">
+        <div><div class="strl">Synchronizace</div><div class="strs">Načíst nejnovější data</div></div>
+        <button class="bst" onclick="syncNow()">↻ Sync</button>
       </div>
-      <div class="settings-row">
-        <div>
-          <div class="settings-row-label">Odpojit zařízení</div>
-          <div class="settings-row-sub">Smaže token a heslo z tohoto zařízení</div>
-        </div>
-        <button class="btn-danger" onclick="logout()">Odpojit</button>
+      <div class="str">
+        <div><div class="strl">Změnit heslo</div><div class="strs">Přešifruje data novým heslem</div></div>
+        <button class="bst" onclick="changePassword()">Změnit</button>
+      </div>
+      <div class="str">
+        <div><div class="strl">Odpojit zařízení</div><div class="strs">Smaže token a heslo lokálně</div></div>
+        <button class="bdng" onclick="logout()">Odpojit</button>
       </div>
     </div>
-    <div style="padding:10px 0;font-size:10px;color:var(--text-dimmer);text-align:center;line-height:1.8">
-      Data jsou šifrována AES-256-GCM<br>
-      GitHub vidí pouze zašifrovaný blob<br>
-      ✦ griimiik/ds-todo
+    <div style="padding:10px 0;font-size:10px;color:var(--dimmer);text-align:center;line-height:2">
+      Data šifrována AES-256-GCM<br>GitHub vidí pouze zašifrovaný blob<br>✦ griimiik/ds-todo
     </div>
   </div>
-
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+<div class="mo" id="modal" onclick="cmo(event)">
   <div class="modal">
-    <div class="modal-title" id="modal-title">Přidat body</div>
-    <input class="input-field" id="modal-pts" type="number" placeholder="Počet bodů..." />
-    <input class="input-field" id="modal-reason" placeholder="Důvod (volitelné)..." style="margin-top:8px" />
-    <div class="modal-row">
-      <button class="btn-confirm positive" id="modal-confirm" onclick="confirmModal()">Potvrdit</button>
-      <button class="btn-cancel" onclick="closeModal()">Zrušit</button>
+    <div class="mt" id="modal-t">Přidat body</div>
+    <input class="inp" id="m-pts" type="number" placeholder="Počet bodů..." />
+    <input class="inp" id="m-rsn" placeholder="Důvod (volitelné)..." style="margin-top:8px" />
+    <div class="mr">
+      <button class="bc pos" id="m-ok" onclick="confirmModal()">Potvrdit</button>
+      <button class="bcan" onclick="closeModal()">Zrušit</button>
     </div>
   </div>
 </div>
@@ -911,473 +375,275 @@ body::before {
 <div class="toast" id="toast"></div>
 
 <script>
-// ── CONFIG ─────────────────────────────────────────────────────────────
-const REPO_OWNER = 'Griimiik';
-const REPO_NAME  = 'ds-todo';
-const DATA_FILE  = 'data.json';
+const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
+let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[]};
+let ghToken='', encPw='', modalMode='add', sha=null, theme='dark';
 
-// ── STATE ──────────────────────────────────────────────────────────────
-let state = {
-  score: 0, totalPlus: 0, totalMinus: 0,
-  todos: [], legend: [], history: [], rewards: [], punishments: []
-};
-
-let githubToken = '';
-let encPassword = '';
-let modalMode = 'add';
-let fileSha = null; // GitHub file SHA for updates
-
-// ── CRYPTO (AES-256-GCM) ───────────────────────────────────────────────
-async function getKey(password) {
-  const enc = new TextEncoder();
-  const raw = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: enc.encode('ds-tracker-salt-v1'), iterations: 100000, hash: 'SHA-256' },
-    raw,
-    { name: 'AES-GCM', length: 256 },
-    false,
-    ['encrypt', 'decrypt']
-  );
+// THEME
+function setTheme(t){
+  theme=t;
+  if(t==='dark') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('theme',t);
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('tb-'+t);
+  if(el) el.classList.add('active');
 }
 
-async function encrypt(data, password) {
-  const key = await getKey(password);
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const enc = new TextEncoder();
-  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(data)));
-  const combined = new Uint8Array(iv.length + ciphertext.byteLength);
-  combined.set(iv);
-  combined.set(new Uint8Array(ciphertext), iv.length);
-  return btoa(String.fromCharCode(...combined));
+// CRYPTO
+async function getKey(pw){
+  const e=new TextEncoder();
+  const r=await crypto.subtle.importKey('raw',e.encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:e.encode('ds-tracker-salt-v1'),iterations:100000,hash:'SHA-256'},r,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function encrypt(d,pw){
+  const k=await getKey(pw),iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},k,new TextEncoder().encode(JSON.stringify(d)));
+  const c=new Uint8Array(iv.length+ct.byteLength);c.set(iv);c.set(new Uint8Array(ct),iv.length);
+  return btoa(String.fromCharCode(...c));
+}
+async function decrypt(b64,pw){
+  const c=Uint8Array.from(atob(b64),x=>x.charCodeAt(0));
+  const k=await getKey(pw);
+  const d=await crypto.subtle.decrypt({name:'AES-GCM',iv:c.slice(0,12)},k,c.slice(12));
+  return JSON.parse(new TextDecoder().decode(d));
 }
 
-async function decrypt(b64, password) {
-  const combined = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-  const iv = combined.slice(0, 12);
-  const ciphertext = combined.slice(12);
-  const key = await getKey(password);
-  const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
-  return JSON.parse(new TextDecoder().decode(dec));
-}
-
-// ── GITHUB API ─────────────────────────────────────────────────────────
-async function githubGet() {
-  const r = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`, {
-    headers: { Authorization: `token ${githubToken}`, Accept: 'application/vnd.github.v3+json' }
-  });
-  if (r.status === 404) return null;
-  if (!r.ok) throw new Error('GitHub GET selhal');
+// GITHUB
+async function ghGet(){
+  const r=await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`,{headers:{Authorization:`token ${ghToken}`,Accept:'application/vnd.github.v3+json'}});
+  if(r.status===404) return null;
+  if(!r.ok) throw new Error('GitHub GET selhal');
   return r.json();
 }
-
-async function githubPut(encryptedContent) {
-  const body = {
-    message: 'update tracker data',
-    content: btoa(unescape(encodeURIComponent(encryptedContent))),
-  };
-  if (fileSha) body.sha = fileSha;
-
-  const r = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`, {
-    method: 'PUT',
-    headers: {
-      Authorization: `token ${githubToken}`,
-      Accept: 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  });
-  if (!r.ok) throw new Error('GitHub PUT selhal');
-  const data = await r.json();
-  fileSha = data.content.sha;
+async function ghPut(enc){
+  const body={message:'update',content:btoa(unescape(encodeURIComponent(enc)))};
+  if(sha) body.sha=sha;
+  const r=await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`,{method:'PUT',headers:{Authorization:`token ${ghToken}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error('GitHub PUT selhal');
+  sha=(await r.json()).content.sha;
 }
 
-// ── SYNC ───────────────────────────────────────────────────────────────
-function setSyncStatus(status, text) {
-  const el = document.getElementById('sync-status');
-  el.textContent = text;
-  el.className = 'sync-status ' + status;
+// SYNC
+function setSS(s,t){const e=document.getElementById('sync-s');e.textContent=t;e.className='ss2 '+s}
+async function syncNow(){
+  setSS('syncing','↻ sync...');
+  try{
+    const f=await ghGet();
+    if(f){sha=f.sha;state=await decrypt(decodeURIComponent(escape(atob(f.content.replace(/\n/g,'')))),encPw);}
+    renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
+  }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
+}
+async function save(){
+  setSS('syncing','↑ ukládám...');
+  try{await ghPut(await encrypt(state,encPw));setSS('synced','✓ uloženo');}
+  catch(e){setSS('error','✗ chyba');showToast('✗ Uložení selhalo — '+e.message);}
 }
 
-async function syncNow() {
-  setSyncStatus('syncing', '↻ sync...');
-  try {
-    const file = await githubGet();
-    if (file) {
-      fileSha = file.sha;
-      const raw = decodeURIComponent(escape(atob(file.content.replace(/\n/g, ''))));
-      state = await decrypt(raw, encPassword);
-    }
-    renderAll();
-    setSyncStatus('synced', '✓ synced');
-    showToast('✓ Data synchronizována');
-  } catch(e) {
-    setSyncStatus('error', '✗ chyba');
-    showToast('✗ Sync selhal — ' + e.message);
-  }
-}
-
-async function saveToGitHub() {
-  setSyncStatus('syncing', '↑ ukládám...');
-  try {
-    const encrypted = await encrypt(state, encPassword);
-    await githubPut(encrypted);
-    setSyncStatus('synced', '✓ uloženo');
-  } catch(e) {
-    setSyncStatus('error', '✗ chyba');
-    showToast('✗ Uložení selhalo — ' + e.message);
-  }
-}
-
-// ── SETUP ──────────────────────────────────────────────────────────────
-async function setupApp() {
-  const token = document.getElementById('setup-token').value.trim();
-  const password = document.getElementById('setup-password').value;
-  if (!token || !password) { showToast('✗ Vyplň token i heslo'); return; }
-  if (password.length < 6) { showToast('✗ Heslo musí mít alespoň 6 znaků'); return; }
-
-  githubToken = token;
-  encPassword = password;
-
-  localStorage.setItem('gh_token', token);
-  localStorage.setItem('enc_pw', password);
-
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('loading-screen').style.display = 'flex';
-  document.querySelector('.loading-text').textContent = 'Připojuji...';
-
+// SETUP
+async function setupApp(){
+  const t=document.getElementById('s-token').value.trim();
+  const p=document.getElementById('s-pw').value;
+  if(!t||!p){showToast('✗ Vyplň token i heslo');return;}
+  if(p.length<6){showToast('✗ Heslo musí mít alespoň 6 znaků');return;}
+  ghToken=t;encPw=p;localStorage.setItem('gh_token',t);localStorage.setItem('enc_pw',p);
+  document.getElementById('ss').style.display='none';
+  document.getElementById('ls').style.display='flex';
+  document.getElementById('lt').textContent='Připojuji...';
   await syncNow();
-
-  // If no data yet, save defaults
-  if (!fileSha) {
-    setDefaults();
-    await saveToGitHub();
-  }
-
-  document.getElementById('loading-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+  if(!sha){setDefaults();await save();}
+  document.getElementById('ls').style.display='none';
+  document.getElementById('app').style.display='block';
 }
-
-function setDefaults() {
-  state.legend = [
-    { id: uid(), name: 'Splněný denní úkol', pts: 10, type: 'reward' },
-    { id: uid(), name: 'Splněný týdenní úkol', pts: 25, type: 'reward' },
-    { id: uid(), name: 'Výjimečné chování', pts: 50, type: 'reward' },
-    { id: uid(), name: 'Nesplněný úkol', pts: -15, type: 'punishment' },
-    { id: uid(), name: 'Porušení pravidla', pts: -30, type: 'punishment' },
+function setDefaults(){
+  state.legend=[
+    {id:uid(),name:'Splněný denní úkol',pts:10,type:'reward'},
+    {id:uid(),name:'Splněný týdenní úkol',pts:25,type:'reward'},
+    {id:uid(),name:'Výjimečné chování',pts:50,type:'reward'},
+    {id:uid(),name:'Nesplněný úkol',pts:-15,type:'punishment'},
+    {id:uid(),name:'Porušení pravidla',pts:-30,type:'punishment'},
   ];
-  state.rewards = [
-    { id: uid(), name: '🎬 Výběr večerního filmu', cost: 50 },
-    { id: uid(), name: '🍫 Oblíbená sladkost', cost: 30 },
-    { id: uid(), name: '💆 Masáž', cost: 80 },
-    { id: uid(), name: '🌟 Volný večer', cost: 100 },
+  state.rewards=[
+    {id:uid(),name:'🎬 Výběr večerního filmu',cost:50},
+    {id:uid(),name:'🍫 Oblíbená sladkost',cost:30},
+    {id:uid(),name:'💆 Masáž',cost:80},
+    {id:uid(),name:'🌟 Volný večer',cost:100},
   ];
-  state.punishments = [
-    { id: uid(), name: '📝 Psaní věty 20×', cost: 20 },
-    { id: uid(), name: '📵 Bez telefonu 2 hodiny', cost: 15 },
-    { id: uid(), name: '🛌 Brzy spát bez zábavy', cost: 25 },
+  state.punishments=[
+    {id:uid(),name:'📝 Psaní věty 20×',cost:20},
+    {id:uid(),name:'📵 Bez telefonu 2 hodiny',cost:15},
+    {id:uid(),name:'🛌 Brzy spát bez zábavy',cost:25},
   ];
 }
+function logout(){if(!confirm('Odpojit zařízení?')) return;localStorage.removeItem('gh_token');localStorage.removeItem('enc_pw');location.reload();}
+async function changePassword(){const p=prompt('Nové heslo (min. 6 znaků):');if(!p||p.length<6){showToast('✗ Příliš krátké heslo');return;}encPw=p;localStorage.setItem('enc_pw',p);await save();showToast('✓ Heslo změněno');}
 
-function logout() {
-  if (!confirm('Odpojit toto zařízení? Data na GitHubu zůstanou.')) return;
-  localStorage.removeItem('gh_token');
-  localStorage.removeItem('enc_pw');
-  location.reload();
+// INIT
+async function init(){
+  const t=localStorage.getItem('gh_token'),p=localStorage.getItem('enc_pw');
+  const th=localStorage.getItem('theme')||'dark';setTheme(th);
+  if(t&&p){ghToken=t;encPw=p;document.getElementById('lt').textContent='Synchronizuji...';await syncNow();document.getElementById('ls').style.display='none';document.getElementById('app').style.display='block';}
+  else{document.getElementById('ls').style.display='none';document.getElementById('ss').style.display='flex';}
 }
 
-async function changePassword() {
-  const newPw = prompt('Zadej nové heslo (min. 6 znaků):');
-  if (!newPw || newPw.length < 6) { showToast('✗ Příliš krátké heslo'); return; }
-  encPassword = newPw;
-  localStorage.setItem('enc_pw', newPw);
-  await saveToGitHub();
-  showToast('✓ Heslo změněno a data přešifrována');
+// RENDER
+function renderAll(){renderScore();renderTodo();renderLegend();renderHistory();renderRewards();}
+function renderScore(){
+  const e=document.getElementById('score');
+  e.textContent=state.score;e.className='sval'+(state.score<0?' neg':'');
+  document.getElementById('splus').textContent=state.totalPlus;
+  document.getElementById('sminus').textContent=state.totalMinus;
+}
+function renderTodo(){
+  const l=document.getElementById('tlist'),c=document.getElementById('tcnt');
+  const done=state.todos.filter(t=>t.done).length;
+  c.textContent=`${done}/${state.todos.length}`;
+  if(!state.todos.length){l.innerHTML='<div class="empty"><div class="ei">📋</div>Žádné úkoly<br><span style="font-size:11px">Přidej první úkol níže</span></div>';return;}
+  l.innerHTML=state.todos.map(t=>`
+    <div class="ti ${t.done?'done':''}" onclick="toggleTodo('${t.id}')">
+      <div class="tck">${t.done?'✓':''}</div>
+      <div class="ttx"><div class="tn">${t.name}</div>${t.pts?`<div class="tp">+${t.pts} bodů</div>`:''}</div>
+      <button class="bm d" onclick="event.stopPropagation();delTodo('${t.id}')">✕</button>
+    </div>`).join('');
+}
+function renderLegend(){
+  const l=document.getElementById('llist');
+  if(!state.legend.length){l.innerHTML='<div class="empty"><div class="ei">📖</div>Prázdná legenda</div>';return;}
+  l.innerHTML=state.legend.map(x=>`
+    <div class="li">
+      <span class="lb ${x.type==='reward'?'lr':'lp'}">${x.type==='reward'?'odměna':'trest'}</span>
+      <span class="ln">${x.name}</span>
+      <span class="lv ${x.pts>0?'vp':'vn'}">${x.pts>0?'+':''}${x.pts}</span>
+      <button class="bm d" onclick="delLegend('${x.id}')">✕</button>
+    </div>`).join('');
+}
+function renderHistory(){
+  const l=document.getElementById('hlist');
+  if(!state.history.length){l.innerHTML='<div class="empty"><div class="ei">🕐</div>Žádná historie</div>';return;}
+  l.innerHTML=[...state.history].reverse().map(h=>`
+    <div class="hsti">
+      <div class="hd" style="background:${h.pts>0?'var(--green)':'var(--red)'}"></div>
+      <div class="hi2"><div class="hn">${h.reason||(h.pts>0?'Body přidány':'Body odebrány')}</div><div class="htm">${h.time}</div></div>
+      <div class="hv" style="color:${h.pts>0?'var(--green)':'var(--red)'}">${h.pts>0?'+':''}${h.pts}</div>
+    </div>`).join('');
+}
+function renderRewards(){
+  const rl=document.getElementById('rlist'),pl=document.getElementById('plist');
+  const rs=document.getElementById('rscore');
+  rs.textContent=`Body: ${state.score}`;
+  rl.innerHTML=state.rewards.length
+    ?state.rewards.map(r=>{
+      const ok=state.score>=r.cost;
+      return `<div class="rpi">
+        <div class="rpi2"><div class="rn">${r.name}</div><div class="rc">${r.cost} bodů${!ok?` · chybí ${r.cost-state.score}`:''}</div></div>
+        <button class="rpb${ok?'':' na'}" onclick="${ok?`useReward('${r.id}')`:''}">${ok?'Uplatnit':'✗ Málo bodů'}</button>
+        <button class="bm d" onclick="delReward('${r.id}')">✕</button>
+      </div>`;}).join('')
+    :'<div class="empty" style="padding:20px"><div class="ei">🏆</div>Žádné odměny</div>';
+  pl.innerHTML=state.punishments.length
+    ?state.punishments.map(p=>`
+      <div class="rpi">
+        <div class="rpi2"><div class="rn">${p.name}</div><div class="rc">${p.cost} bodů</div></div>
+        <button class="rpb" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,.3);color:var(--red)">Aplikovat</button>
+        <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>
+      </div>`).join('')
+    :'<div class="empty" style="padding:20px"><div class="ei">⚡</div>Žádné tresty</div>';
 }
 
-// ── INIT ───────────────────────────────────────────────────────────────
-async function init() {
-  const token = localStorage.getItem('gh_token');
-  const pw    = localStorage.getItem('enc_pw');
-
-  if (token && pw) {
-    githubToken = token;
-    encPassword = pw;
-    document.querySelector('.loading-text').textContent = 'Synchronizuji...';
-    await syncNow();
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-  } else {
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('setup-screen').style.display = 'flex';
-  }
+// ACTIONS
+function uid(){return Math.random().toString(36).slice(2,9)}
+function ts(){const n=new Date();return n.toLocaleDateString('cs-CZ')+' '+n.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}
+async function addPoints(pts,reason){
+  state.score+=pts;
+  if(pts>0)state.totalPlus+=pts;else state.totalMinus+=Math.abs(pts);
+  state.history.push({id:uid(),pts,reason,time:ts()});
+  renderAll();await save();
 }
-
-// ── RENDER ─────────────────────────────────────────────────────────────
-function renderAll() {
-  renderScore(); renderTodo(); renderLegend(); renderHistory(); renderRewards();
+async function toggleTodo(id){
+  const t=state.todos.find(x=>x.id===id);if(!t)return;
+  t.done=!t.done;renderTodo();
+  if(t.done&&t.pts)await addPoints(t.pts,`✓ ${t.name}`);else await save();
 }
-
-function renderScore() {
-  const el = document.getElementById('total-score');
-  el.textContent = state.score;
-  el.className = 'score-value' + (state.score < 0 ? ' negative' : '');
-  document.getElementById('total-plus').textContent = state.totalPlus;
-  document.getElementById('total-minus').textContent = state.totalMinus;
+async function addTodo(){
+  const n=document.getElementById('t-name').value.trim();
+  const p=parseInt(document.getElementById('t-pts').value)||0;
+  if(!n)return;
+  state.todos.push({id:uid(),name:n,pts:p,done:false});
+  document.getElementById('t-name').value='';document.getElementById('t-pts').value='';
+  renderTodo();await save();
 }
-
-function renderTodo() {
-  const list = document.getElementById('todo-list');
-  const count = document.getElementById('todo-count');
-  const done = state.todos.filter(t => t.done).length;
-  count.textContent = `${done}/${state.todos.length}`;
-  if (!state.todos.length) {
-    list.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Žádné úkoly<br><span style="font-size:11px">Přidej první úkol níže</span></div>';
-    return;
-  }
-  list.innerHTML = state.todos.map(t => `
-    <div class="todo-item ${t.done ? 'done' : ''}" onclick="toggleTodo('${t.id}')">
-      <div class="todo-check">${t.done ? '✓' : ''}</div>
-      <div class="todo-text">
-        <div class="todo-name">${t.name}</div>
-        ${t.pts ? `<div class="todo-pts">+${t.pts} bodů</div>` : ''}
-      </div>
-      <button class="btn-mini danger" onclick="event.stopPropagation();deleteTodo('${t.id}')">✕</button>
-    </div>
-  `).join('');
+async function delTodo(id){state.todos=state.todos.filter(x=>x.id!==id);renderTodo();await save();}
+async function addLegend(){
+  const n=document.getElementById('l-name').value.trim();
+  const pr=parseInt(document.getElementById('l-pts').value)||0;
+  const type=document.getElementById('l-type').value;
+  if(!n)return;
+  const pts=type==='punishment'?-Math.abs(pr):Math.abs(pr);
+  state.legend.push({id:uid(),name:n,pts,type});
+  document.getElementById('l-name').value='';document.getElementById('l-pts').value='';
+  renderLegend();await save();
 }
-
-function renderLegend() {
-  const list = document.getElementById('legend-list');
-  if (!state.legend.length) {
-    list.innerHTML = '<div class="empty"><div class="empty-icon">📖</div>Prázdná legenda</div>';
-    return;
-  }
-  list.innerHTML = state.legend.map(l => `
-    <div class="legend-item">
-      <span class="legend-badge ${l.type === 'reward' ? 'badge-reward' : 'badge-punishment'}">${l.type === 'reward' ? 'odměna' : 'trest'}</span>
-      <span class="legend-name">${l.name}</span>
-      <span class="legend-pts ${l.pts > 0 ? 'pts-pos' : 'pts-neg'}">${l.pts > 0 ? '+' : ''}${l.pts}</span>
-      <button class="btn-mini danger" onclick="deleteLegend('${l.id}')">✕</button>
-    </div>
-  `).join('');
+async function delLegend(id){state.legend=state.legend.filter(x=>x.id!==id);renderLegend();await save();}
+async function addReward(){
+  const n=document.getElementById('r-name').value.trim();
+  const c=parseInt(document.getElementById('r-cost').value)||0;
+  if(!n)return;
+  state.rewards.push({id:uid(),name:n,cost:c});
+  document.getElementById('r-name').value='';document.getElementById('r-cost').value='';
+  renderRewards();await save();
 }
-
-function renderHistory() {
-  const list = document.getElementById('history-list');
-  if (!state.history.length) {
-    list.innerHTML = '<div class="empty"><div class="empty-icon">🕐</div>Žádná historie</div>';
-    return;
-  }
-  list.innerHTML = [...state.history].reverse().map(h => `
-    <div class="history-item">
-      <div class="history-dot" style="background:${h.pts > 0 ? 'var(--green)' : 'var(--red)'}"></div>
-      <div class="history-info">
-        <div class="history-name">${h.reason || (h.pts > 0 ? 'Body přidány' : 'Body odebrány')}</div>
-        <div class="history-time">${h.time}</div>
-      </div>
-      <div class="history-pts" style="color:${h.pts > 0 ? 'var(--green)' : 'var(--red)'}">${h.pts > 0 ? '+' : ''}${h.pts}</div>
-    </div>
-  `).join('');
+async function delReward(id){state.rewards=state.rewards.filter(x=>x.id!==id);renderRewards();await save();}
+async function useReward(id){
+  const r=state.rewards.find(x=>x.id===id);if(!r)return;
+  if(state.score<r.cost){showToast('✗ Nedostatek bodů');return;}
+  if(confirm(`Uplatnit "${r.name}" za ${r.cost} bodů?`))await addPoints(-r.cost,`🏆 ${r.name}`);
 }
-
-function renderRewards() {
-  const rList = document.getElementById('rewards-list');
-  const pList = document.getElementById('punishments-list');
-  rList.innerHTML = state.rewards.length
-    ? state.rewards.map(r => `
-      <div class="rp-item">
-        <div class="rp-info">
-          <div class="rp-name">${r.name}</div>
-          <div class="rp-cost">${r.cost} bodů</div>
-        </div>
-        <button class="rp-btn" onclick="useReward('${r.id}')">Uplatnit</button>
-        <button class="btn-mini danger" onclick="deleteReward('${r.id}')">✕</button>
-      </div>
-    `).join('')
-    : '<div class="empty" style="padding:20px"><div class="empty-icon">🏆</div>Žádné odměny</div>';
-
-  pList.innerHTML = state.punishments.length
-    ? state.punishments.map(p => `
-      <div class="rp-item">
-        <div class="rp-info">
-          <div class="rp-name">${p.name}</div>
-          <div class="rp-cost">${p.cost} bodů</div>
-        </div>
-        <button class="rp-btn danger" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,0.3);color:var(--red)">Aplikovat</button>
-        <button class="btn-mini danger" onclick="deletePunishment('${p.id}')">✕</button>
-      </div>
-    `).join('')
-    : '<div class="empty" style="padding:20px"><div class="empty-icon">⚡</div>Žádné tresty</div>';
+async function addPunishment(){
+  const n=document.getElementById('p-name').value.trim();
+  const c=parseInt(document.getElementById('p-cost').value)||0;
+  if(!n)return;
+  state.punishments.push({id:uid(),name:n,cost:c});
+  document.getElementById('p-name').value='';document.getElementById('p-cost').value='';
+  renderRewards();await save();
 }
-
-// ── ACTIONS ────────────────────────────────────────────────────────────
-function uid() { return Math.random().toString(36).slice(2, 9); }
-
-function tsNow() {
-  const n = new Date();
-  return n.toLocaleDateString('cs-CZ') + ' ' + n.toLocaleTimeString('cs-CZ', {hour:'2-digit',minute:'2-digit'});
+async function delPunishment(id){state.punishments=state.punishments.filter(x=>x.id!==id);renderRewards();await save();}
+async function usePunishment(id){
+  const p=state.punishments.find(x=>x.id===id);if(!p)return;
+  if(confirm(`Aplikovat trest "${p.name}" (−${p.cost} bodů)?`))await addPoints(-p.cost,`⚡ ${p.name}`);
 }
+async function clearHistory(){if(!confirm('Vymazat historii?'))return;state.history=[];renderHistory();await save();}
+async function resetScore(){if(!confirm('Vynulovat skóre?'))return;state.score=0;state.totalPlus=0;state.totalMinus=0;renderScore();await save();}
 
-async function addPoints(pts, reason) {
-  state.score += pts;
-  if (pts > 0) state.totalPlus += pts;
-  else state.totalMinus += Math.abs(pts);
-  state.history.push({ id: uid(), pts, reason, time: tsNow() });
-  renderAll();
-  await saveToGitHub();
-}
-
-async function toggleTodo(id) {
-  const t = state.todos.find(x => x.id === id);
-  if (!t) return;
-  t.done = !t.done;
-  renderTodo();
-  if (t.done && t.pts) await addPoints(t.pts, `✓ ${t.name}`);
-  else await saveToGitHub();
-}
-
-async function addTodo() {
-  const name = document.getElementById('todo-input').value.trim();
-  const pts = parseInt(document.getElementById('todo-pts').value) || 0;
-  if (!name) return;
-  state.todos.push({ id: uid(), name, pts, done: false });
-  document.getElementById('todo-input').value = '';
-  document.getElementById('todo-pts').value = '';
-  renderTodo();
-  await saveToGitHub();
-}
-
-async function deleteTodo(id) {
-  state.todos = state.todos.filter(x => x.id !== id);
-  renderTodo();
-  await saveToGitHub();
-}
-
-async function addLegend() {
-  const name = document.getElementById('legend-input').value.trim();
-  const ptsRaw = parseInt(document.getElementById('legend-pts').value) || 0;
-  const type = document.getElementById('legend-type').value;
-  if (!name) return;
-  const pts = type === 'punishment' ? -Math.abs(ptsRaw) : Math.abs(ptsRaw);
-  state.legend.push({ id: uid(), name, pts, type });
-  document.getElementById('legend-input').value = '';
-  document.getElementById('legend-pts').value = '';
-  renderLegend();
-  await saveToGitHub();
-}
-
-async function deleteLegend(id) {
-  state.legend = state.legend.filter(x => x.id !== id);
-  renderLegend();
-  await saveToGitHub();
-}
-
-async function addReward() {
-  const name = document.getElementById('reward-input').value.trim();
-  const cost = parseInt(document.getElementById('reward-cost').value) || 0;
-  if (!name) return;
-  state.rewards.push({ id: uid(), name, cost });
-  document.getElementById('reward-input').value = '';
-  document.getElementById('reward-cost').value = '';
-  renderRewards();
-  await saveToGitHub();
-}
-
-async function deleteReward(id) {
-  state.rewards = state.rewards.filter(x => x.id !== id);
-  renderRewards();
-  await saveToGitHub();
-}
-
-async function useReward(id) {
-  const r = state.rewards.find(x => x.id === id);
-  if (!r) return;
-  if (confirm(`Uplatnit odměnu "${r.name}" za ${r.cost} bodů?`)) await addPoints(-r.cost, `🏆 ${r.name}`);
-}
-
-async function addPunishment() {
-  const name = document.getElementById('punishment-input').value.trim();
-  const cost = parseInt(document.getElementById('punishment-cost').value) || 0;
-  if (!name) return;
-  state.punishments.push({ id: uid(), name, cost });
-  document.getElementById('punishment-input').value = '';
-  document.getElementById('punishment-cost').value = '';
-  renderRewards();
-  await saveToGitHub();
-}
-
-async function deletePunishment(id) {
-  state.punishments = state.punishments.filter(x => x.id !== id);
-  renderRewards();
-  await saveToGitHub();
-}
-
-async function usePunishment(id) {
-  const p = state.punishments.find(x => x.id === id);
-  if (!p) return;
-  if (confirm(`Aplikovat trest "${p.name}" (−${p.cost} bodů)?`)) await addPoints(-p.cost, `⚡ ${p.name}`);
-}
-
-async function clearHistory() {
-  if (!confirm('Opravdu vymazat celou historii?')) return;
-  state.history = [];
-  renderHistory();
-  await saveToGitHub();
-}
-
-async function resetScore() {
-  if (!confirm('Vynulovat skóre? Historie zůstane zachována.')) return;
-  state.score = 0;
-  state.totalPlus = 0;
-  state.totalMinus = 0;
-  renderScore();
-  await saveToGitHub();
-}
-
-// ── MODAL ──────────────────────────────────────────────────────────────
-function openModal(mode) {
-  modalMode = mode;
-  document.getElementById('modal-title').textContent = mode === 'add' ? '+ Přidat body' : '− Odebrat body';
-  document.getElementById('modal-confirm').className = 'btn-confirm ' + (mode === 'add' ? 'positive' : 'negative');
-  document.getElementById('modal-pts').value = '';
-  document.getElementById('modal-reason').value = '';
+// MODAL
+function openModal(m){
+  modalMode=m;
+  document.getElementById('modal-t').textContent=m==='add'?'+ Přidat body':'− Odebrat body';
+  document.getElementById('m-ok').className='bc '+(m==='add'?'pos':'neg');
+  document.getElementById('m-pts').value='';document.getElementById('m-rsn').value='';
   document.getElementById('modal').classList.add('open');
-  setTimeout(() => document.getElementById('modal-pts').focus(), 300);
+  setTimeout(()=>document.getElementById('m-pts').focus(),300);
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function cmo(e){if(e.target.id==='modal')closeModal()}
+async function confirmModal(){
+  const p=parseInt(document.getElementById('m-pts').value);
+  if(!p||p<=0)return;
+  const r=document.getElementById('m-rsn').value.trim();
+  closeModal();await addPoints(modalMode==='add'?p:-p,r);
 }
 
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-function closeModalOutside(e) { if (e.target.id === 'modal') closeModal(); }
-
-async function confirmModal() {
-  const pts = parseInt(document.getElementById('modal-pts').value);
-  if (!pts || pts <= 0) return;
-  const reason = document.getElementById('modal-reason').value.trim();
-  closeModal();
-  await addPoints(modalMode === 'add' ? pts : -pts, reason);
+// TABS
+function sw(n){
+  const ns=['todo','legend','history','rewards','settings'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ns[i]===n));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+n).classList.add('active');
 }
 
-// ── TABS ───────────────────────────────────────────────────────────────
-function switchTab(name) {
-  const names = ['todo','legend','history','rewards','settings'];
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', names[i] === name));
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById('sec-' + name).classList.add('active');
-}
+// TOAST
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 
-// ── TOAST ──────────────────────────────────────────────────────────────
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// ── ENTER ──────────────────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('modal').classList.contains('open')) confirmModal();
-});
-
-// ── START ──────────────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('modal').classList.contains('open'))confirmModal()});
 init();
 </script>
 </body>
