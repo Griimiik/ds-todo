@@ -564,8 +564,8 @@ function renderRewards(){
 function uid(){return Math.random().toString(36).slice(2,9)}
 function ts(){const n=new Date();return n.toLocaleDateString('cs-CZ')+' '+n.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}
 
-async function addPoints(pts,reason){
-  if(role!=='dom'){showToast('🔒 Pouze Dom může měnit body');return;}
+async function addPoints(pts,reason,force=false){
+  if(role!=='dom'&&!force){showToast('🔒 Pouze Dom může měnit body');return;}
   state.score+=pts;
   if(pts>0)state.totalPlus+=pts;else state.totalMinus+=Math.abs(pts);
   state.history.push({id:uid(),pts,reason,time:ts()});
@@ -574,14 +574,17 @@ async function addPoints(pts,reason){
 
 async function toggleTodo(id){
   const t=state.todos.find(x=>x.id===id);if(!t)return;
-  if(role==='sub'&&t.done){showToast('🔒 Splněný úkol může odšrtnout jen Dom');return;}
-  t.done=!t.done;renderTodo();
-  if(t.done&&t.pts){
-    // Sub zaškrtne → body přidá se zapíše přes Dom token (uložený lokálně)
-    // Pokud Sub nemá token, pouze označí lokálně a Dom synchronizuje
-    if(ghToken) await addPoints(t.pts,`✓ ${t.name}`);
-    else{showToast('✓ Úkol splněn — Dom přidá body při syncu');await syncNow();}
-  } else await save();
+  const wasDone=t.done;
+  t.done=!t.done;
+  renderTodo();
+  if(!wasDone&&t.pts){
+    await addPoints(t.pts,`✓ ${t.name}`,true);
+  } else if(wasDone&&t.pts&&role==='dom'){
+    // Odškrtnutí → odebrat body zpět (jen Dom)
+    await addPoints(-t.pts,`↩ ${t.name} odškrtnuto`);
+  } else {
+    await save();
+  }
 }
 
 async function addTodo(){
