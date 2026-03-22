@@ -715,9 +715,14 @@ async function addTodo(){
   const type=document.getElementById('t-type').value||'active';
   if(!n) return;
   state.todos.push({id:uid(),name:n,pts:p,done:false,type});
+  // Automaticky přidej i do banky pokud tam ještě není
+  if(!state.bank) state.bank=[];
+  const inBank=state.bank.some(b=>b.name===n&&b.type===type);
+  if(!inBank) state.bank.push({id:uid(),name:n,pts:p,type});
   document.getElementById('t-name').value='';
   document.getElementById('t-pts').value='';
-  renderTodo();await save();
+  renderTodo();renderBank();await save();
+  showToast('✓ Úkol přidán + zapsán do banky');
 }
 
 async function delTodo(id){state.todos=state.todos.filter(x=>x.id!==id);renderTodo();await save();}
@@ -764,7 +769,7 @@ async function activateIdea(id){
     // Automaticky přidej i do banky (pokud tam ještě není)
     if(!state.bank) state.bank=[];
     const inBank=state.bank.some(b=>b.name===idea.name&&b.type===todoType);
-    if(!inBank&&(todoType==='daily'||todoType==='weekly')){
+    if(!inBank){
       state.bank.push({id:uid(),name:idea.name,pts:Math.max(0,pts),type:todoType});
       showToast('✓ Aktivita přidána do úkolů + banky');
     } else {
@@ -797,19 +802,24 @@ async function activateIdea(id){
 
 // ── BANK ───────────────────────────────────────────────────────────────
 function renderBank(){
+  const al=document.getElementById('bank-active-list');
   const dl=document.getElementById('bank-daily-list');
   const wl=document.getElementById('bank-weekly-list');
+  const ac=document.getElementById('bank-active-count');
   const dc=document.getElementById('bank-daily-count');
   const wc=document.getElementById('bank-weekly-count');
   if(!dl||!wl) return;
 
+  const active=(state.bank||[]).filter(b=>b.type==='active');
   const daily=(state.bank||[]).filter(b=>b.type==='daily');
   const weekly=(state.bank||[]).filter(b=>b.type==='weekly');
 
+  if(ac) ac.textContent=`${active.length} úkolů`;
   if(dc) dc.textContent=`${daily.length} úkolů`;
   if(wc) wc.textContent=`${weekly.length} úkolů`;
 
   const renderBankList=(items,list)=>{
+    if(!list) return;
     if(!items.length){
       list.innerHTML='<div class="empty" style="padding:16px 10px"><div class="ei">📭</div>Prázdná banka</div>';
       return;
@@ -830,6 +840,7 @@ function renderBank(){
     }).join('');
   };
 
+  renderBankList(active,al);
   renderBankList(daily,dl);
   renderBankList(weekly,wl);
 }

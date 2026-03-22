@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0a0a0f">
 <title>✦ Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3.2">
+<link rel="stylesheet" href="style.css?v=3.4">
 </head>
 <body>
 
@@ -246,8 +246,16 @@
   <!-- BANKA ÚKOLŮ -->
   <div class="sec" id="sec-bank">
     <div class="bank-actions">
-      <button class="bank-roll-btn daily" onclick="rollRandom('daily')">🎲 Náhodný denní úkol</button>
-      <button class="bank-roll-btn weekly" onclick="rollRandom('weekly')">🎲 Náhodný týdenní úkol</button>
+      <button class="bank-roll-btn active" onclick="rollRandom('active')">🎲 Náhodný aktivní</button>
+      <button class="bank-roll-btn daily" onclick="rollRandom('daily')">🎲 Náhodný denní</button>
+      <button class="bank-roll-btn weekly" onclick="rollRandom('weekly')">🎲 Náhodný týdenní</button>
+    </div>
+    <div class="card">
+      <div class="ch">
+        <span>🎯 Aktivní úkoly</span>
+        <span id="bank-active-count" style="font-size:10px;color:var(--accent)"></span>
+      </div>
+      <div id="bank-active-list"></div>
     </div>
     <div class="card">
       <div class="ch">
@@ -267,6 +275,7 @@
       <input class="inp" id="bank-name" placeholder="Název úkolu do banky..." style="flex:1;min-width:110px" />
       <input class="inp ipts" id="bank-pts" type="number" placeholder="Body" />
       <select class="inp" id="bank-type" style="flex:none;width:90px;font-family:inherit">
+        <option value="active">🎯 Aktivní</option>
         <option value="daily">☀️ Denní</option>
         <option value="weekly">📅 Týdenní</option>
       </select>
@@ -368,6 +377,6 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=3.3"></script>
+<script src="app.js?v=3.4"></script>
 </body>
 </html>

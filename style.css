@@ -183,8 +183,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .rpb.na{border-color:rgba(201,110,110,.35);color:var(--red);cursor:not-allowed;opacity:.65}
 
 /* BANK */
-.bank-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.bank-roll-btn{padding:12px 8px;border-radius:var(--r);font-family:inherit;font-size:12px;cursor:pointer;transition:all .2s;text-align:center;border:1px solid var(--border-h)}
+.bank-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+@media(max-width:400px){.bank-actions{grid-template-columns:1fr}}
+.bank-roll-btn{padding:11px 6px;border-radius:var(--r);font-family:inherit;font-size:11px;cursor:pointer;transition:all .2s;text-align:center;border:1px solid var(--border-h)}
+.bank-roll-btn.active{background:rgba(155,142,196,.08);color:var(--purple);border-color:rgba(155,142,196,.25)}
+.bank-roll-btn.active:hover{background:var(--purple-d)}
 .bank-roll-btn.daily{background:rgba(110,201,138,.08);color:var(--green);border-color:rgba(110,201,138,.25)}
 .bank-roll-btn.daily:hover{background:var(--green-d)}
 .bank-roll-btn.weekly{background:rgba(201,169,110,.08);color:var(--accent);border-color:rgba(201,169,110,.25)}
