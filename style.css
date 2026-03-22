@@ -147,15 +147,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .badd{background:var(--accent-d);border:1px solid var(--border-h);border-radius:var(--rs);color:var(--accent);font-family:inherit;font-size:11px;padding:8px 11px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .badd:active{transform:scale(.97)}
 
-/* LEGEND */
-.li{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border);gap:8px}
-.li:last-child{border-bottom:none}
-.lb{font-size:9px;padding:3px 6px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.lr{background:var(--green-d);color:var(--green);border:1px solid rgba(110,201,138,.2)}
-.lp{background:var(--red-d);color:var(--red);border:1px solid rgba(201,110,110,.2)}
-.ln{flex:1;font-size:13px;color:var(--text);min-width:0;word-break:break-word}
-.lv{font-family:var(--ff);font-size:18px;font-weight:300;flex-shrink:0}
-.vp{color:var(--green)} .vn{color:var(--red)}
+/* IDEAS (dříve LEGEND) */
+.idea-item{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);gap:10px}
+.idea-item:last-child{border-bottom:none}
+.idea-checks{display:flex;gap:6px;flex-shrink:0}
+.idea-check{font-size:20px;cursor:pointer;opacity:.25;transition:all .2s;user-select:none;line-height:1}
+.idea-check.checked{opacity:1;filter:drop-shadow(0 0 3px var(--accent))}
+.idea-check:hover{opacity:.6}
+.idea-info{flex:1;min-width:0}
+.idea-name{font-size:13px;color:var(--text);word-break:break-word}
+.idea-agreed{color:var(--green)}
+.idea-type-tag{font-size:9px;padding:2px 7px;border-radius:20px;white-space:nowrap;letter-spacing:.06em}
+.idea-tag-activity{background:rgba(201,169,110,.12);color:var(--accent);border:1px solid rgba(201,169,110,.25)}
+.idea-tag-reward{background:var(--green-d);color:var(--green);border:1px solid rgba(110,201,138,.2)}
+.idea-tag-punishment{background:var(--red-d);color:var(--red);border:1px solid rgba(201,110,110,.2)}
+.idea-dom-actions{display:flex;gap:5px;align-items:center;flex-shrink:0}
 
 /* HISTORY */
 .hsti{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:10px}

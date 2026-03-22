@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0a0a0f">
 <title>✦ Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2.5">
+<link rel="stylesheet" href="style.css?v=2.6">
 </head>
 <body>
 
@@ -121,7 +121,7 @@
 
   <div class="tabs">
     <button class="tab active" onclick="sw('todo')">Úkoly</button>
-    <button class="tab" onclick="sw('legend')">Legenda</button>
+    <button class="tab" onclick="sw('legend')">💡 Nápady</button>
     <button class="tab" onclick="sw('history')">Historie</button>
     <button class="tab" onclick="sw('rewards')">Odměny</button>
     <button class="tab" onclick="sw('active')">⚡ <span id="active-count"></span></button>
@@ -141,19 +141,22 @@
     </div>
   </div>
 
-  <!-- LEGEND -->
+  <!-- NÁPADY (dříve Legenda) -->
   <div class="sec" id="sec-legend">
     <div class="card">
-      <div class="ch">Akce a jejich hodnota</div>
+      <div class="ch">
+        <span>Nápady na aktivity</span>
+        <span style="font-size:10px;color:var(--dim)">🔑 Dom · 🦮 Sub</span>
+      </div>
       <div id="llist"></div>
-      <div class="af dom-only">
-        <input class="inp" id="l-name" placeholder="Název akce..." style="flex:1;min-width:100px" />
-        <input class="inp ipts" id="l-pts" type="number" placeholder="Body" />
-        <select class="inp" id="l-type" style="flex:none;width:100px;font-family:inherit">
-          <option value="reward">+ odměna</option>
-          <option value="punishment">− trest</option>
+      <div class="af">
+        <input class="inp" id="l-name" placeholder="Název nápadu..." style="flex:1;min-width:110px" />
+        <select class="inp" id="l-type" style="flex:none;width:105px;font-family:inherit">
+          <option value="activity">🎯 Aktivita</option>
+          <option value="reward">🏆 Odměna</option>
+          <option value="punishment">⚡ Trest</option>
         </select>
-        <button class="badd" onclick="addLegend()">+ Přidat</button>
+        <button class="badd" onclick="addIdea()">+ Přidat</button>
       </div>
     </div>
   </div>
@@ -299,6 +302,6 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=2.5"></script>
+<script src="app.js?v=2.6"></script>
 </body>
 </html>

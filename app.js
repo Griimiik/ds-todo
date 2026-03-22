@@ -1,7 +1,7 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
 const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
-let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],activePunishments:[]};
+let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],activePunishments:[],ideas:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role='';
 let countdownInterval=null;
@@ -110,6 +110,7 @@ async function syncNow(){
       }
     }
     if(!state.activePunishments) state.activePunishments=[];
+    if(!state.ideas) state.ideas=[];
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
 }
@@ -419,13 +420,8 @@ async function removeActivePunishment(id){
 // ── DEFAULTS ───────────────────────────────────────────────────────────
 function setDefaults(){
   state.activePunishments=[];
-  state.legend=[
-    {id:uid(),name:'Splněný denní úkol',pts:10,type:'reward'},
-    {id:uid(),name:'Splněný týdenní úkol',pts:25,type:'reward'},
-    {id:uid(),name:'Výjimečné chování',pts:50,type:'reward'},
-    {id:uid(),name:'Nesplněný úkol',pts:-15,type:'punishment'},
-    {id:uid(),name:'Porušení pravidla',pts:-30,type:'punishment'},
-  ];
+  state.ideas=[];
+  state.legend=[];
   state.rewards=[
     {id:uid(),name:'🎬 Výběr večerního filmu',cost:50},
     {id:uid(),name:'🍫 Oblíbená sladkost',cost:30},
@@ -471,7 +467,7 @@ async function changeSubPassword(){
 
 // ── RENDER ─────────────────────────────────────────────────────────────
 function renderAll(){
-  renderScore();renderTodo();renderLegend();renderHistory();renderRewards();renderActivePunishments();
+  renderScore();renderTodo();renderIdeas();renderHistory();renderRewards();renderActivePunishments();
 }
 
 function renderScore(){
@@ -497,15 +493,32 @@ function renderTodo(){
     </div>`).join('');
 }
 
-function renderLegend(){
+function renderIdeas(){
   const l=document.getElementById('llist');
-  if(!state.legend.length){l.innerHTML='<div class="empty"><div class="ei">📖</div>Prázdná legenda</div>';return;}
-  l.innerHTML=state.legend.map(x=>`
-    <div class="li">
-      <span class="lb ${x.type==='reward'?'lr':'lp'}">${x.type==='reward'?'odměna':'trest'}</span>
-      <span class="ln">${x.name}</span>
-      <span class="lv ${x.pts>0?'vp':'vn'}">${x.pts>0?'+':''}${x.pts}</span>
-      ${role==='dom'?`<button class="bm d" onclick="delLegend('${x.id}')">✕</button>`:''}
+  if(!state.ideas||!state.ideas.length){
+    l.innerHTML='<div class="empty"><div class="ei">💡</div>Žádné nápady<br><span style="font-size:11px">Přidej první nápad níže</span></div>';
+    return;
+  }
+  const typeLabels={activity:'🎯 Aktivita',punishment:'⚡ Trest',reward:'🏆 Odměna'};
+  const typeCls={activity:'idea-tag-activity',punishment:'idea-tag-punishment',reward:'idea-tag-reward'};
+  l.innerHTML=state.ideas.map(x=>`
+    <div class="idea-item">
+      <div class="idea-checks">
+        <div class="idea-check ${x.checkedDom?'checked':''}" onclick="toggleIdeaCheck('${x.id}','dom')" title="Dom souhlasí">🔑</div>
+        <div class="idea-check ${x.checkedSub?'checked':''}" onclick="toggleIdeaCheck('${x.id}','sub')" title="Sub souhlasí">🦮</div>
+      </div>
+      <div class="idea-info">
+        <div class="idea-name ${x.checkedDom&&x.checkedSub?'idea-agreed':''}">${x.name}</div>
+        <div style="display:flex;gap:6px;margin-top:4px;align-items:center">
+          <span class="idea-type-tag ${typeCls[x.type]||''}">${typeLabels[x.type]||x.type}</span>
+          ${x.checkedDom&&x.checkedSub?'<span style="font-size:9px;color:var(--green);letter-spacing:.08em">✓ oba souhlasí</span>':''}
+        </div>
+      </div>
+      ${role==='dom'?`
+        <div class="idea-dom-actions">
+          <button class="badd" onclick="activateIdea('${x.id}')" style="font-size:10px;padding:5px 8px">▶ Aktivovat</button>
+          <button class="bm d" onclick="deleteIdea('${x.id}')">✕</button>
+        </div>`:''}
     </div>`).join('');
 }
 
@@ -589,17 +602,49 @@ async function addTodo(){
 
 async function delTodo(id){state.todos=state.todos.filter(x=>x.id!==id);renderTodo();await save();}
 
-async function addLegend(){
+async function addIdea(){
   const n=document.getElementById('l-name').value.trim();
-  const pr=parseInt(document.getElementById('l-pts').value)||0;
   const type=document.getElementById('l-type').value;
-  if(!n)return;
-  const pts=type==='punishment'?-Math.abs(pr):Math.abs(pr);
-  state.legend.push({id:uid(),name:n,pts,type});
-  document.getElementById('l-name').value='';document.getElementById('l-pts').value='';
-  renderLegend();await save();
+  if(!n) return;
+  if(!state.ideas) state.ideas=[];
+  state.ideas.push({
+    id:uid(), name:n, type,
+    checkedDom:role==='dom',
+    checkedSub:role==='sub',
+    addedAt:new Date().toISOString()
+  });
+  document.getElementById('l-name').value='';
+  renderIdeas(); await save();
+  showToast('✓ Nápad přidán');
 }
-async function delLegend(id){state.legend=state.legend.filter(x=>x.id!==id);renderLegend();await save();}
+
+async function toggleIdeaCheck(id,who){
+  const idea=state.ideas.find(x=>x.id===id);
+  if(!idea) return;
+  if(who==='dom'&&role!=='dom'){showToast('🔒 Pouze Dom může zaškrtnout za Dom');return;}
+  if(who==='sub'&&role==='dom'){showToast('🔒 Sub zaškrtne za sebe');return;}
+  if(who==='dom') idea.checkedDom=!idea.checkedDom;
+  else idea.checkedSub=!idea.checkedSub;
+  renderIdeas(); await save();
+}
+
+async function activateIdea(id){
+  if(role!=='dom'){showToast('🔒 Pouze Dom může aktivovat nápad');return;}
+  const idea=state.ideas.find(x=>x.id===id);
+  if(!idea) return;
+  const pts=parseInt(prompt(`Kolik bodů za "${idea.name}"?\n(kladné = přidat, záporné = odečíst)`));
+  if(isNaN(pts)||pts===0) return;
+  const reason=`💡 ${idea.name}`;
+  if(pts>0) await addPoints(pts,reason,true);
+  else await addPoints(pts,reason,false);
+  showToast(`✓ Nápad aktivován (${pts>0?'+':''}${pts} bodů)`);
+}
+
+async function deleteIdea(id){
+  if(!confirm('Smazat tento nápad?')) return;
+  state.ideas=state.ideas.filter(x=>x.id!==id);
+  renderIdeas(); await save();
+}
 
 async function addReward(){
   const n=document.getElementById('r-name').value.trim();
