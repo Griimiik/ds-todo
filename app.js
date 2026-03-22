@@ -112,6 +112,7 @@ async function syncNow(){
     if(!state.activePunishments) state.activePunishments=[];
     if(!state.activeRewards) state.activeRewards=[];
     if(!state.ideas) state.ideas=[];
+    checkAutoReset();
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
 }
@@ -546,20 +547,65 @@ function renderScore(){
   document.getElementById('sminus').textContent=state.totalMinus;
 }
 
-function renderTodo(){
-  const l=document.getElementById('tlist'),c=document.getElementById('tcnt');
-  const done=state.todos.filter(t=>t.done).length;
-  c.textContent=`${done}/${state.todos.length}`;
-  if(!state.todos.length){
-    l.innerHTML='<div class="empty"><div class="ei">📋</div>Žádné úkoly<br><span style="font-size:11px">Přidej první úkol níže</span></div>';
-    return;
-  }
-  l.innerHTML=state.todos.map(t=>`
+// ── AUTO RESET ─────────────────────────────────────────────────────────
+function checkAutoReset(){
+  const now=new Date();
+  const todayStr=now.toDateString();
+  const weekStr=`${now.getFullYear()}-W${getWeekNumber(now)}`;
+  let changed=false;
+
+  state.todos.forEach(t=>{
+    if(t.type==='daily'&&t.done){
+      if(t.lastResetDay!==todayStr){
+        t.done=false;t.lastResetDay=todayStr;changed=true;
+      }
+    }
+    if(t.type==='weekly'&&t.done){
+      if(t.lastResetWeek!==weekStr){
+        t.done=false;t.lastResetWeek=weekStr;changed=true;
+      }
+    }
+  });
+  if(changed) save();
+}
+
+function getWeekNumber(d){
+  const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  date.setUTCDate(date.getUTCDate()+4-(date.getUTCDay()||7));
+  const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return Math.ceil((((date-yearStart)/86400000)+1)/7);
+}
+
+// ── RENDER TODO ────────────────────────────────────────────────────────
+function renderTodoBlock(todos,emptyIcon,emptyText){
+  if(!todos.length) return `<div class="empty" style="padding:18px 10px"><div class="ei">${emptyIcon}</div>${emptyText}</div>`;
+  return todos.map(t=>`
     <div class="ti ${t.done?'done':''}" onclick="toggleTodo('${t.id}')">
       <div class="tck">${t.done?'✓':''}</div>
-      <div class="ttx"><div class="tn">${t.name}</div>${t.pts?`<div class="tp">+${t.pts} bodů</div>`:''}</div>
+      <div class="ttx">
+        <div class="tn">${t.name}</div>
+        ${t.pts?`<div class="tp">+${t.pts} bodů</div>`:''}
+      </div>
       ${role==='dom'?`<button class="bm d" onclick="event.stopPropagation();delTodo('${t.id}')">✕</button>`:''}
     </div>`).join('');
+}
+
+function renderTodo(){
+  const active=state.todos.filter(t=>!t.type||t.type==='active');
+  const daily=state.todos.filter(t=>t.type==='daily');
+  const weekly=state.todos.filter(t=>t.type==='weekly');
+
+  const total=state.todos.length;
+  const done=state.todos.filter(t=>t.done).length;
+  const c=document.getElementById('tcnt');
+  if(c) c.textContent=`${done}/${total}`;
+
+  const al=document.getElementById('tlist-active');
+  const dl=document.getElementById('tlist-daily');
+  const wl=document.getElementById('tlist-weekly');
+  if(al) al.innerHTML=renderTodoBlock(active,'🎯','Žádné aktivní úkoly');
+  if(dl) dl.innerHTML=renderTodoBlock(daily,'☀️','Žádné denní úkoly');
+  if(wl) wl.innerHTML=renderTodoBlock(weekly,'📅','Žádné týdenní úkoly');
 }
 
 function renderIdeas(){
@@ -569,6 +615,7 @@ function renderIdeas(){
     return;
   }
   const typeLabels={activity:'🎯 Aktivita',punishment:'⚡ Trest',reward:'🏆 Odměna'};
+  const subtypeLabels={active:'Aktivní',daily:'Denní',weekly:'Týdenní'};
   const typeCls={activity:'idea-tag-activity',punishment:'idea-tag-punishment',reward:'idea-tag-reward'};
   l.innerHTML=state.ideas.map(x=>`
     <div class="idea-item">
@@ -578,8 +625,9 @@ function renderIdeas(){
       </div>
       <div class="idea-info">
         <div class="idea-name ${x.checkedDom&&x.checkedSub?'idea-agreed':''}">${x.name}</div>
-        <div style="display:flex;gap:6px;margin-top:4px;align-items:center">
+        <div style="display:flex;gap:5px;margin-top:4px;align-items:center;flex-wrap:wrap">
           <span class="idea-type-tag ${typeCls[x.type]||''}">${typeLabels[x.type]||x.type}</span>
+          ${x.type==='activity'&&x.subtype?`<span class="idea-type-tag" style="background:var(--bg3);color:var(--dim);border:1px solid var(--border)">${subtypeLabels[x.subtype]||x.subtype}</span>`:''}
           ${x.checkedDom&&x.checkedSub?'<span style="font-size:9px;color:var(--green);letter-spacing:.08em">✓ oba souhlasí</span>':''}
         </div>
       </div>
@@ -662,9 +710,11 @@ async function toggleTodo(id){
 async function addTodo(){
   const n=document.getElementById('t-name').value.trim();
   const p=parseInt(document.getElementById('t-pts').value)||0;
-  if(!n)return;
-  state.todos.push({id:uid(),name:n,pts:p,done:false});
-  document.getElementById('t-name').value='';document.getElementById('t-pts').value='';
+  const type=document.getElementById('t-type').value||'active';
+  if(!n) return;
+  state.todos.push({id:uid(),name:n,pts:p,done:false,type});
+  document.getElementById('t-name').value='';
+  document.getElementById('t-pts').value='';
   renderTodo();await save();
 }
 
@@ -673,10 +723,12 @@ async function delTodo(id){state.todos=state.todos.filter(x=>x.id!==id);renderTo
 async function addIdea(){
   const n=document.getElementById('l-name').value.trim();
   const type=document.getElementById('l-type').value;
+  const subtype=document.getElementById('l-subtype')?.value||'active';
   if(!n) return;
   if(!state.ideas) state.ideas=[];
   state.ideas.push({
     id:uid(), name:n, type,
+    subtype: type==='activity'?subtype:null,
     checkedDom:role==='dom',
     checkedSub:role==='sub',
     addedAt:new Date().toISOString()
@@ -702,10 +754,10 @@ async function activateIdea(id){
   if(!idea) return;
 
   if(idea.type==='activity'){
-    // Aktivita → přidat do úkolů
     const pts=parseInt(prompt(`Kolik bodů za splnění aktivity "${idea.name}"?\n(0 = bez bodů)`));
     if(isNaN(pts)) return;
-    state.todos.push({id:uid(),name:idea.name,pts:Math.max(0,pts),done:false});
+    const todoType=idea.subtype||'active';
+    state.todos.push({id:uid(),name:idea.name,pts:Math.max(0,pts),done:false,type:todoType});
     state.ideas=state.ideas.filter(x=>x.id!==id);
     renderTodo();renderIdeas();
     await save();
