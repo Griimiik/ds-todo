@@ -759,11 +759,19 @@ async function activateIdea(id){
     const pts=parseInt(prompt(`Kolik bodů za splnění aktivity "${idea.name}"?\n(0 = bez bodů)`));
     if(isNaN(pts)) return;
     const todoType=idea.subtype||'active';
+    // Přidej do aktivních úkolů
     state.todos.push({id:uid(),name:idea.name,pts:Math.max(0,pts),done:false,type:todoType});
+    // Automaticky přidej i do banky (pokud tam ještě není)
+    if(!state.bank) state.bank=[];
+    const inBank=state.bank.some(b=>b.name===idea.name&&b.type===todoType);
+    if(!inBank&&(todoType==='daily'||todoType==='weekly')){
+      state.bank.push({id:uid(),name:idea.name,pts:Math.max(0,pts),type:todoType});
+      showToast('✓ Aktivita přidána do úkolů + banky');
+    } else {
+      showToast('✓ Aktivita přidána do úkolů');
+    }
     state.ideas=state.ideas.filter(x=>x.id!==id);
-    renderTodo();renderIdeas();
-    await save();
-    showToast('✓ Aktivita přidána do úkolů');
+    renderTodo();renderIdeas();renderBank();
 
   } else if(idea.type==='reward'){
     // Odměna → přidat do seznamu odměn
@@ -806,15 +814,20 @@ function renderBank(){
       list.innerHTML='<div class="empty" style="padding:16px 10px"><div class="ei">📭</div>Prázdná banka</div>';
       return;
     }
-    list.innerHTML=items.map(b=>`
-      <div class="ti">
-        <div class="ttx">
-          <div class="tn">${b.name}</div>
-          ${b.pts?`<div class="tp">+${b.pts} bodů</div>`:''}
-        </div>
-        <button class="bm done-btn" onclick="rollSpecific('${b.id}')" title="Aktivovat tento úkol">▶</button>
-        <button class="bm d" onclick="deleteFromBank('${b.id}')">✕</button>
-      </div>`).join('');
+    const sorted=[...items].sort((a,b)=>(a.lastUsed||0)-(b.lastUsed||0));
+    list.innerHTML=sorted.map(b=>{
+      const lastUsed=b.lastUsed?`Naposledy: ${new Date(b.lastUsed).toLocaleDateString('cs-CZ')}`:'Ještě nepoužito';
+      return `
+        <div class="ti">
+          <div class="ttx">
+            <div class="tn">${b.name}</div>
+            <div class="tp" style="color:var(--dim)">${b.pts?`+${b.pts} bodů · `:''}<span style="font-size:10px">${lastUsed}</span></div>
+          </div>
+          ${role==='dom'?`
+            <button class="bm done-btn" onclick="rollSpecific('${b.id}')" title="Přidat do úkolů">▶</button>
+            <button class="bm d" onclick="deleteFromBank('${b.id}')">✕</button>`:''}
+        </div>`;
+    }).join('');
   };
 
   renderBankList(daily,dl);
@@ -839,9 +852,16 @@ async function rollRandom(type){
   if(role!=='dom'){showToast('🔒 Pouze Dom může vytáhnout úkol');return;}
   const pool=(state.bank||[]).filter(b=>b.type===type);
   if(!pool.length){showToast('✗ Banka je prázdná');return;}
-  const picked=pool[Math.floor(Math.random()*pool.length)];
+
+  // Preferuj úkoly které nebyly nedávno použity
+  const sorted=[...pool].sort((a,b)=>(a.lastUsed||0)-(b.lastUsed||0));
+  const picked=sorted[Math.floor(Math.random()*Math.min(3,sorted.length))];
+
+  // Označ jako použitý (timestamp) — zůstane v bance
+  picked.lastUsed=Date.now();
+
   state.todos.push({id:uid(),name:picked.name,pts:picked.pts,done:false,type});
-  renderTodo();
+  renderTodo();renderBank();
   await save();
   showToast(`🎲 Vytaženo: "${picked.name}" → ${type==='daily'?'Denní':'Týdenní'} úkoly`);
 }
@@ -850,8 +870,9 @@ async function rollSpecific(bankId){
   if(role!=='dom'){showToast('🔒 Pouze Dom může aktivovat úkol');return;}
   const b=state.bank.find(x=>x.id===bankId);
   if(!b) return;
+  b.lastUsed=Date.now();
   state.todos.push({id:uid(),name:b.name,pts:b.pts,done:false,type:b.type});
-  renderTodo();
+  renderTodo();renderBank();
   await save();
   showToast(`✓ "${b.name}" přidán do ${b.type==='daily'?'denních':'týdenních'} úkolů`);
 }
