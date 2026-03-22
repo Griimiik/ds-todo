@@ -571,7 +571,7 @@ function renderRewards(){
           <div class="rn">${r.name}</div>
           <div class="rc">${r.cost} bodů${!ok?` · chybí ${r.cost-state.score}`:''}</div>
         </div>
-        <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useReward('${r.id}')':''}">
+        <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useReward('${r.id}')`:''}">
           ${ok?'Uplatnit':'✗ Málo bodů'}
         </button>
         ${role==='dom'?`<button class="bm d" onclick="delReward('${r.id}')">✕</button>`:''}
