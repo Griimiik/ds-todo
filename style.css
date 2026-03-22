@@ -194,6 +194,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .ap-until{font-size:10px;color:var(--dim);margin-top:3px}
 .ap-countdown{font-family:var(--ff);font-size:20px;font-weight:300;color:var(--red);white-space:nowrap;flex-shrink:0}
 .ap-countdown.urgent{animation:pulse .8s ease-in-out infinite}
+.ap-type-btn{flex:1;padding:8px;border-radius:var(--rs);font-family:inherit;font-size:11px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);color:var(--dim);transition:all .2s}
+.ap-type-btn.active{background:var(--accent-d);border-color:var(--border-h);color:var(--accent)}
+.done-btn{border-color:rgba(110,201,138,.3);color:var(--green)}
+.done-btn:hover{background:var(--green-d);border-color:var(--green)}
 
 /* DANGER */
 .dz{margin-bottom:10px;padding:12px 14px;border:1px solid rgba(201,110,110,.15);border-radius:var(--r);background:rgba(201,110,110,.03);display:flex;align-items:center;justify-content:space-between;gap:10px}

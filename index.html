@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0a0a0f">
 <title>✦ Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2.7">
+<link rel="stylesheet" href="style.css?v=3.0">
 </head>
 <body>
 
@@ -296,18 +296,22 @@
   <div class="modal">
     <div class="mt">⚡ Nový aktivní trest</div>
     <input class="inp" id="ap-name" placeholder="Název trestu..." />
-    <div style="margin-top:8px">
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="ap-type-btn active" id="ap-btn-expiry" onclick="setApType('expiry')">📅 S expirací</button>
+      <button class="ap-type-btn" id="ap-btn-task" onclick="setApType('task')">✅ Ke splnění</button>
+    </div>
+    <div id="ap-expiry-row" style="margin-top:10px">
       <div class="slb" style="margin-bottom:5px">Platí do:</div>
       <input class="inp" id="ap-until" type="datetime-local" />
     </div>
     <div class="mr">
-      <button class="bc neg" onclick="addActivePunishment()">Uložit</button>
+      <button class="bc neg" onclick="addActivePunishment()">Uložit trest</button>
       <button class="bcan" onclick="document.getElementById('ap-modal').classList.remove('open')">Zrušit</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=2.9"></script>
+<script src="app.js?v=3.0"></script>
 </body>
 </html>
