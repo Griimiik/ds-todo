@@ -632,12 +632,37 @@ async function activateIdea(id){
   if(role!=='dom'){showToast('🔒 Pouze Dom může aktivovat nápad');return;}
   const idea=state.ideas.find(x=>x.id===id);
   if(!idea) return;
-  const pts=parseInt(prompt(`Kolik bodů za "${idea.name}"?\n(kladné = přidat, záporné = odečíst)`));
-  if(isNaN(pts)||pts===0) return;
-  const reason=`💡 ${idea.name}`;
-  if(pts>0) await addPoints(pts,reason,true);
-  else await addPoints(pts,reason,false);
-  showToast(`✓ Nápad aktivován (${pts>0?'+':''}${pts} bodů)`);
+
+  if(idea.type==='activity'){
+    // Aktivita → přidat do úkolů
+    const pts=parseInt(prompt(`Kolik bodů za splnění aktivity "${idea.name}"?\n(0 = bez bodů)`));
+    if(isNaN(pts)) return;
+    state.todos.push({id:uid(),name:idea.name,pts:Math.max(0,pts),done:false});
+    state.ideas=state.ideas.filter(x=>x.id!==id);
+    renderTodo();renderIdeas();
+    await save();
+    showToast('✓ Aktivita přidána do úkolů');
+
+  } else if(idea.type==='reward'){
+    // Odměna → přidat do seznamu odměn
+    const cost=parseInt(prompt(`Za kolik bodů lze uplatnit odměnu "${idea.name}"?`));
+    if(isNaN(cost)||cost<0) return;
+    state.rewards.push({id:uid(),name:idea.name,cost});
+    state.ideas=state.ideas.filter(x=>x.id!==id);
+    renderRewards();renderIdeas();
+    await save();
+    showToast('✓ Odměna přidána do seznamu odměn');
+
+  } else if(idea.type==='punishment'){
+    // Trest → přidat do seznamu trestů
+    const cost=parseInt(prompt(`Kolik bodů stojí trest "${idea.name}"?`));
+    if(isNaN(cost)||cost<0) return;
+    state.punishments.push({id:uid(),name:idea.name,cost});
+    state.ideas=state.ideas.filter(x=>x.id!==id);
+    renderRewards();renderIdeas();
+    await save();
+    showToast('✓ Trest přidán do seznamu trestů');
+  }
 }
 
 async function deleteIdea(id){
