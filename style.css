@@ -182,6 +182,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .rpb:hover{border-color:var(--accent);color:var(--accent)}
 .rpb.na{border-color:rgba(201,110,110,.35);color:var(--red);cursor:not-allowed;opacity:.65}
 
+/* ACTIVE GRID */
+.active-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+@media(max-width:480px){.active-grid{grid-template-columns:1fr}}
+
 /* ACTIVE PUNISHMENTS */
 .ap-item{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);gap:10px}
 .ap-item:last-child{border-bottom:none}

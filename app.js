@@ -1,7 +1,7 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
 const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
-let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],activePunishments:[],ideas:[]};
+let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],activePunishments:[],activeRewards:[],ideas:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role='';
 let countdownInterval=null;
@@ -110,6 +110,7 @@ async function syncNow(){
       }
     }
     if(!state.activePunishments) state.activePunishments=[];
+    if(!state.activeRewards) state.activeRewards=[];
     if(!state.ideas) state.ideas=[];
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
@@ -351,42 +352,66 @@ function startCountdown(){
 }
 
 function renderActivePunishments(){
-  const list=document.getElementById('active-punishments-list');
-  if(!list) return;
+  const pList=document.getElementById('active-punishments-list');
+  const rList=document.getElementById('active-rewards-list');
+  if(!pList) return;
   const now=Date.now();
 
+  // Auto-expire tresty
   const before=state.activePunishments.length;
   state.activePunishments=state.activePunishments.filter(p=>new Date(p.until).getTime()>now);
   if(state.activePunishments.length!==before&&role==='dom') save();
 
+  // Badge počet
   const countEl=document.getElementById('active-count');
+  const total=(state.activePunishments?.length||0)+(state.activeRewards?.length||0);
+  if(countEl) countEl.textContent=total||'';
+
+  // ── TRESTY ──
   if(!state.activePunishments.length){
-    list.innerHTML='<div class="empty"><div class="ei">✓</div>Žádné aktivní tresty<br><span style="font-size:11px">Sub je momentálně bez trestu</span></div>';
-    if(countEl) countEl.textContent='';
-    return;
+    pList.innerHTML='<div class="empty" style="padding:20px 10px"><div class="ei">✓</div>Žádné tresty</div>';
+  } else {
+    pList.innerHTML=state.activePunishments.map(p=>{
+      const until=new Date(p.until).getTime();
+      const diff=Math.max(0,until-now);
+      const d=Math.floor(diff/86400000);
+      const h=Math.floor((diff%86400000)/3600000);
+      const m=Math.floor((diff%3600000)/60000);
+      const s=Math.floor((diff%60000)/1000);
+      const countdown=d>0?`${d}d ${h}h ${m}m`:`${h}h ${m}m ${s}s`;
+      const urgent=diff<3600000;
+      return `
+        <div class="ap-item">
+          <div class="ap-info">
+            <div class="ap-name">${p.name}</div>
+            <div class="ap-until">do ${new Date(p.until).toLocaleDateString('cs-CZ')} ${new Date(p.until).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}</div>
+          </div>
+          <div class="ap-countdown${urgent?' urgent':''}">${countdown}</div>
+          ${role==='dom'?`<button class="bm d" onclick="removeActivePunishment('${p.id}')">✕</button>`:''}
+        </div>`;
+    }).join('');
   }
 
-  if(countEl) countEl.textContent=state.activePunishments.length;
-
-  list.innerHTML=state.activePunishments.map(p=>{
-    const until=new Date(p.until).getTime();
-    const diff=Math.max(0,until-now);
-    const d=Math.floor(diff/86400000);
-    const h=Math.floor((diff%86400000)/3600000);
-    const m=Math.floor((diff%3600000)/60000);
-    const s=Math.floor((diff%60000)/1000);
-    const countdown=d>0?`${d}d ${h}h ${m}m`:`${h}h ${m}m ${s}s`;
-    const urgent=diff<3600000;
-    return `
+  // ── ODMĚNY ──
+  if(!rList) return;
+  if(!state.activeRewards||!state.activeRewards.length){
+    rList.innerHTML='<div class="empty" style="padding:20px 10px"><div class="ei">🎁</div>Žádné odměny</div>';
+  } else {
+    rList.innerHTML=state.activeRewards.map(r=>`
       <div class="ap-item">
         <div class="ap-info">
-          <div class="ap-name">${p.name}</div>
-          <div class="ap-until">do ${new Date(p.until).toLocaleDateString('cs-CZ')} ${new Date(p.until).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}</div>
+          <div class="ap-name">${r.name}</div>
+          <div class="ap-until">Uplatněno ${new Date(r.usedAt).toLocaleDateString('cs-CZ')}</div>
         </div>
-        <div class="ap-countdown${urgent?' urgent':''}">${countdown}</div>
-        ${role==='dom'?`<button class="bm d" onclick="removeActivePunishment('${p.id}')">✕</button>`:''}
-      </div>`;
-  }).join('');
+        ${role==='dom'?`<button class="bm d" onclick="removeActiveReward('${r.id}')">✕</button>`:''}
+      </div>`).join('');
+  }
+}
+
+async function removeActiveReward(id){
+  state.activeRewards=state.activeRewards.filter(x=>x.id!==id);
+  renderActivePunishments();
+  await save();
 }
 
 function openAddActivePunishment(){
@@ -420,6 +445,7 @@ async function removeActivePunishment(id){
 // ── DEFAULTS ───────────────────────────────────────────────────────────
 function setDefaults(){
   state.activePunishments=[];
+  state.activeRewards=[];
   state.ideas=[];
   state.legend=[];
   state.rewards=[
@@ -539,15 +565,14 @@ function renderRewards(){
   rl.innerHTML=state.rewards.length
     ?state.rewards.map(r=>{
       const ok=state.score>=r.cost;
-      const canUse=ok&&role==='dom';
+      const canUse=ok; // Dom i Sub mohou uplatnit
       return `<div class="rpi">
         <div class="rpi2">
           <div class="rn">${r.name}</div>
           <div class="rc">${r.cost} bodů${!ok?` · chybí ${r.cost-state.score}`:''}</div>
         </div>
-        <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useReward('${r.id}')`:''}"
-          title="${role==='sub'?'Pouze Dom může uplatnit odměnu':''}">
-          ${ok?(role==='dom'?'Uplatnit':'🔒 Dom'):'✗ Málo bodů'}
+        <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useReward('${r.id}')':''}">
+          ${ok?'Uplatnit':'✗ Málo bodů'}
         </button>
         ${role==='dom'?`<button class="bm d" onclick="delReward('${r.id}')">✕</button>`:''}
       </div>`;}).join('')
@@ -681,10 +706,16 @@ async function addReward(){
 }
 async function delReward(id){state.rewards=state.rewards.filter(x=>x.id!==id);renderRewards();await save();}
 async function useReward(id){
-  if(role!=='dom'){showToast('🔒 Pouze Dom může uplatnit odměnu');return;}
+  if(role!=='dom'&&role!=='sub'){showToast('🔒 Pouze Dom nebo Sub může uplatnit odměnu');return;}
   const r=state.rewards.find(x=>x.id===id);if(!r)return;
   if(state.score<r.cost){showToast('✗ Nedostatek bodů');return;}
-  if(confirm(`Uplatnit "${r.name}" za ${r.cost} bodů?`))await addPoints(-r.cost,`🏆 ${r.name}`);
+  if(!confirm(`Uplatnit "${r.name}" za ${r.cost} bodů?`)) return;
+  await addPoints(-r.cost,`🏆 ${r.name}`,true);
+  if(!state.activeRewards) state.activeRewards=[];
+  state.activeRewards.push({id:uid(),name:r.name,usedAt:new Date().toISOString()});
+  renderActivePunishments();
+  await save();
+  showToast(`✓ Odměna "${r.name}" aktivována`);
 }
 
 async function addPunishment(){
@@ -699,7 +730,15 @@ async function delPunishment(id){state.punishments=state.punishments.filter(x=>x
 async function usePunishment(id){
   if(role!=='dom'){showToast('🔒 Pouze Dom může udělit trest');return;}
   const p=state.punishments.find(x=>x.id===id);if(!p)return;
-  if(confirm(`Udělit trest "${p.name}" (−${p.cost} bodů)?`))await addPoints(-p.cost,`⚡ ${p.name}`);
+  if(!confirm(`Udělit trest "${p.name}" (−${p.cost} bodů)?`)) return;
+  // Otevři modal pro datum
+  document.getElementById('ap-name').value=p.name;
+  const tomorrow=new Date(Date.now()+86400000);
+  tomorrow.setSeconds(0,0);
+  document.getElementById('ap-until').value=tomorrow.toISOString().slice(0,16);
+  document.getElementById('ap-modal').classList.add('open');
+  // Odečti body
+  await addPoints(-p.cost,`⚡ ${p.name}`);
 }
 
 async function clearHistory(){if(!confirm('Vymazat historii?'))return;state.history=[];renderHistory();await save();}

@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0a0a0f">
 <title>✦ Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2.6">
+<link rel="stylesheet" href="style.css?v=2.7">
 </head>
 <body>
 
@@ -198,17 +198,23 @@
     </div>
   </div>
 
-  <!-- ACTIVE PUNISHMENTS -->
+  <!-- ACTIVE PUNISHMENTS + REWARDS -->
   <div class="sec" id="sec-active">
-    <div class="card">
-      <div class="ch">
-        <span>Aktivní tresty</span>
-        <button class="badd dom-only" onclick="openAddActivePunishment()" style="font-size:11px;padding:5px 10px">+ Přidat</button>
+    <div class="active-grid">
+      <div class="card">
+        <div class="ch">
+          <span>⚡ Aktivní tresty</span>
+          <button class="badd dom-only" onclick="openAddActivePunishment()" style="font-size:10px;padding:4px 8px">+ Přidat</button>
+        </div>
+        <div id="active-punishments-list"></div>
       </div>
-      <div id="active-punishments-list"></div>
+      <div class="card">
+        <div class="ch">🏆 Aktivní odměny</div>
+        <div id="active-rewards-list"></div>
+      </div>
     </div>
-    <div style="padding:8px 0;font-size:10px;color:var(--dimmer);text-align:center">
-      Tresty expirují automaticky po uplynutí data
+    <div style="padding:6px 0;font-size:10px;color:var(--dimmer);text-align:center">
+      Tresty expirují automaticky · Odměny odstraní Dom
     </div>
   </div>
 
@@ -302,6 +308,6 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=2.7"></script>
+<script src="app.js?v=2.8"></script>
 </body>
 </html>
