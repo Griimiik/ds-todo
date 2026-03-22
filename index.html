@@ -250,36 +250,21 @@
       <button class="bank-roll-btn daily" onclick="rollRandom('daily')">🎲 Náhodný denní</button>
       <button class="bank-roll-btn weekly" onclick="rollRandom('weekly')">🎲 Náhodný týdenní</button>
     </div>
+    <div id="bank-roll-info" style="font-size:10px;color:var(--dim);text-align:center;padding:2px 0 8px"></div>
     <div class="card">
-      <div class="ch">
-        <span>🎯 Aktivní úkoly</span>
-        <span id="bank-active-count" style="font-size:10px;color:var(--accent)"></span>
-      </div>
+      <div class="ch"><span>🎯 Aktivní úkoly</span><span id="bank-active-count" style="font-size:10px;color:var(--accent)"></span></div>
       <div id="bank-active-list"></div>
     </div>
     <div class="card">
-      <div class="ch">
-        <span>☀️ Denní úkoly</span>
-        <span id="bank-daily-count" style="font-size:10px;color:var(--accent)"></span>
-      </div>
+      <div class="ch"><span>☀️ Denní úkoly</span><span id="bank-daily-count" style="font-size:10px;color:var(--accent)"></span></div>
       <div id="bank-daily-list"></div>
     </div>
     <div class="card">
-      <div class="ch">
-        <span>📅 Týdenní úkoly</span>
-        <span id="bank-weekly-count" style="font-size:10px;color:var(--accent)"></span>
-      </div>
+      <div class="ch"><span>📅 Týdenní úkoly</span><span id="bank-weekly-count" style="font-size:10px;color:var(--accent)"></span></div>
       <div id="bank-weekly-list"></div>
     </div>
-    <div class="af">
-      <input class="inp" id="bank-name" placeholder="Název úkolu do banky..." style="flex:1;min-width:110px" />
-      <input class="inp ipts" id="bank-pts" type="number" placeholder="Body" />
-      <select class="inp" id="bank-type" style="flex:none;width:90px;font-family:inherit">
-        <option value="active">🎯 Aktivní</option>
-        <option value="daily">☀️ Denní</option>
-        <option value="weekly">📅 Týdenní</option>
-      </select>
-      <button class="badd" onclick="addToBank()">+ Přidat</button>
+    <div style="padding:6px 0;font-size:10px;color:var(--dimmer);text-align:center">
+      Úkoly se přidávají přes záložku Úkoly nebo Nápady · 1× denně per skupina
     </div>
   </div>
 
@@ -377,6 +362,6 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=3.4"></script>
+<script src="app.js?v=3.5"></script>
 </body>
 </html>

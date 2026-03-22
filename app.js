@@ -113,6 +113,7 @@ async function syncNow(){
     if(!state.activeRewards) state.activeRewards=[];
     if(!state.ideas) state.ideas=[];
     if(!state.bank) state.bank=[];
+    if(!state.rollLog) state.rollLog={};
     checkAutoReset();
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
@@ -843,6 +844,7 @@ function renderBank(){
   renderBankList(active,al);
   renderBankList(daily,dl);
   renderBankList(weekly,wl);
+  updateRollInfo();
 }
 
 async function addToBank(){
@@ -860,32 +862,54 @@ async function addToBank(){
 }
 
 async function rollRandom(type){
-  if(role!=='dom'){showToast('🔒 Pouze Dom může vytáhnout úkol');return;}
   const pool=(state.bank||[]).filter(b=>b.type===type);
   if(!pool.length){showToast('✗ Banka je prázdná');return;}
 
-  // Preferuj úkoly které nebyly nedávno použity
+  // Sub — omezení 1x denně per skupina
+  if(role==='sub'){
+    const todayStr=new Date().toDateString();
+    if(!state.rollLog) state.rollLog={};
+    const key=`${type}_${todayStr}`;
+    if(state.rollLog[key]){
+      const label=type==='active'?'aktivní':type==='daily'?'denní':'týdenní';
+      showToast(`🔒 Dnes jsi už losovala ${label} úkol`);
+      return;
+    }
+    state.rollLog[key]=true;
+  }
+
+  // Preferuj nejdéle nepoužité
   const sorted=[...pool].sort((a,b)=>(a.lastUsed||0)-(b.lastUsed||0));
   const picked=sorted[Math.floor(Math.random()*Math.min(3,sorted.length))];
-
-  // Označ jako použitý (timestamp) — zůstane v bance
   picked.lastUsed=Date.now();
 
   state.todos.push({id:uid(),name:picked.name,pts:picked.pts,done:false,type});
-  renderTodo();renderBank();
+  renderTodo();renderBank();updateRollInfo();
   await save();
-  showToast(`🎲 Vytaženo: "${picked.name}" → ${type==='daily'?'Denní':'Týdenní'} úkoly`);
+  showToast(`🎲 Vytaženo: "${picked.name}"`);
+}
+
+function updateRollInfo(){
+  const el=document.getElementById('bank-roll-info');
+  if(!el||role!=='sub'){if(el)el.textContent='';return;}
+  const todayStr=new Date().toDateString();
+  const log=state.rollLog||{};
+  const used=[];
+  if(log[`active_${todayStr}`]) used.push('aktivní');
+  if(log[`daily_${todayStr}`]) used.push('denní');
+  if(log[`weekly_${todayStr}`]) used.push('týdenní');
+  el.textContent=used.length?`Dnes losováno: ${used.join(', ')}. Dom může losovat vždy.`:'';
 }
 
 async function rollSpecific(bankId){
-  if(role!=='dom'){showToast('🔒 Pouze Dom může aktivovat úkol');return;}
+  if(role!=='dom'){showToast('🔒 Pouze Dom může aktivovat konkrétní úkol');return;}
   const b=state.bank.find(x=>x.id===bankId);
   if(!b) return;
   b.lastUsed=Date.now();
   state.todos.push({id:uid(),name:b.name,pts:b.pts,done:false,type:b.type});
   renderTodo();renderBank();
   await save();
-  showToast(`✓ "${b.name}" přidán do ${b.type==='daily'?'denních':'týdenních'} úkolů`);
+  showToast(`✓ "${b.name}" přidán do ${b.type==='active'?'aktivních':b.type==='daily'?'denních':'týdenních'} úkolů`);
 }
 
 async function deleteFromBank(id){
