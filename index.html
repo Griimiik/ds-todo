@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0a0a0f">
 <title>✦ Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3.1">
+<link rel="stylesheet" href="style.css?v=3.2">
 </head>
 <body>
 
@@ -125,6 +125,7 @@
     <button class="tab" onclick="sw('history')">Historie</button>
     <button class="tab" onclick="sw('rewards')">Odměny</button>
     <button class="tab" onclick="sw('active')">⚡ <span id="active-count"></span></button>
+    <button class="tab" onclick="sw('bank')">🎲</button>
     <button class="tab dom-only" id="tab-settings" onclick="sw('settings')">⚙</button>
   </div>
 
@@ -242,6 +243,37 @@
     </div>
   </div>
 
+  <!-- BANKA ÚKOLŮ -->
+  <div class="sec" id="sec-bank">
+    <div class="bank-actions">
+      <button class="bank-roll-btn daily" onclick="rollRandom('daily')">🎲 Náhodný denní úkol</button>
+      <button class="bank-roll-btn weekly" onclick="rollRandom('weekly')">🎲 Náhodný týdenní úkol</button>
+    </div>
+    <div class="card">
+      <div class="ch">
+        <span>☀️ Denní úkoly</span>
+        <span id="bank-daily-count" style="font-size:10px;color:var(--accent)"></span>
+      </div>
+      <div id="bank-daily-list"></div>
+    </div>
+    <div class="card">
+      <div class="ch">
+        <span>📅 Týdenní úkoly</span>
+        <span id="bank-weekly-count" style="font-size:10px;color:var(--accent)"></span>
+      </div>
+      <div id="bank-weekly-list"></div>
+    </div>
+    <div class="af">
+      <input class="inp" id="bank-name" placeholder="Název úkolu do banky..." style="flex:1;min-width:110px" />
+      <input class="inp ipts" id="bank-pts" type="number" placeholder="Body" />
+      <select class="inp" id="bank-type" style="flex:none;width:90px;font-family:inherit">
+        <option value="daily">☀️ Denní</option>
+        <option value="weekly">📅 Týdenní</option>
+      </select>
+      <button class="badd" onclick="addToBank()">+ Přidat</button>
+    </div>
+  </div>
+
   <!-- SETTINGS -->
   <div class="sec" id="sec-settings">
     <div class="stcard">
@@ -336,6 +368,6 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=3.1"></script>
+<script src="app.js?v=3.2"></script>
 </body>
 </html>

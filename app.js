@@ -1,7 +1,7 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
 const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
-let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],activePunishments:[],activeRewards:[],ideas:[]};
+let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role='';
 let countdownInterval=null;
@@ -112,6 +112,7 @@ async function syncNow(){
     if(!state.activePunishments) state.activePunishments=[];
     if(!state.activeRewards) state.activeRewards=[];
     if(!state.ideas) state.ideas=[];
+    if(!state.bank) state.bank=[];
     checkAutoReset();
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
@@ -491,6 +492,7 @@ function setDefaults(){
   state.activePunishments=[];
   state.activeRewards=[];
   state.ideas=[];
+  state.bank=[];
   state.legend=[];
   state.rewards=[
     {id:uid(),name:'🎬 Výběr večerního filmu',cost:50},
@@ -537,7 +539,7 @@ async function changeSubPassword(){
 
 // ── RENDER ─────────────────────────────────────────────────────────────
 function renderAll(){
-  renderScore();renderTodo();renderIdeas();renderHistory();renderRewards();renderActivePunishments();
+  renderScore();renderTodo();renderIdeas();renderHistory();renderRewards();renderActivePunishments();renderBank();
 }
 
 function renderScore(){
@@ -785,6 +787,82 @@ async function activateIdea(id){
   }
 }
 
+// ── BANK ───────────────────────────────────────────────────────────────
+function renderBank(){
+  const dl=document.getElementById('bank-daily-list');
+  const wl=document.getElementById('bank-weekly-list');
+  const dc=document.getElementById('bank-daily-count');
+  const wc=document.getElementById('bank-weekly-count');
+  if(!dl||!wl) return;
+
+  const daily=(state.bank||[]).filter(b=>b.type==='daily');
+  const weekly=(state.bank||[]).filter(b=>b.type==='weekly');
+
+  if(dc) dc.textContent=`${daily.length} úkolů`;
+  if(wc) wc.textContent=`${weekly.length} úkolů`;
+
+  const renderBankList=(items,list)=>{
+    if(!items.length){
+      list.innerHTML='<div class="empty" style="padding:16px 10px"><div class="ei">📭</div>Prázdná banka</div>';
+      return;
+    }
+    list.innerHTML=items.map(b=>`
+      <div class="ti">
+        <div class="ttx">
+          <div class="tn">${b.name}</div>
+          ${b.pts?`<div class="tp">+${b.pts} bodů</div>`:''}
+        </div>
+        <button class="bm done-btn" onclick="rollSpecific('${b.id}')" title="Aktivovat tento úkol">▶</button>
+        <button class="bm d" onclick="deleteFromBank('${b.id}')">✕</button>
+      </div>`).join('');
+  };
+
+  renderBankList(daily,dl);
+  renderBankList(weekly,wl);
+}
+
+async function addToBank(){
+  const n=document.getElementById('bank-name').value.trim();
+  const pts=parseInt(document.getElementById('bank-pts').value)||0;
+  const type=document.getElementById('bank-type').value;
+  if(!n) return;
+  if(!state.bank) state.bank=[];
+  state.bank.push({id:uid(),name:n,pts,type});
+  document.getElementById('bank-name').value='';
+  document.getElementById('bank-pts').value='';
+  renderBank();
+  await save();
+  showToast('✓ Úkol přidán do banky');
+}
+
+async function rollRandom(type){
+  if(role!=='dom'){showToast('🔒 Pouze Dom může vytáhnout úkol');return;}
+  const pool=(state.bank||[]).filter(b=>b.type===type);
+  if(!pool.length){showToast('✗ Banka je prázdná');return;}
+  const picked=pool[Math.floor(Math.random()*pool.length)];
+  state.todos.push({id:uid(),name:picked.name,pts:picked.pts,done:false,type});
+  renderTodo();
+  await save();
+  showToast(`🎲 Vytaženo: "${picked.name}" → ${type==='daily'?'Denní':'Týdenní'} úkoly`);
+}
+
+async function rollSpecific(bankId){
+  if(role!=='dom'){showToast('🔒 Pouze Dom může aktivovat úkol');return;}
+  const b=state.bank.find(x=>x.id===bankId);
+  if(!b) return;
+  state.todos.push({id:uid(),name:b.name,pts:b.pts,done:false,type:b.type});
+  renderTodo();
+  await save();
+  showToast(`✓ "${b.name}" přidán do ${b.type==='daily'?'denních':'týdenních'} úkolů`);
+}
+
+async function deleteFromBank(id){
+  state.bank=state.bank.filter(x=>x.id!==id);
+  renderBank();
+  await save();
+}
+
+
 async function deleteIdea(id){
   if(!confirm('Smazat tento nápad?')) return;
   state.ideas=state.ideas.filter(x=>x.id!==id);
@@ -864,7 +942,7 @@ async function confirmModal(){
 
 // ── TABS ───────────────────────────────────────────────────────────────
 function sw(n){
-  const ns=['todo','legend','history','rewards','active','settings'];
+  const ns=['todo','legend','history','rewards','active','bank','settings'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ns[i]===n));
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('sec-'+n).classList.add('active');
