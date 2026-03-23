@@ -73,7 +73,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .inp:focus{border-color:var(--accent)}
 .inp::placeholder{color:var(--dimmer)}
 
-/* HEADER — používá CSS proměnnou pro barvu pozadí */
+/* HEADER */
 .hdr{position:sticky;top:0;z-index:100;background:var(--hdr-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%}
 .ht{font-family:var(--ff);font-size:17px;font-weight:300;letter-spacing:.1em;color:var(--accent);flex-shrink:0;white-space:nowrap}
 .hr2{display:flex;align-items:center;gap:5px;flex-shrink:0}
@@ -114,9 +114,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .btm{font-weight:400;color:var(--text);white-space:nowrap}
 .bts{color:var(--dim);font-size:10px;margin-top:2px;white-space:nowrap}
 
-/* TABS */
-.tabs{display:flex;margin:10px 12px 0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:3px}
-.tab{flex:1;padding:7px 2px;text-align:center;cursor:pointer;border-radius:6px;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--dim);transition:all .2s;border:none;background:none;font-family:inherit;white-space:nowrap}
+/* UPRAVENÉ IKONOVÉ TABS */
+.tabs{display:flex;margin:10px 12px 0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:4px;gap:2px}
+.tab{flex:1;padding:10px 2px;text-align:center;cursor:pointer;border-radius:6px;font-size:15px;color:var(--dim);transition:all .2s;border:none;background:none;font-family:inherit;white-space:nowrap}
 .tab.active{background:var(--bg4);color:var(--accent);border:1px solid var(--border-h)}
 
 /* SECTIONS */
@@ -147,7 +147,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .badd{background:var(--accent-d);border:1px solid var(--border-h);border-radius:var(--rs);color:var(--accent);font-family:inherit;font-size:11px;padding:8px 11px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .badd:active{transform:scale(.97)}
 
-/* IDEAS (dříve LEGEND) */
+/* IDEAS */
 .idea-item{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);gap:10px}
 .idea-item:last-child{border-bottom:none}
 .idea-checks{display:flex;gap:6px;flex-shrink:0}
@@ -161,6 +161,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .idea-tag-activity{background:rgba(201,169,110,.12);color:var(--accent);border:1px solid rgba(201,169,110,.25)}
 .idea-tag-reward{background:var(--green-d);color:var(--green);border:1px solid rgba(110,201,138,.2)}
 .idea-tag-punishment{background:var(--red-d);color:var(--red);border:1px solid rgba(201,110,110,.2)}
+.idea-tag-trip{background:var(--accent-g);color:var(--accent);border:1px solid rgba(201,169,110,.2)}
 .idea-dom-actions{display:flex;gap:5px;align-items:center;flex-shrink:0}
 
 /* HISTORY */
@@ -172,7 +173,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .htm{font-size:10px;color:var(--dim);margin-top:2px}
 .hv{font-family:var(--ff);font-size:18px;font-weight:300;flex-shrink:0}
 
-/* REWARDS */
+/* REWARDS / TRIPS */
 .rpi{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border);gap:8px}
 .rpi:last-child{border-bottom:none}
 .rpi2{flex:1;min-width:0}
@@ -254,8 +255,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* EMPTY */
 .empty{text-align:center;padding:32px 16px;color:var(--dimmer);font-size:12px;line-height:1.8}
 .ei{font-size:26px;margin-bottom:10px;opacity:.5}
-
-.dom-only{}
 
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--border-h);border-radius:2px}
