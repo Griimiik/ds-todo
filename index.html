@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0a0a0f">
 <title>✦ Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3.5">
+<link rel="stylesheet" href="style.css?v=3.6">
 </head>
 <body>
 
@@ -178,9 +178,12 @@
       <div id="trips-list"></div>
       <div class="af dom-only">
         <input class="inp" id="trip-name" placeholder="Název výletu..." style="flex:1;min-width:110px" />
-        <input class="inp ipts" id="trip-cost" type="number" placeholder="Body" />
         <button class="badd" onclick="addTrip()">+ Přidat</button>
       </div>
+    </div>
+    <div class="card">
+      <div class="ch"><span>🏁 Splněné výlety</span></div>
+      <div id="trips-completed-list"></div>
     </div>
   </div>
 
@@ -360,6 +363,6 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=3.5"></script>
+<script src="app.js?v=3.6"></script>
 </body>
 </html>
