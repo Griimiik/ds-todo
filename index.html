@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0a0a0f">
 <title>✦ Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3.5">
+<link rel="stylesheet" href="style.css?v=3.6">
 </head>
 <body>
 
@@ -21,18 +21,15 @@
     <div class="sf">
       <div class="slb">GitHub Token</div>
       <input class="inp" id="s-token" type="password" placeholder="ghp_xxxxxxxxxxxx" />
-      <div class="sh">Settings → Developer settings → Personal access tokens → Classic → repo ✓</div>
     </div>
     <div class="sdiv"></div>
     <div class="sf">
       <div class="slb">Dom heslo</div>
-      <input class="inp" id="s-pw" type="password" placeholder="Heslo pro Dom (min. 6 znaků)..." />
-      <div class="sh">Plný přístup. Nikdy nesdílet se Sub.</div>
+      <input class="inp" id="s-pw" type="password" placeholder="Heslo pro Dom..." />
     </div>
     <div class="sf">
       <div class="slb">Sub heslo</div>
-      <input class="inp" id="s-subpw" type="password" placeholder="Heslo pro Sub (min. 4 znaky)..." />
-      <div class="sh">Pošli Sub toto heslo + URL s #sub na konci.</div>
+      <input class="inp" id="s-subpw" type="password" placeholder="Heslo pro Sub..." />
     </div>
     <button class="bsetup" onclick="setupApp()">✦ Spustit Tracker</button>
   </div>
@@ -48,10 +45,6 @@
       <input class="inp" id="dom-login-pw" type="password" placeholder="Dom heslo..." />
     </div>
     <button class="bsetup" onclick="domLogin()">✦ Přihlásit se</button>
-    <div style="margin-top:14px;text-align:center;font-size:10px;color:var(--dimmer)">
-      Nové zařízení?
-      <span style="color:var(--accent);cursor:pointer" onclick="showScreen('ss')">Nastavení</span>
-    </div>
   </div>
 </div>
 
@@ -63,22 +56,20 @@
     <div class="sf">
       <div class="slb">Sub heslo</div>
       <input class="inp" id="sub-login-pw" type="password" placeholder="Sub heslo..." />
-      <div class="sh">Heslo ti sdělil Dom.</div>
     </div>
     <button class="bsetup" onclick="subLogin()">✦ Vstoupit</button>
   </div>
 </div>
 
 <div id="app" style="display:none">
-
   <div class="hdr">
     <div class="ht">✦ Tracker</div>
     <div class="hr2">
       <div class="tsw">
-        <div class="tb tb-dark" id="hdr-tb-dark" onclick="setTheme('dark')" title="Tmavý"></div>
-        <div class="tb tb-light" id="hdr-tb-light" onclick="setTheme('light')" title="Světlý"></div>
-        <div class="tb tb-pink" id="hdr-tb-pink" onclick="setTheme('pink')" title="Růžový"></div>
-        <div class="tb tb-bdsm" id="hdr-tb-bdsm" onclick="setTheme('bdsm')" title="BDSM"></div>
+        <div class="tb tb-dark" onclick="setTheme('dark')"></div>
+        <div class="tb tb-light" onclick="setTheme('light')"></div>
+        <div class="tb tb-pink" onclick="setTheme('pink')"></div>
+        <div class="tb tb-bdsm" onclick="setTheme('bdsm')"></div>
       </div>
       <span class="ss2" id="sync-s">—</span>
       <button class="bsm" onclick="syncNow()">↻</button>
@@ -91,8 +82,8 @@
         <div class="slbl">Celkové body</div>
         <div class="sval" id="score">0</div>
         <div class="ssub">
-          <div class="sstat"><div class="dot dg"></div><span>+<span id="splus">0</span> získáno</span></div>
-          <div class="sstat"><div class="dot dr"></div><span>−<span id="sminus">0</span> odečteno</span></div>
+          <div class="sstat"><div class="dot dg"></div><span>+<span id="splus">0</span></span></div>
+          <div class="sstat"><div class="dot dr"></div><span>−<span id="sminus">0</span></span></div>
         </div>
       </div>
       <div class="role-block">
@@ -103,54 +94,39 @@
     </div>
   </div>
 
-  <div class="qa">
-    <button class="ba add qa-locked" data-locked-msg="Pouze Dom může měnit body" onclick="openModal('add')">
+  <div class="qa dom-only">
+    <button class="ba add" onclick="openModal('add')">
       <div class="bai">＋</div>
-      <div><div class="btm">Přidat body</div><div class="bts">Splněný úkol</div></div>
+      <div><div class="btm">Přidat body</div><div class="bts">Úkol</div></div>
     </button>
-    <button class="ba sub qa-locked" data-locked-msg="Pouze Dom může měnit body" onclick="openModal('sub')">
+    <button class="ba sub" onclick="openModal('sub')">
       <div class="bai">－</div>
-      <div><div class="btm">Odebrat body</div><div class="bts">Trest</div></div>
+      <div><div class="btm">Odebrat body</div><div class="bts">Penalizace</div></div>
     </button>
   </div>
 
   <div class="tabs">
     <button class="tab active" onclick="sw('todo')" title="Úkoly">🎯</button>
-    <button class="tab" onclick="sw('rewards')" title="Odměny">🏆</button>
+    <button class="tab" onclick="sw('rewards')" title="Odměny">🎁</button>
     <button class="tab" onclick="sw('trips')" title="Výlety">🌲</button>
-    <button class="tab" onclick="sw('punishments')" title="Tresty">⚡</button>
-    <button class="tab" onclick="sw('active')" title="Aktivní odměny/tresty">⏳<span id="active-count"></span></button>
-    <button class="tab" onclick="sw('bank')" title="Banka úkolů">🎲</button>
+    <button class="tab" onclick="sw('punishments')" title="Tresty">⛓️</button>
+    <button class="tab" onclick="sw('active')" title="Aktivní">⚡<span id="active-count"></span></button>
+    <button class="tab" onclick="sw('bank')" title="Banka">🎲</button>
     <button class="tab" onclick="sw('legend')" title="Nápady">💡</button>
-    <button class="tab dom-only" id="tab-settings" onclick="sw('settings')" title="Nastavení">⚙️</button>
+    <button class="tab dom-only" onclick="sw('settings')" title="Nastavení">⚙️</button>
   </div>
 
   <div class="sec active" id="sec-todo">
-    <div class="card">
-      <div class="ch"><span>🎯 Aktivní úkoly</span><span id="tcnt" style="color:var(--accent)"></span></div>
-      <div id="tlist-active"></div>
-    </div>
-    <div class="card">
-      <div class="ch">
-        <span>☀️ Denní úkoly</span>
-        <span style="font-size:9px;color:var(--dim)">reset každý den</span>
-      </div>
-      <div id="tlist-daily"></div>
-    </div>
-    <div class="card">
-      <div class="ch">
-        <span>📅 Týdenní úkoly</span>
-        <span style="font-size:9px;color:var(--dim)">reset každý týden</span>
-      </div>
-      <div id="tlist-weekly"></div>
-    </div>
+    <div class="card"><div class="ch">🎯 Aktivní úkoly</div><div id="tlist-active"></div></div>
+    <div class="card"><div class="ch">☀️ Denní úkoly</div><div id="tlist-daily"></div></div>
+    <div class="card"><div class="ch">📅 Týdenní úkoly</div><div id="tlist-weekly"></div></div>
     <div class="af dom-only">
-      <input class="inp" id="t-name" placeholder="Název úkolu..." style="flex:1;min-width:100px" />
-      <input class="inp ipts" id="t-pts" type="number" placeholder="Body" />
-      <select class="inp" id="t-type" style="flex:none;width:90px;font-family:inherit">
-        <option value="active">🎯 Aktivní</option>
-        <option value="daily">☀️ Denní</option>
-        <option value="weekly">📅 Týdenní</option>
+      <input class="inp" id="t-name" placeholder="Název úkolu..." style="flex:1" />
+      <input class="inp ipts" id="t-pts" type="number" placeholder="Pts" />
+      <select class="inp" id="t-type" style="width:90px">
+        <option value="active">🎯 Akt</option>
+        <option value="daily">☀️ Den</option>
+        <option value="weekly">📅 Týd</option>
       </select>
       <button class="badd" onclick="addTodo()">+ Přidat</button>
     </div>
@@ -158,169 +134,94 @@
 
   <div class="sec" id="sec-rewards">
     <div class="card">
-      <div class="ch"><span>Odměny</span><span id="rscore" style="font-size:10px;color:var(--accent)"></span></div>
+      <div class="ch">🎁 Dostupné odměny</div>
       <div id="rlist"></div>
       <div class="af dom-only">
-        <input class="inp" id="r-name" placeholder="Název odměny..." style="flex:1;min-width:110px" />
-        <input class="inp ipts" id="r-cost" type="number" placeholder="Body" />
+        <input class="inp" id="r-name" placeholder="Název odměny..." style="flex:1" />
+        <input class="inp ipts" id="r-cost" type="number" placeholder="Pts" />
         <button class="badd" onclick="addReward()">+ Přidat</button>
       </div>
-    </div>
-    <div class="dz dom-only">
-      <div><div style="font-size:12px;color:var(--text)">Resetovat body</div><div class="dlbl">Zachová historii, vynuluje skóre</div></div>
-      <button class="bdng" onclick="resetScore()">Reset</button>
     </div>
   </div>
 
   <div class="sec" id="sec-trips">
     <div class="card">
-      <div class="ch"><span>🌲 Výlety</span></div>
+      <div class="ch">🌲 Plánované výlety</div>
       <div id="trips-list"></div>
       <div class="af dom-only">
-        <input class="inp" id="trip-name" placeholder="Název výletu..." style="flex:1;min-width:110px" />
-        <input class="inp ipts" id="trip-cost" type="number" placeholder="Body" />
+        <input class="inp" id="trip-name" placeholder="Kam pojedeme?" style="flex:1" />
         <button class="badd" onclick="addTrip()">+ Přidat</button>
       </div>
+    </div>
+    <div class="card">
+      <div class="ch">📜 Historie splněných výletů</div>
+      <div id="trips-history-list"></div>
     </div>
   </div>
 
   <div class="sec" id="sec-punishments">
     <div class="card">
-      <div class="ch">Tresty</div>
+      <div class="ch">⛓️ Katalog trestů</div>
       <div id="plist"></div>
       <div class="af dom-only">
-        <input class="inp" id="p-name" placeholder="Název trestu..." style="flex:1;min-width:110px" />
-        <input class="inp ipts" id="p-cost" type="number" placeholder="Body" />
+        <input class="inp" id="p-name" placeholder="Název trestu..." style="flex:1" />
+        <input class="inp ipts" id="p-cost" type="number" placeholder="Penalizace" />
         <button class="badd" onclick="addPunishment()">+ Přidat</button>
       </div>
     </div>
   </div>
 
   <div class="sec" id="sec-active">
-    <div class="active-grid">
-      <div class="card">
-        <div class="ch">
-          <span>⚡ Aktivní tresty</span>
-          <button class="badd dom-only" onclick="openAddActivePunishment()" style="font-size:10px;padding:4px 8px">+ Přidat</button>
-        </div>
+    <div class="card">
+        <div class="ch">⚡ Probíhající tresty <button class="badd dom-only" onclick="openAddActivePunishment()" style="font-size:10px;padding:2px 8px">+ Ručně přidat</button></div>
         <div id="active-punishments-list"></div>
-      </div>
-      <div class="card">
-        <div class="ch">🏆 Aktivní odměny</div>
-        <div id="active-rewards-list"></div>
-      </div>
     </div>
-    <div style="padding:6px 0;font-size:10px;color:var(--dimmer);text-align:center">
-      Tresty expirují automaticky · Odměny odstraní Dom
+    <div class="card">
+        <div class="ch">🏆 Aktivované odměny</div>
+        <div id="active-rewards-list"></div>
     </div>
   </div>
 
   <div class="sec" id="sec-bank">
     <div class="bank-actions">
-      <button class="bank-roll-btn active" onclick="rollRandom('active')">🎲 Náhodný aktivní</button>
-      <button class="bank-roll-btn daily" onclick="rollRandom('daily')">🎲 Náhodný denní</button>
-      <button class="bank-roll-btn weekly" onclick="rollRandom('weekly')">🎲 Náhodný týdenní</button>
+        <button class="bank-roll-btn active" onclick="rollRandom('active')">🎲 Náhodný úkol</button>
+        <button class="bank-roll-btn daily" onclick="rollRandom('daily')">🎲 Náhodný denní</button>
     </div>
-    <div id="bank-roll-info" style="font-size:10px;color:var(--dim);text-align:center;padding:2px 0 8px"></div>
-    <div class="card">
-      <div class="ch"><span>🎯 Aktivní úkoly</span><span id="bank-active-count" style="font-size:10px;color:var(--accent)"></span></div>
-      <div id="bank-active-list"></div>
-    </div>
-    <div class="card">
-      <div class="ch"><span>☀️ Denní úkoly</span><span id="bank-daily-count" style="font-size:10px;color:var(--accent)"></span></div>
-      <div id="bank-daily-list"></div>
-    </div>
-    <div class="card">
-      <div class="ch"><span>📅 Týdenní úkoly</span><span id="bank-weekly-count" style="font-size:10px;color:var(--accent)"></span></div>
-      <div id="bank-weekly-list"></div>
-    </div>
-    <div style="padding:6px 0;font-size:10px;color:var(--dimmer);text-align:center">
-      Úkoly se přidávají přes záložku Úkoly nebo Nápady · 1× denně per skupina
-    </div>
+    <div class="card"><div class="ch">🎲 Obsah banky</div><div id="bank-active-list"></div></div>
   </div>
 
   <div class="sec" id="sec-legend">
     <div class="card">
-      <div class="ch">
-        <span>Nápady na aktivity</span>
-        <span style="font-size:10px;color:var(--dim)">🔑 Dom · 🦮 Sub</span>
-      </div>
+      <div class="ch">💡 Nápady a návrhy</div>
       <div id="llist"></div>
       <div class="af">
-        <input class="inp" id="l-name" placeholder="Název nápadu..." style="flex:1;min-width:110px" />
-        <select class="inp" id="l-type" style="flex:none;width:105px;font-family:inherit">
-          <option value="activity">🎯 Aktivita</option>
+        <input class="inp" id="l-name" placeholder="Tvůj nápad..." style="flex:1" />
+        <select class="inp" id="l-type" style="width:100px">
+          <option value="activity">🎯 Úkol</option>
           <option value="reward">🏆 Odměna</option>
           <option value="trip">🌲 Výlet</option>
           <option value="punishment">⚡ Trest</option>
         </select>
-        <select class="inp" id="l-subtype" style="flex:none;width:95px;font-family:inherit">
-          <option value="active">🎯 Aktivní</option>
-          <option value="daily">☀️ Denní</option>
-          <option value="weekly">📅 Týdenní</option>
-        </select>
-        <button class="badd" onclick="addIdea()">+ Přidat</button>
+        <button class="badd" onclick="addIdea()">+ Navrhnout</button>
       </div>
     </div>
   </div>
 
   <div class="sec" id="sec-settings">
-    <div class="card dom-only">
-      <div class="ch">
-        <span>📜 Historie (Dom)</span>
-        <button class="bm d" onclick="clearHistory()">Vymazat</button>
-      </div>
-      <div id="hlist" style="max-height: 250px; overflow-y: auto;"></div>
-    </div>
-
+    <div class="card dom-only"><div class="ch">📜 Historie bodů</div><div id="hlist" style="max-height:200px;overflow-y:auto"></div></div>
     <div class="stcard">
-      <div class="str">
-        <div><div class="strl">Motiv</div><div class="strs">Vzhled aplikace</div></div>
-        <div class="tsw">
-          <div class="tb tb-dark active" id="tb-dark" onclick="setTheme('dark')" title="Tmavý"></div>
-          <div class="tb tb-light" id="tb-light" onclick="setTheme('light')" title="Světlý"></div>
-          <div class="tb tb-pink" id="tb-pink" onclick="setTheme('pink')" title="Růžový"></div>
-          <div class="tb tb-bdsm" id="tb-bdsm" onclick="setTheme('bdsm')" title="BDSM"></div>
-        </div>
-      </div>
-      <div class="str">
-        <div><div class="strl">Synchronizace</div><div class="strs">Načíst nejnovější data</div></div>
-        <button class="bst" onclick="syncNow()">↻ Sync</button>
-      </div>
-      <div class="str">
-        <div><div class="strl">Změnit Dom heslo</div><div class="strs">Přešifruje data novým heslem</div></div>
-        <button class="bst" onclick="changePassword()">Změnit</button>
-      </div>
-      <div class="str">
-        <div><div class="strl">Změnit Sub heslo</div><div class="strs">Heslo pro přístup Sub</div></div>
-        <button class="bst" onclick="changeSubPassword()">Změnit</button>
-      </div>
-      <div class="str">
-        <div><div class="strl">Přepnout na Sub</div><div class="strs">Dom → Sub režim</div></div>
-        <button class="bst" onclick="switchToSub()">Přepnout</button>
-      </div>
-      <div class="str">
-        <div>
-          <div class="strl">Sub URL</div>
-          <div class="strs">Pošli Sub tuto adresu</div>
-        </div>
-        <button class="bst" onclick="copySubUrl()">Kopírovat</button>
-      </div>
-      <div class="str">
-        <div><div class="strl">Odhlásit</div><div class="strs">Smaže přihlašovací údaje lokálně</div></div>
-        <button class="bdng" onclick="logout()">Odhlásit</button>
-      </div>
-    </div>
-    <div style="padding:10px 0;font-size:10px;color:var(--dimmer);text-align:center;line-height:2">
-      Data šifrována AES-256-GCM<br>GitHub vidí pouze zašifrovaný blob<br>✦ griimiik/ds-todo
+        <div class="str"><span>Resetovat body</span><button class="bdng" onclick="resetScore()">Reset</button></div>
+        <div class="str"><span>URL pro Sub</span><button class="bst" onclick="copySubUrl()">Kopírovat</button></div>
+        <div class="str"><span>Odhlásit se</span><button class="bdng" onclick="logout()">Odhlásit</button></div>
     </div>
   </div>
+</div>
 
-</div><div class="mo" id="modal" onclick="cmo(event)">
+<div class="mo" id="modal" onclick="cmo(event)">
   <div class="modal">
-    <div class="mt" id="modal-t">Přidat body</div>
+    <div class="mt" id="modal-t">Změna bodů</div>
     <input class="inp" id="m-pts" type="number" placeholder="Počet bodů..." />
-    <input class="inp" id="m-rsn" placeholder="Důvod (volitelné)..." style="margin-top:8px" />
+    <input class="inp" id="m-rsn" placeholder="Důvod..." style="margin-top:8px" />
     <div class="mr">
       <button class="bc pos" id="m-ok" onclick="confirmModal()">Potvrdit</button>
       <button class="bcan" onclick="closeModal()">Zrušit</button>
@@ -328,38 +229,33 @@
   </div>
 </div>
 
-<div class="mo" id="pin-modal" onclick="if(event.target.id==='pin-modal')document.getElementById('pin-modal').classList.remove('open')">
-  <div class="modal">
-    <div class="mt">🔓 Dom přístup</div>
-    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Zadej Dom heslo pro plný přístup</div>
-    <input class="inp" id="pin-input" type="password" placeholder="Dom heslo..." />
-    <div class="mr">
-      <button class="bc pos" onclick="submitPin()">Odemknout</button>
-      <button class="bcan" onclick="document.getElementById('pin-modal').classList.remove('open')">Zrušit</button>
-    </div>
-  </div>
-</div>
-
 <div class="mo" id="ap-modal" onclick="if(event.target.id==='ap-modal')document.getElementById('ap-modal').classList.remove('open')">
   <div class="modal">
     <div class="mt">⚡ Nový aktivní trest</div>
-    <input class="inp" id="ap-name" placeholder="Název trestu..." />
+    <div class="slb">Název trestu</div>
+    <input class="inp" id="ap-name" placeholder="Např. 20 dřepů..." />
+    <div class="slb" style="margin-top:8px">Penalizace při nesplnění (body)</div>
+    <input class="inp" id="ap-penalty" type="number" placeholder="Kolik bodů se strhne..." />
+    
     <div style="margin-top:12px;display:flex;gap:8px">
-      <button class="ap-type-btn active" id="ap-btn-expiry" onclick="setApType('expiry')">📅 S expirací</button>
-      <button class="ap-type-btn" id="ap-btn-task" onclick="setApType('task')">✅ Ke splnění</button>
+      <button class="ap-type-btn active" id="ap-btn-expiry" onclick="setApType('expiry')">📅 Časový limit</button>
+      <button class="ap-type-btn" id="ap-btn-task" onclick="setApType('task')">✅ Úkol</button>
     </div>
+    
     <div id="ap-expiry-row" style="margin-top:10px">
-      <div class="slb" style="margin-bottom:5px">Platí do:</div>
+      <div class="slb">Vyprší v:</div>
       <input class="inp" id="ap-until" type="datetime-local" />
     </div>
+
     <div class="mr">
-      <button class="bc neg" onclick="addActivePunishment()">Uložit trest</button>
+      <button class="bc neg" onclick="addActivePunishment()">Uložit a spustit</button>
       <button class="bcan" onclick="document.getElementById('ap-modal').classList.remove('open')">Zrušit</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=3.5"></script>
+
+<script src="app.js?v=3.6"></script>
 </body>
 </html>
