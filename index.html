@@ -105,7 +105,7 @@
     <button class="tab active" onclick="sw('todo')" title="Úkoly">🎯</button>
     <button class="tab" onclick="sw('rewards')" title="Odměny">🏆</button>
     <button class="tab" onclick="sw('trips')" title="Výlety">🌲</button>
-    <button class="tab" onclick="sw('punishments')" title="Tresty">⚡</button>
+    <button class="tab" onclick="sw('punishments')" title="Tresty">⛓️</button>
     <button class="tab" onclick="sw('active')" title="Aktivní odměny/tresty">⏳<span id="active-count"></span></button>
     <button class="tab" onclick="sw('bank')" title="Banka úkolů">🎲</button>
     <button class="tab" onclick="sw('legend')" title="Nápady">💡</button>
@@ -190,7 +190,7 @@
     <div class="active-grid">
       <div class="card">
         <div class="ch">
-          <span>⚡ Aktivní tresty</span>
+          <span>⛓️ Aktivní tresty</span>
           <button class="badd dom-only" onclick="openAddActivePunishment()" style="font-size:10px;padding:4px 8px">+ Přidat</button>
         </div>
         <div id="active-punishments-list"></div>
@@ -242,7 +242,7 @@
           <option value="activity">🎯 Aktivita</option>
           <option value="reward">🏆 Odměna</option>
           <option value="trip">🌲 Výlet</option>
-          <option value="punishment">⚡ Trest</option>
+          <option value="punishment">⛓️ Trest</option>
         </select>
         <select class="inp" id="l-subtype" style="flex:none;width:95px;font-family:inherit">
           <option value="active">🎯 Aktivní</option>
@@ -336,7 +336,7 @@
 
 <div class="mo" id="ap-modal" onclick="if(event.target.id==='ap-modal')document.getElementById('ap-modal').classList.remove('open')">
   <div class="modal">
-    <div class="mt">⚡ Nový aktivní trest</div>
+    <div class="mt">⛓️ Nový aktivní trest</div>
     <input class="inp" id="ap-name" placeholder="Název trestu..." />
     <div style="margin-top:12px;display:flex;gap:8px">
       <button class="ap-type-btn active" id="ap-btn-expiry" onclick="setApType('expiry')">📅 S expirací</button>
