@@ -426,23 +426,38 @@ function openAddActivePunishment(){
 async function addActivePunishment(){
   const nameEl=document.getElementById('ap-name');
   const name=nameEl.value.trim();
-  const cost=parseInt(nameEl.dataset.cost)||0; // cost uložený při usePunishment
+  // Získáme body, které jsme si schovali v kroku 1
+  const cost=parseInt(nameEl.dataset.cost)||0; 
+  
   if(!name){showToast('✗ Zadej název trestu');return;}
+  
+  const newPunishment = {
+    id: uid(),
+    name: name,
+    cost: cost, // Zde se ukládá potenciální pokuta
+    addedAt: new Date().toISOString()
+  };
+
   if(apType==='expiry'){
     const until=document.getElementById('ap-until').value;
     if(!until){showToast('✗ Zadej datum');return;}
-    if(new Date(until).getTime()<=Date.now()){showToast('✗ Datum musí být v budoucnosti');return;}
-    if(!state.activePunishments) state.activePunishments=[];
-    state.activePunishments.push({id:uid(),name,cost,until,type:'expiry',addedAt:new Date().toISOString()});
+    newPunishment.until = until;
+    newPunishment.type = 'expiry';
   } else {
-    if(!state.activePunishments) state.activePunishments=[];
-    state.activePunishments.push({id:uid(),name,cost,type:'task',addedAt:new Date().toISOString()});
+    newPunishment.type = 'task';
   }
-  nameEl.dataset.cost=''; // vyčisti
+
+  if(!state.activePunishments) state.activePunishments=[];
+  state.activePunishments.push(newPunishment);
+  
+  // Vyčistíme modal
+  nameEl.value = '';
+  nameEl.dataset.cost = ''; 
+  
   document.getElementById('ap-modal').classList.remove('open');
   renderActivePunishments();
   await save();
-  showToast('✓ Aktivní trest přidán — body se odečtou jen při nesplnění');
+  showToast('⚡ Trest přesunut do aktivních. Body se strhnou jen při nesplnění.');
 }
 
 async function removeActivePunishment(id){
@@ -455,22 +470,32 @@ async function removeActivePunishment(id){
 async function completeActivePunishment(id){
   if(role!=='dom'){showToast('🔒 Pouze Dom může hodnotit trest');return;}
   const p=state.activePunishments.find(x=>x.id===id);if(!p)return;
-  if(!confirm(`Trest "${p.name}" splněn?\nŽádné body se neodečtou.`)) return;
+  
+  if(!confirm(`Trest "${p.name}" byl SPLNĚN?\nŽádné body se NEODEČTOU.`)) return;
+  
   state.activePunishments=state.activePunishments.filter(x=>x.id!==id);
   renderActivePunishments();
   await save();
-  showToast('✓ Trest splněn — bez penalizace');
+  showToast('✓ Trest splněn — skóre zůstává.');
 }
 
 async function failActivePunishment(id){
   if(role!=='dom'){showToast('🔒 Pouze Dom může hodnotit trest');return;}
   const p=state.activePunishments.find(x=>x.id===id);if(!p)return;
-  const pts=p.cost||0;
-  if(!confirm(`Trest "${p.name}" NESPLNĚN?\n${pts>0?`Odečte se ${pts} bodů.`:'Žádná penalizace.'}`)) return;
+  
+  const penalty = p.cost || 0;
+  if(!confirm(`Trest "${p.name}" NEBYL splněn?\nBude odečteno ${penalty} bodů.`)) return;
+  
   state.activePunishments=state.activePunishments.filter(x=>x.id!==id);
-  if(pts>0) await addPoints(-pts,`✗ Trest nesplněn: ${p.name}`);
-  else{ renderActivePunishments();await save(); }
-  showToast(`✗ Trest nesplněn${pts>0?` — odečteno ${pts} bodů`:''}`);
+  
+  if(penalty > 0) {
+    // Teď reálně strhneme body
+    await addPoints(-penalty, `⚡ Trest nesplněn: ${p.name}`);
+  } else {
+    renderActivePunishments();
+    await save();
+  }
+  showToast(`✗ Trest nesplněn — odečteno ${penalty} bodů.`);
 }
 
 async function completeActiveReward(id){
@@ -1073,10 +1098,14 @@ async function delPunishment(id){state.punishments=state.punishments.filter(x=>x
 async function usePunishment(id){
   if(role!=='dom'){showToast('🔒 Pouze Dom může udělit trest');return;}
   const p=state.punishments.find(x=>x.id===id);if(!p)return;
-  if(!confirm(`Udělit trest "${p.name}"?\nBody (${p.cost}) se odečtou pouze pokud trest NEBUDE splněn.`)) return;
-  // Otevři modal pro nastavení trestu — uloží cost pro pozdější penalizaci
-  document.getElementById('ap-name').value=p.name;
-  document.getElementById('ap-name').dataset.cost=p.cost; // uložíme cost
+  
+  if(!confirm(`Udělit trest "${p.name}"?\nBody (${p.cost}) se odečtou POUZE pokud trest NEBUDE splněn.`)) return;
+  
+  // Naplníme modal daty z katalogu
+  const nameEl = document.getElementById('ap-name');
+  nameEl.value = p.name;
+  nameEl.dataset.cost = p.cost; // Tady ukládáme body pro pozdější použití
+  
   apType='task';
   setApType('task');
   document.getElementById('ap-modal').classList.add('open');
