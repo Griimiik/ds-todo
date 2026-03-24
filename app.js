@@ -520,37 +520,41 @@ function renderScore(){
   document.getElementById('sminus').textContent=state.totalMinus;
 }
 
-// ── AUTO REFRESH Z BANKY (KAŽDÝ DEN/TÝDEN 6 NOVÝCH) ───────────────────
+// ── BEZPEČNÝ AUTO REFRESH (SYNCHRONIZOVANÝ) ──────────────────────────
 async function checkAutoReset() {
   const now = new Date();
   const todayStr = now.toDateString();
   const weekStr = `${now.getFullYear()}-W${getWeekNumber(now)}`;
   
-  const lastDay = localStorage.getItem('last_daily_reset');
-  const lastWeek = localStorage.getItem('last_weekly_reset');
-  
+  // DŮLEŽITÉ: Kontrolujeme datum přímo v datech ze serveru (state), 
+  // ne v lokální paměti prohlížeče, aby DOM i SUB viděli totéž.
   let changed = false;
 
-  // DENNÍ: Pokud je nový den, smaže staré a vylosuje 6 nových z banky
-  if (lastDay !== todayStr) {
+  // 1. DENNÍ REFRESH
+  if (state.lastDailyReset !== todayStr) {
     state.todos = state.todos.filter(t => t.type !== 'daily');
     autoFillFromBank('daily', 6);
-    localStorage.setItem('last_daily_reset', todayStr);
+    
+    // Zapíšeme datum resetu přímo do sdíleného state
+    state.lastDailyReset = todayStr;
     changed = true;
   }
 
-  // TÝDENNÍ: Pokud je nový týden, smaže staré a vylosuje 6 nových z banky
-  if (lastWeek !== weekStr) {
+  // 2. TÝDENNÍ REFRESH
+  if (state.lastWeeklyReset !== weekStr) {
     state.todos = state.todos.filter(t => t.type !== 'weekly');
     autoFillFromBank('weekly', 6);
-    localStorage.setItem('last_weekly_reset', weekStr);
+    
+    // Zapíšeme týden resetu přímo do sdíleného state
+    state.lastWeeklyReset = weekStr;
     changed = true;
   }
 
   if (changed) {
+    // Kdo je první (Sub nebo Dom), ten uloží novou sadu úkolů pro oba
     await save();
     renderAll();
-    showToast('✨ Úkoly pro dnešek byly obměněny z banky');
+    showToast('✨ Úkoly pro tento cyklus byly vygenerovány');
   }
 }
 
