@@ -821,28 +821,32 @@ async function toggleTodo(id){
   }
 }
 
-async function addTodo(){
-  const n=document.getElementById('t-name').value.trim();
-  const p=parseInt(document.getElementById('t-pts').value)||0;
-  const type=document.getElementById('t-type').value||'active';
-  if(!n) return;
+async function addTodoToBank() {
+  const nameEl = document.getElementById('t-name');
+  const ptsEl = document.getElementById('t-pts');
+  const typeEl = document.getElementById('t-type');
 
-// --- PŘIDANÝ LIMIT 6 ÚKOLŮ ---
-  const currentCount = state.todos.filter(t => t.type === type).length;
-  if(currentCount >= 6) {
-    showToast(`✗ Sekce ${type} je plná (max 6)`);
+  const name = nameEl.value.trim();
+  const pts = parseInt(ptsEl.value) || (typeEl.value === 'daily' ? 1 : typeEl.value === 'weekly' ? 5 : 10);
+  const type = typeEl.value;
+
+  if (!name) return;
+
+  if (!state.bank) state.bank = [];
+
+  // Kontrola duplicity v bance (aby tam nebyl stejný úkol 2x)
+  if (state.bank.some(b => b.name === name && b.type === type)) {
+    showToast('✗ Tento úkol už v bance je');
     return;
   }
-// -----------------------------
+
+  // Uložíme do banky - BEZ LIMITU 6
+  state.bank.push({ id: uid(), name, pts, type, lastUsed: 0 });
   
-  state.todos.push({id:uid(),name:n,pts:p,done:false,type});
-  if(!state.bank) state.bank=[];
-  const inBank=state.bank.some(b=>b.name===n&&b.type===type);
-  if(!inBank) state.bank.push({id:uid(),name:n,pts:p,type});
-  document.getElementById('t-name').value='';
-  document.getElementById('t-pts').value='';
-  renderTodo();renderBank();await save();
-  showToast('✓ Úkol přidán + zapsán do banky');
+  nameEl.value = ''; ptsEl.value = '';
+  renderBank();
+  await save();
+  showToast(`✓ Uloženo do banky (${type})`);
 }
 
 async function delTodo(id){state.todos=state.todos.filter(x=>x.id!==id);renderTodo();await save();}
