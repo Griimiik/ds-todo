@@ -535,7 +535,7 @@ async function checkAutoReset() {
   // 1. DENNÍ REFRESH
   if (state.lastDailyReset !== todayStr) {
     state.todos = state.todos.filter(t => t.type !== 'daily');
-    autoFillFromBank('daily', 6);
+    autoFillFromBank('daily', 5);
     
     // Zapíšeme datum resetu přímo do sdíleného state
     state.lastDailyReset = todayStr;
@@ -545,7 +545,7 @@ async function checkAutoReset() {
   // 2. TÝDENNÍ REFRESH
   if (state.lastWeeklyReset !== weekStr) {
     state.todos = state.todos.filter(t => t.type !== 'weekly');
-    autoFillFromBank('weekly', 6);
+    autoFillFromBank('weekly', 5);
     
     // Zapíšeme týden resetu přímo do sdíleného state
     state.lastWeeklyReset = weekStr;
