@@ -827,23 +827,34 @@ async function addTodoToBank() {
   const typeEl = document.getElementById('t-type');
 
   const name = nameEl.value.trim();
-  const pts = parseInt(ptsEl.value) || (typeEl.value === 'daily' ? 1 : typeEl.value === 'weekly' ? 5 : 10);
   const type = typeEl.value;
+  // Automatické body: Denní 1, Týdenní 5, Aktivní 20
+  const pts = parseInt(ptsEl.value) || (type === 'daily' ? 1 : type === 'weekly' ? 5 : 20);
 
-  if (!name) return;
-
-  if (!state.bank) state.bank = [];
-
-  // Kontrola duplicity v bance (aby tam nebyl stejný úkol 2x)
-  if (state.bank.some(b => b.name === name && b.type === type)) {
-    showToast('✗ Tento úkol už v bance je');
+  if (!name) {
+    showToast('✗ Zadej název úkolu');
     return;
   }
 
-  // Uložíme do banky - BEZ LIMITU 6
-  state.bank.push({ id: uid(), name, pts, type, lastUsed: 0 });
+  if (!state.bank) state.bank = [];
+
+  // Kontrola duplicity v bance
+  if (state.bank.some(b => b.name === name && b.type === type)) {
+    showToast('✗ Tento úkol už v bance existuje');
+    return;
+  }
+
+  // Uložíme pouze do banky
+  state.bank.push({ 
+    id: uid(), 
+    name: name, 
+    pts: pts, 
+    type: type, 
+    lastUsed: 0 
+  });
   
-  nameEl.value = ''; ptsEl.value = '';
+  nameEl.value = ''; 
+  ptsEl.value = '';
   renderBank();
   await save();
   showToast(`✓ Uloženo do banky (${type})`);
