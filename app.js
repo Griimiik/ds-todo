@@ -1,7 +1,7 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
 const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
-let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
+let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role='';
 let countdownInterval=null;
@@ -107,6 +107,7 @@ async function syncNow(){
     if(!state.ideas) state.ideas=[];
     if(!state.bank) state.bank=[];
     if(!state.trips) state.trips=[];
+    if(!state.completedTrips) state.completedTrips=[];
     if(!state.rollLog) state.rollLog={};
     checkAutoReset();
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
@@ -467,6 +468,7 @@ function setDefaults(){
   state.bank=[];
   state.legend=[];
   state.trips=[];
+  state.completedTrips=[];
   state.rewards=[
     {id:uid(),name:'🎬 Výběr večerního filmu',cost:50},
     {id:uid(),name:'🍫 Oblíbená sladkost',cost:30},
@@ -714,22 +716,35 @@ function renderRewards(){
 
 function renderTrips(){
   const tl=document.getElementById('trips-list');
+  const cl=document.getElementById('trips-completed-list');
   if(!tl) return;
+
+  // Aktivní výlety
   tl.innerHTML=(state.trips&&state.trips.length)
-    ?state.trips.map(t=>{
-      const ok=state.score>=t.cost;
-      const canUse=ok;
-      return `<div class="rpi">
+    ?state.trips.map(t=>`
+      <div class="rpi">
         <div class="rpi2">
           <div class="rn">${t.name}</div>
-          <div class="rc">${t.cost} bodů${!ok?` · chybí ${t.cost-state.score}`:''}</div>
+          <div class="rc" style="color:var(--dim)">Přidáno ${new Date(t.addedAt||Date.now()).toLocaleDateString('cs-CZ')}</div>
         </div>
-        <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useTrip('${t.id}')`:''}">
-          ${ok?'Uplatnit':'✗ Málo bodů'}
-        </button>
-        ${role==='dom'?`<button class="bm d" onclick="delTrip('${t.id}')">✕</button>`:''}
-      </div>`;}).join('')
+        ${role==='dom'?`
+          <button class="bm done-btn" onclick="completeTrip('${t.id}')" title="Splněno">✓</button>
+          <button class="bm d" onclick="delTrip('${t.id}')">✕</button>`:''}
+      </div>`).join('')
     :'<div class="empty" style="padding:20px"><div class="ei">🌲</div>Žádné výlety</div>';
+
+  // Splněné výlety
+  if(!cl) return;
+  cl.innerHTML=(state.completedTrips&&state.completedTrips.length)
+    ?state.completedTrips.map(t=>`
+      <div class="rpi">
+        <div class="rpi2">
+          <div class="rn" style="text-decoration:line-through;opacity:.6">${t.name}</div>
+          <div class="rc">Splněno ${new Date(t.completedAt).toLocaleDateString('cs-CZ')}</div>
+        </div>
+        ${role==='dom'?`<button class="bm d" onclick="delCompletedTrip('${t.id}')">✕</button>`:''}
+      </div>`).join('')
+    :'<div class="empty" style="padding:16px 10px"><div class="ei">🏁</div>Žádné splněné výlety</div>';
 }
 
 // ── ACTIONS ────────────────────────────────────────────────────────────
@@ -853,10 +868,8 @@ async function activateIdea(id){
     showToast('✓ Trest přidán do seznamu trestů');
 
   } else if(idea.type==='trip'){
-    const cost=parseInt(prompt(`Kolik bodů stojí výlet "${idea.name}"?`));
-    if(isNaN(cost)||cost<0) return;
     if(!state.trips) state.trips=[];
-    state.trips.push({id:uid(),name:idea.name,cost});
+    state.trips.push({id:uid(),name:idea.name,addedAt:new Date().toISOString()});
     state.ideas=state.ideas.filter(x=>x.id!==id);
     renderTrips();renderIdeas();
     await save();
@@ -1003,21 +1016,27 @@ async function useReward(id){
 // ── TRIPS LOGIC ──────────────────────────────────────────────────────────
 async function addTrip(){
   const n=document.getElementById('trip-name').value.trim();
-  const c=parseInt(document.getElementById('trip-cost').value)||0;
   if(!n)return;
   if(!state.trips) state.trips=[];
-  state.trips.push({id:uid(),name:n,cost:c});
-  document.getElementById('trip-name').value='';document.getElementById('trip-cost').value='';
+  state.trips.push({id:uid(),name:n,addedAt:new Date().toISOString()});
+  document.getElementById('trip-name').value='';
   renderTrips();await save();
+  showToast('✓ Výlet přidán');
 }
 async function delTrip(id){state.trips=state.trips.filter(x=>x.id!==id);renderTrips();await save();}
-async function useTrip(id){
+async function completeTrip(id){
+  if(role!=='dom'){showToast('🔒 Pouze Dom může označit výlet jako splněný');return;}
   const t=state.trips.find(x=>x.id===id);if(!t)return;
-  if(state.score<t.cost){showToast('✗ Nedostatek bodů');return;}
-  if(!confirm(`Uplatnit výlet "${t.name}" za ${t.cost} bodů?`)) return;
-  await addPoints(-t.cost,`🌲 Výlet: ${t.name}`,true);
-  await save();
-  showToast(`✓ Výlet "${t.name}" uplatněn`);
+  if(!confirm(`Označit výlet "${t.name}" jako splněný?`)) return;
+  if(!state.completedTrips) state.completedTrips=[];
+  state.completedTrips.push({...t,completedAt:new Date().toISOString()});
+  state.trips=state.trips.filter(x=>x.id!==id);
+  renderTrips();await save();
+  showToast(`✓ Výlet "${t.name}" splněn! 🎉`);
+}
+async function delCompletedTrip(id){
+  state.completedTrips=state.completedTrips.filter(x=>x.id!==id);
+  renderTrips();await save();
 }
 
 async function addPunishment(){
