@@ -914,6 +914,14 @@ async function rollRandom(type){
   const pool=(state.bank||[]).filter(b=>b.type===type);
   if(!pool.length){showToast('✗ Banka je prázdná');return;}
 
+// --- PŘIDANÝ LIMIT 6 ÚKOLŮ ---
+  const currentCount = state.todos.filter(t => t.type === type).length;
+  if(currentCount >= 6) {
+    showToast('✗ Sekce je plná (max 6 úkolů)');
+    return;
+  }
+// -----------------------------
+
   if(role==='sub'){
     const todayStr=new Date().toDateString();
     if(!state.rollLog) state.rollLog={};
