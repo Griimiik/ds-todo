@@ -381,7 +381,7 @@ function renderActivePunishments(){
     }).join('');
   }
 
-  // ── ODMĚNY ──  
+  // ── ODMĚNY ──
   if(!rList) return;
   if(!state.activeRewards||!state.activeRewards.length){
     rList.innerHTML='<div class="empty" style="padding:20px 10px"><div class="ei">🎁</div>Žádné odměny</div>';
@@ -479,7 +479,6 @@ async function completeActiveReward(id){
   await save();
   showToast('✓ Odměna splněna');
 }
-
 
 // ── DEFAULTS ───────────────────────────────────────────────────────────
 function setDefaults(){
@@ -1074,13 +1073,13 @@ async function delPunishment(id){state.punishments=state.punishments.filter(x=>x
 async function usePunishment(id){
   if(role!=='dom'){showToast('🔒 Pouze Dom může udělit trest');return;}
   const p=state.punishments.find(x=>x.id===id);if(!p)return;
-  if(!confirm(`Udělit trest "${p.name}" (−${p.cost} bodů)?`)) return;
+  if(!confirm(`Udělit trest "${p.name}"?\nBody (${p.cost}) se odečtou pouze pokud trest NEBUDE splněn.`)) return;
+  // Otevři modal pro nastavení trestu — uloží cost pro pozdější penalizaci
   document.getElementById('ap-name').value=p.name;
-  const tomorrow=new Date(Date.now()+86400000);
-  tomorrow.setSeconds(0,0);
-  document.getElementById('ap-until').value=tomorrow.toISOString().slice(0,16);
+  document.getElementById('ap-name').dataset.cost=p.cost; // uložíme cost
+  apType='task';
+  setApType('task');
   document.getElementById('ap-modal').classList.add('open');
-  await addPoints(-p.cost,`⚡ Trest: ${p.name}`);
 }
 
 async function clearHistory(){if(!confirm('Vymazat historii?'))return;state.history=[];renderHistory();await save();}
