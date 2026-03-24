@@ -457,7 +457,7 @@ async function addActivePunishment(){
   document.getElementById('ap-modal').classList.remove('open');
   renderActivePunishments();
   await save();
-  showToast('⚡ Trest přesunut do aktivních. Body se strhnou jen při nesplnění.');
+  showToast('⛓️ Trest přesunut do aktivních. Body se strhnou jen při nesplnění.');
 }
 
 async function removeActivePunishment(id){
@@ -490,7 +490,7 @@ async function failActivePunishment(id){
   
   if(penalty > 0) {
     // Teď reálně strhneme body
-    await addPoints(-penalty, `⚡ Trest nesplněn: ${p.name}`);
+    await addPoints(-penalty, `⛓️ Trest nesplněn: ${p.name}`);
   } else {
     renderActivePunishments();
     await save();
@@ -694,7 +694,7 @@ function renderIdeas(){
     l.innerHTML='<div class="empty"><div class="ei">💡</div>Žádné nápady<br><span style="font-size:11px">Přidej první nápad níže</span></div>';
     return;
   }
-  const typeLabels={activity:'🎯 Aktivita',punishment:'⚡ Trest',reward:'🏆 Odměna',trip:'🌲 Výlet'};
+  const typeLabels={activity:'🎯 Aktivita',punishment:'⛓️ Trest',reward:'🏆 Odměna',trip:'🌲 Výlet'};
   const subtypeLabels={active:'Aktivní',daily:'Denní',weekly:'Týdenní'};
   const typeCls={activity:'idea-tag-activity',punishment:'idea-tag-punishment',reward:'idea-tag-reward',trip:'idea-tag-trip'};
   l.innerHTML=state.ideas.map(x=>`
@@ -758,7 +758,7 @@ function renderRewards(){
           <button class="rpb" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,.3);color:var(--red)">Aplikovat</button>
           <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>`:''}
       </div>`).join('')
-    :'<div class="empty" style="padding:20px"><div class="ei">⚡</div>Žádné tresty</div>';
+    :'<div class="empty" style="padding:20px"><div class="ei">⛓️</div>Žádné tresty</div>';
 }
 
 function renderTrips(){
