@@ -1,7 +1,7 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
 const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
-let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
+let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role='';
 let countdownInterval=null;
@@ -107,7 +107,6 @@ async function syncNow(){
     if(!state.ideas) state.ideas=[];
     if(!state.bank) state.bank=[];
     if(!state.trips) state.trips=[];
-    if(!state.completedTrips) state.completedTrips=[];
     if(!state.rollLog) state.rollLog={};
     checkAutoReset();
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
@@ -233,15 +232,24 @@ async function domLogin(){
 async function init(){
   const th=localStorage.getItem('theme')||'dark';
   setTheme(th);
-  document.getElementById('ls').style.display='none';
 
-  if(subHashParams){
-    if(subHashParams.token && subHashParams.enc){
-      localStorage.setItem('gh_token', subHashParams.token);
-      localStorage.setItem('enc_pw', subHashParams.enc);
-    }
-    showScreen('sub-login');
+  if(subHashParams && subHashParams.token && subHashParams.enc){
+    // Sub URL s tokenem — přihlásit automaticky bez hesla
+    ghToken=subHashParams.token;
+    encPw=subHashParams.enc;
+    // Ulož pro příští návštěvy (stejná URL)
+    localStorage.setItem('gh_token', subHashParams.token);
+    localStorage.setItem('enc_pw', subHashParams.enc);
+    role='sub';
+    showScreen('ls');
+    document.getElementById('lt').textContent='Načítám data...';
+    await syncNow();
+    document.getElementById('ls').style.display='none';
+    document.getElementById('app').style.display='block';
+    applyRole();
   } else {
+    // Normální URL — Dom přihlášení
+    document.getElementById('ls').style.display='none';
     const hasSetup=localStorage.getItem('gh_token')&&localStorage.getItem('enc_pw');
     if(!hasSetup){
       showScreen('ss');
@@ -252,7 +260,7 @@ async function init(){
 }
 
 function showScreen(id){
-  ['ss','dom-login','sub-login','sub-bootstrap','ls','app'].forEach(s=>{
+  ['ss','dom-login','sub-bootstrap','ls','app'].forEach(s=>{
     const el=document.getElementById(s);
     if(el) el.style.display='none';
   });
@@ -325,13 +333,18 @@ function renderActivePunishments(){
   if(!pList) return;
   const now=Date.now();
 
-  // Badge počet — časové tresty se už neodstraňují automaticky
+  const before=state.activePunishments.length;
+  state.activePunishments=state.activePunishments.filter(p=>{
+    if(p.type==='task') return true;
+    return new Date(p.until).getTime()>now;
+  });
+  if(state.activePunishments.length!==before&&role==='dom') save();
+
   const countEl=document.getElementById('active-count');
   const total=(state.activePunishments?.length||0)+(state.activeRewards?.length||0);
   if(countEl) countEl.textContent=total||'';
 
-  // ── TRESTY ──
-  if(!state.activePunishments||!state.activePunishments.length){
+  if(!state.activePunishments.length){
     pList.innerHTML='<div class="empty" style="padding:20px 10px"><div class="ei">✓</div>Žádné tresty</div>';
   } else {
     pList.innerHTML=state.activePunishments.map(p=>{
@@ -340,39 +353,29 @@ function renderActivePunishments(){
         timeInfo=`<div class="ap-until">Ke splnění</div>`;
       } else {
         const until=new Date(p.until).getTime();
-        const diff=until-now;
-        const expired=diff<=0;
-        if(expired){
-          timeInfo=`<div class="ap-until" style="color:var(--red)">⏰ Čas vypršel!</div>`;
-        } else {
-          const d=Math.floor(diff/86400000);
-          const h=Math.floor((diff%86400000)/3600000);
-          const m=Math.floor((diff%3600000)/60000);
-          const s=Math.floor((diff%60000)/1000);
-          const countdown=d>0?`${d}d ${h}h ${m}m`:`${h}h ${m}m ${s}s`;
-          const urgent=diff<3600000;
-          timeInfo=`<div class="ap-until">do ${new Date(p.until).toLocaleDateString('cs-CZ')} ${new Date(p.until).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}</div>
-                    <div class="ap-countdown${urgent?' urgent':''}">${countdown}</div>`;
-        }
+        const diff=Math.max(0,until-now);
+        const d=Math.floor(diff/86400000);
+        const h=Math.floor((diff%86400000)/3600000);
+        const m=Math.floor((diff%3600000)/60000);
+        const s=Math.floor((diff%60000)/1000);
+        const countdown=d>0?`${d}d ${h}h ${m}m`:`${h}h ${m}m ${s}s`;
+        const urgent=diff<3600000;
+        timeInfo=`<div class="ap-until">do ${new Date(p.until).toLocaleDateString('cs-CZ')} ${new Date(p.until).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}</div>
+                  <div class="ap-countdown${urgent?' urgent':''}">${countdown}</div>`;
       }
-      const penaltyInfo=p.cost?`<div style="font-size:10px;color:var(--red);margin-top:2px">Penalizace: −${p.cost} bodů</div>`:'';
       return `
         <div class="ap-item">
           <div class="ap-info">
             <div class="ap-name">${p.name}</div>
             ${timeInfo}
-            ${penaltyInfo}
           </div>
           ${role==='dom'?`
-            <div style="display:flex;flex-direction:column;gap:4px">
-              <button class="bm done-btn" onclick="completeActivePunishment('${p.id}')" title="Trest splněn — bez penalizace">✓ Splněn</button>
-              <button class="bm d" style="color:var(--red);border-color:rgba(201,110,110,.3)" onclick="failActivePunishment('${p.id}')" title="Trest nesplněn — odečíst body">✗ Nesplněn</button>
-            </div>`:''}
+            <button class="bm done-btn" onclick="completeActivePunishment('${p.id}')" title="Splněno">✓</button>
+            <button class="bm d" onclick="removeActivePunishment('${p.id}')">✕</button>`:''}
         </div>`;
     }).join('');
   }
 
-  // ── ODMĚNY ──
   if(!rList) return;
   if(!state.activeRewards||!state.activeRewards.length){
     rList.innerHTML='<div class="empty" style="padding:20px 10px"><div class="ei">🎁</div>Žádné odměny</div>';
@@ -415,25 +418,22 @@ function openAddActivePunishment(){
 }
 
 async function addActivePunishment(){
-  const nameEl=document.getElementById('ap-name');
-  const name=nameEl.value.trim();
-  const cost=parseInt(nameEl.dataset.cost)||0; // cost uložený při usePunishment
+  const name=document.getElementById('ap-name').value.trim();
   if(!name){showToast('✗ Zadej název trestu');return;}
   if(apType==='expiry'){
     const until=document.getElementById('ap-until').value;
     if(!until){showToast('✗ Zadej datum');return;}
     if(new Date(until).getTime()<=Date.now()){showToast('✗ Datum musí být v budoucnosti');return;}
     if(!state.activePunishments) state.activePunishments=[];
-    state.activePunishments.push({id:uid(),name,cost,until,type:'expiry',addedAt:new Date().toISOString()});
+    state.activePunishments.push({id:uid(),name,until,type:'expiry',addedAt:new Date().toISOString()});
   } else {
     if(!state.activePunishments) state.activePunishments=[];
-    state.activePunishments.push({id:uid(),name,cost,type:'task',addedAt:new Date().toISOString()});
+    state.activePunishments.push({id:uid(),name,type:'task',addedAt:new Date().toISOString()});
   }
-  nameEl.dataset.cost=''; // vyčisti
   document.getElementById('ap-modal').classList.remove('open');
   renderActivePunishments();
   await save();
-  showToast('✓ Aktivní trest přidán — body se odečtou jen při nesplnění');
+  showToast('✓ Aktivní trest přidán');
 }
 
 async function removeActivePunishment(id){
@@ -444,24 +444,10 @@ async function removeActivePunishment(id){
 }
 
 async function completeActivePunishment(id){
-  if(role!=='dom'){showToast('🔒 Pouze Dom může hodnotit trest');return;}
-  const p=state.activePunishments.find(x=>x.id===id);if(!p)return;
-  if(!confirm(`Trest "${p.name}" splněn?\nŽádné body se neodečtou.`)) return;
   state.activePunishments=state.activePunishments.filter(x=>x.id!==id);
   renderActivePunishments();
   await save();
-  showToast('✓ Trest splněn — bez penalizace');
-}
-
-async function failActivePunishment(id){
-  if(role!=='dom'){showToast('🔒 Pouze Dom může hodnotit trest');return;}
-  const p=state.activePunishments.find(x=>x.id===id);if(!p)return;
-  const pts=p.cost||0;
-  if(!confirm(`Trest "${p.name}" NESPLNĚN?\n${pts>0?`Odečte se ${pts} bodů.`:'Žádná penalizace.'}`)) return;
-  state.activePunishments=state.activePunishments.filter(x=>x.id!==id);
-  if(pts>0) await addPoints(-pts,`✗ Trest nesplněn: ${p.name}`);
-  else{ renderActivePunishments();await save(); }
-  showToast(`✗ Trest nesplněn${pts>0?` — odečteno ${pts} bodů`:''}`);
+  showToast('✓ Trest splněn');
 }
 
 async function completeActiveReward(id){
@@ -479,7 +465,6 @@ function setDefaults(){
   state.bank=[];
   state.legend=[];
   state.trips=[];
-  state.completedTrips=[];
   state.rewards=[
     {id:uid(),name:'🎬 Výběr večerního filmu',cost:50},
     {id:uid(),name:'🍫 Oblíbená sladkost',cost:30},
@@ -671,35 +656,22 @@ function renderRewards(){
 
 function renderTrips(){
   const tl=document.getElementById('trips-list');
-  const cl=document.getElementById('trips-completed-list');
   if(!tl) return;
-
-  // Aktivní výlety
   tl.innerHTML=(state.trips&&state.trips.length)
-    ?state.trips.map(t=>`
-      <div class="rpi">
+    ?state.trips.map(t=>{
+      const ok=state.score>=t.cost;
+      const canUse=ok;
+      return `<div class="rpi">
         <div class="rpi2">
           <div class="rn">${t.name}</div>
-          <div class="rc" style="color:var(--dim)">Přidáno ${new Date(t.addedAt||Date.now()).toLocaleDateString('cs-CZ')}</div>
+          <div class="rc">${t.cost} bodů${!ok?` · chybí ${t.cost-state.score}`:''}</div>
         </div>
-        ${role==='dom'?`
-          <button class="bm done-btn" onclick="completeTrip('${t.id}')" title="Splněno">✓</button>
-          <button class="bm d" onclick="delTrip('${t.id}')">✕</button>`:''}
-      </div>`).join('')
+        <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useTrip('${t.id}')`:''}">
+          ${ok?'Uplatnit':'✗ Málo bodů'}
+        </button>
+        ${role==='dom'?`<button class="bm d" onclick="delTrip('${t.id}')">✕</button>`:''}
+      </div>`;}).join('')
     :'<div class="empty" style="padding:20px"><div class="ei">🌲</div>Žádné výlety</div>';
-
-  // Splněné výlety
-  if(!cl) return;
-  cl.innerHTML=(state.completedTrips&&state.completedTrips.length)
-    ?state.completedTrips.map(t=>`
-      <div class="rpi">
-        <div class="rpi2">
-          <div class="rn" style="text-decoration:line-through;opacity:.6">${t.name}</div>
-          <div class="rc">Splněno ${new Date(t.completedAt).toLocaleDateString('cs-CZ')}</div>
-        </div>
-        ${role==='dom'?`<button class="bm d" onclick="delCompletedTrip('${t.id}')">✕</button>`:''}
-      </div>`).join('')
-    :'<div class="empty" style="padding:16px 10px"><div class="ei">🏁</div>Žádné splněné výlety</div>';
 }
 
 // ── ACTIONS ────────────────────────────────────────────────────────────
@@ -814,8 +786,10 @@ async function activateIdea(id){
     showToast('✓ Trest přidán do seznamu trestů');
 
   } else if(idea.type==='trip'){
+    const cost=parseInt(prompt(`Kolik bodů stojí výlet "${idea.name}"?`));
+    if(isNaN(cost)||cost<0) return;
     if(!state.trips) state.trips=[];
-    state.trips.push({id:uid(),name:idea.name,addedAt:new Date().toISOString()});
+    state.trips.push({id:uid(),name:idea.name,cost});
     state.ideas=state.ideas.filter(x=>x.id!==id);
     renderTrips();renderIdeas();
     await save();
@@ -954,27 +928,21 @@ async function useReward(id){
 // ── TRIPS LOGIC ──────────────────────────────────────────────────────────
 async function addTrip(){
   const n=document.getElementById('trip-name').value.trim();
+  const c=parseInt(document.getElementById('trip-cost').value)||0;
   if(!n)return;
   if(!state.trips) state.trips=[];
-  state.trips.push({id:uid(),name:n,addedAt:new Date().toISOString()});
-  document.getElementById('trip-name').value='';
+  state.trips.push({id:uid(),name:n,cost:c});
+  document.getElementById('trip-name').value='';document.getElementById('trip-cost').value='';
   renderTrips();await save();
-  showToast('✓ Výlet přidán');
 }
 async function delTrip(id){state.trips=state.trips.filter(x=>x.id!==id);renderTrips();await save();}
-async function completeTrip(id){
-  if(role!=='dom'){showToast('🔒 Pouze Dom může označit výlet jako splněný');return;}
+async function useTrip(id){
   const t=state.trips.find(x=>x.id===id);if(!t)return;
-  if(!confirm(`Označit výlet "${t.name}" jako splněný?`)) return;
-  if(!state.completedTrips) state.completedTrips=[];
-  state.completedTrips.push({...t,completedAt:new Date().toISOString()});
-  state.trips=state.trips.filter(x=>x.id!==id);
-  renderTrips();await save();
-  showToast(`✓ Výlet "${t.name}" splněn! 🎉`);
-}
-async function delCompletedTrip(id){
-  state.completedTrips=state.completedTrips.filter(x=>x.id!==id);
-  renderTrips();await save();
+  if(state.score<t.cost){showToast('✗ Nedostatek bodů');return;}
+  if(!confirm(`Uplatnit výlet "${t.name}" za ${t.cost} bodů?`)) return;
+  await addPoints(-t.cost,`🌲 Výlet: ${t.name}`,true);
+  await save();
+  showToast(`✓ Výlet "${t.name}" uplatněn`);
 }
 
 async function addPunishment(){
@@ -989,13 +957,13 @@ async function delPunishment(id){state.punishments=state.punishments.filter(x=>x
 async function usePunishment(id){
   if(role!=='dom'){showToast('🔒 Pouze Dom může udělit trest');return;}
   const p=state.punishments.find(x=>x.id===id);if(!p)return;
-  if(!confirm(`Udělit trest "${p.name}"?\nBody (${p.cost}) se odečtou pouze pokud trest NEBUDE splněn.`)) return;
-  // Otevři modal pro nastavení trestu — uloží cost pro pozdější penalizaci
+  if(!confirm(`Udělit trest "${p.name}" (−${p.cost} bodů)?`)) return;
   document.getElementById('ap-name').value=p.name;
-  document.getElementById('ap-name').dataset.cost=p.cost; // uložíme cost
-  apType='task';
-  setApType('task');
+  const tomorrow=new Date(Date.now()+86400000);
+  tomorrow.setSeconds(0,0);
+  document.getElementById('ap-until').value=tomorrow.toISOString().slice(0,16);
   document.getElementById('ap-modal').classList.add('open');
+  await addPoints(-p.cost,`⚡ Trest: ${p.name}`);
 }
 
 async function clearHistory(){if(!confirm('Vymazat historii?'))return;state.history=[];renderHistory();await save();}
