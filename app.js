@@ -764,6 +764,15 @@ async function addTodo(){
   const p=parseInt(document.getElementById('t-pts').value)||0;
   const type=document.getElementById('t-type').value||'active';
   if(!n) return;
+
+// --- PŘIDANÝ LIMIT 6 ÚKOLŮ ---
+  const currentCount = state.todos.filter(t => t.type === type).length;
+  if(currentCount >= 6) {
+    showToast(`✗ Sekce ${type} je plná (max 6)`);
+    return;
+  }
+// -----------------------------
+  
   state.todos.push({id:uid(),name:n,pts:p,done:false,type});
   if(!state.bank) state.bank=[];
   const inBank=state.bank.some(b=>b.name===n&&b.type===type);
