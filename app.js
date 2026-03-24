@@ -520,26 +520,57 @@ function renderScore(){
   document.getElementById('sminus').textContent=state.totalMinus;
 }
 
-// ── AUTO RESET ─────────────────────────────────────────────────────────
-function checkAutoReset(){
-  const now=new Date();
-  const todayStr=now.toDateString();
-  const weekStr=`${now.getFullYear()}-W${getWeekNumber(now)}`;
-  let changed=false;
+// ── AUTO REFRESH Z BANKY (KAŽDÝ DEN/TÝDEN 6 NOVÝCH) ───────────────────
+async function checkAutoReset() {
+  const now = new Date();
+  const todayStr = now.toDateString();
+  const weekStr = `${now.getFullYear()}-W${getWeekNumber(now)}`;
+  
+  const lastDay = localStorage.getItem('last_daily_reset');
+  const lastWeek = localStorage.getItem('last_weekly_reset');
+  
+  let changed = false;
 
-  state.todos.forEach(t=>{
-    if(t.type==='daily'&&t.done){
-      if(t.lastResetDay!==todayStr){
-        t.done=false;t.lastResetDay=todayStr;changed=true;
-      }
-    }
-    if(t.type==='weekly'&&t.done){
-      if(t.lastResetWeek!==weekStr){
-        t.done=false;t.lastResetWeek=weekStr;changed=true;
-      }
-    }
+  // DENNÍ: Pokud je nový den, smaže staré a vylosuje 6 nových z banky
+  if (lastDay !== todayStr) {
+    state.todos = state.todos.filter(t => t.type !== 'daily');
+    autoFillFromBank('daily', 6);
+    localStorage.setItem('last_daily_reset', todayStr);
+    changed = true;
+  }
+
+  // TÝDENNÍ: Pokud je nový týden, smaže staré a vylosuje 6 nových z banky
+  if (lastWeek !== weekStr) {
+    state.todos = state.todos.filter(t => t.type !== 'weekly');
+    autoFillFromBank('weekly', 6);
+    localStorage.setItem('last_weekly_reset', weekStr);
+    changed = true;
+  }
+
+  if (changed) {
+    await save();
+    renderAll();
+    showToast('✨ Úkoly pro dnešek byly obměněny z banky');
+  }
+}
+
+// Pomocná funkce pro losování z banky
+function autoFillFromBank(type, count) {
+  const pool = (state.bank || []).filter(b => b.type === type);
+  if (!pool.length) return;
+
+  const shuffled = [...pool].sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, count);
+
+  selected.forEach(picked => {
+    state.todos.push({
+      id: uid(),
+      name: picked.name,
+      pts: picked.pts,
+      done: false,
+      type: type
+    });
   });
-  if(changed) save();
 }
 
 function getWeekNumber(d){
@@ -547,6 +578,27 @@ function getWeekNumber(d){
   date.setUTCDate(date.getUTCDate()+4-(date.getUTCDay()||7));
   const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));
   return Math.ceil((((date-yearStart)/86400000)+1)/7);
+}
+
+// Ruční přemíchání úkolů z banky (pro Dom)
+async function manualRefreshTasks() {
+  if (role !== 'dom') {
+    showToast('🔒 Pouze Dom může úkoly přemíchat');
+    return;
+  }
+  
+  if (!confirm('Opravdu chceš smazat aktuální úkoly a vylosovat 6 nových z banky?')) return;
+
+  // Vyčistíme aktuální seznamy
+  state.todos = state.todos.filter(t => t.type !== 'daily' && t.type !== 'weekly');
+  
+  // Vylosujeme nové
+  autoFillFromBank('daily', 6);
+  autoFillFromBank('weekly', 6);
+  
+  await save();
+  renderAll();
+  showToast('🎲 Úkoly byly ručně přemíchány');
 }
 
 // ── RENDER TODO ────────────────────────────────────────────────────────
