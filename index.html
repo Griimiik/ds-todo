@@ -131,17 +131,6 @@
       </div>
       <div id="tlist-weekly"></div>
     </div>
-    <div class="af dom-only">
-      <input class="inp" id="t-name" placeholder="Název úkolu..." style="flex:1;min-width:100px" />
-      <input class="inp ipts" id="t-pts" type="number" placeholder="Body" />
-      <select class="inp" id="t-type" style="flex:none;width:90px;font-family:inherit">
-        <option value="active">🎯 Aktivní</option>
-        <option value="daily">☀️ Denní</option>
-        <option value="weekly">📅 Týdenní</option>
-      </select>
-      <button class="badd" onclick="addTodo()">+ Přidat</button>
-    </div>
-  </div>
 
   <div class="sec" id="sec-rewards">
     <div class="card">
@@ -206,6 +195,19 @@
   </div>
 
   <div class="sec" id="sec-bank">
+  <div class="card">
+    <div class="ch"><span>➕ Vytvořit nový úkol do banky</span></div>
+    <div class="af dom-only">
+      <input class="inp" id="t-name" placeholder="Název úkolu..." style="flex:1;min-width:100px" />
+      <input class="inp ipts" id="t-pts" type="number" placeholder="Body" />
+      <select class="inp" id="t-type" style="flex:none;width:90px;font-family:inherit">
+        <option value="active">🎯 Aktivní</option>
+        <option value="daily">☀️ Denní</option>
+        <option value="weekly">📅 Týdenní</option>
+      </select>
+      <button class="badd" onclick="addTodoToBank()">+ Uložit do banky</button>
+    </div>
+  </div>
     <div class="bank-actions">
       <button class="bank-roll-btn active" onclick="rollRandom('active')">🎲 Náhodný aktivní</button>
       <button class="bank-roll-btn daily" onclick="rollRandom('daily')">🎲 Náhodný denní</button>
@@ -225,7 +227,7 @@
       <div id="bank-weekly-list"></div>
     </div>
     <div style="padding:6px 0;font-size:10px;color:var(--dimmer);text-align:center">
-      Úkoly se přidávají přes záložku Úkoly nebo Nápady · 1× denně per skupina
+      Úkoly se přidávají přes záložku Banka nebo Nápady
     </div>
   </div>
 
