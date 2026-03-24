@@ -461,6 +461,8 @@ async function completeActiveReward(id){
 function setDefaults(){
   state.activePunishments=[];
   state.activeRewards=[];
+  state.lastDailyReset = "";   // PŘIDÁNO
+  state.lastWeeklyReset = "";  // PŘIDÁNO
   state.ideas=[];
   state.bank=[];
   state.legend=[];
