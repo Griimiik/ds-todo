@@ -258,3 +258,39 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--border-h);border-radius:2px}
+
+/* Styl pro informační popisky | Expand */
+details summary {
+  list-style: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+details summary::-webkit-details-marker { display: none; }
+.info-icon {
+  font-size: 10px;
+  opacity: 0.5;
+  background: var(--accent-d);
+  color: var(--accent);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+.tdesc {
+  font-size: 11px;
+  color: var(--dim);
+  line-height: 1.5;
+  margin-top: 6px;
+  padding: 8px;
+  font-style: italic;
+  border-left: 2px solid var(--accent-d);
+  background: var(--accent-g);
+  border-radius: 0 4px 4px 0;
+}
+/* Ikona tužky pro editaci */
+.edit-btn {
+  opacity: 0.4;
+  margin-right: 4px;
+}
+.edit-btn:hover { opacity: 1; color: var(--accent); }
