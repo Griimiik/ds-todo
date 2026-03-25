@@ -657,17 +657,32 @@ async function manualRefreshTasks() {
 }
 
 // ── RENDER TODO ────────────────────────────────────────────────────────
-function renderTodoBlock(todos,emptyIcon,emptyText){
-  if(!todos.length) return `<div class="empty" style="padding:18px 10px"><div class="ei">${emptyIcon}</div>${emptyText}</div>`;
-  return todos.map(t=>`
-    <div class="ti ${t.done?'done':''}" onclick="toggleTodo('${t.id}')">
-      <div class="tck">${t.done?'✓':''}</div>
+function renderTodoBlock(todos, emptyIcon, emptyText) {
+  if (!todos.length) return `<div class="empty" style="padding:18px 10px"><div class="ei">${emptyIcon}</div>${emptyText}</div>`;
+  return todos.map(t => {
+    const parts = t.name.split('|');
+    const title = parts[0].trim();
+    const desc = parts[1] ? parts[1].trim() : '';
+
+    return `
+    <div class="ti ${t.done ? 'done' : ''}">
+      <div class="tck" onclick="toggleTodo('${t.id}')">${t.done ? '✓' : ''}</div>
       <div class="ttx">
-        <div class="tn">${t.name}</div>
-        ${t.pts?`<div class="tp">+${t.pts} bodů</div>`:''}
+        <details onclick="event.stopPropagation()">
+          <summary class="tn">
+            ${title}
+            ${desc ? '<span class="info-icon">info</span>' : ''}
+          </summary>
+          ${desc ? `<div class="tdesc">${desc}</div>` : ''}
+        </details>
+        ${t.pts ? `<div class="tp">+${t.pts} bodů</div>` : ''}
       </div>
-      ${role==='dom'?`<button class="bm d" onclick="event.stopPropagation();delTodo('${t.id}')">✕</button>`:''}
-    </div>`).join('');
+      <div style="display:flex; gap:4px">
+        ${role === 'dom' ? `<button class="bm edit-btn" onclick="event.stopPropagation();editItem('todos','${t.id}')">✎</button>` : ''}
+        ${role === 'dom' ? `<button class="bm d" onclick="event.stopPropagation();delTodo('${t.id}')">✕</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderTodo(){
@@ -819,6 +834,26 @@ async function toggleTodo(id){
   } else {
     await save();
   }
+}
+
+async function editItem(collection, id) {
+  if (role !== 'dom') return;
+  const item = state[collection].find(x => x.id === id);
+  if (!item) return;
+
+  const newName = prompt(`Upravit název (použij | pro popisek):`, item.name);
+  if (newName === null) return;
+
+  const newPts = prompt(`Upravit body:`, item.pts || item.cost || 0);
+  if (newPts === null) return;
+
+  item.name = newName.trim();
+  if (item.pts !== undefined) item.pts = parseInt(newPts) || 0;
+  if (item.cost !== undefined) item.cost = parseInt(newPts) || 0;
+
+  renderAll();
+  await save();
+  showToast('✓ Upraveno');
 }
 
 async function addTodoToBank() {
@@ -973,6 +1008,7 @@ function renderBank(){
             <div class="tp" style="color:var(--dim)">${b.pts?`+${b.pts} bodů · `:''}<span style="font-size:10px">${lastUsed}</span></div>
           </div>
           ${role==='dom'?`
+            <button class="bm edit-btn" onclick="editItem('bank','${b.id}')">✎</button>
             <button class="bm done-btn" onclick="rollSpecific('${b.id}')" title="Přidat do úkolů">▶</button>
             <button class="bm d" onclick="deleteFromBank('${b.id}')">✕</button>`:''}
         </div>`;
