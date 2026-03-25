@@ -1050,7 +1050,7 @@ function renderBank(){
           <button class="bm d" onclick="deleteFromBank('${b.id}')">✕</button>` : ''}
       </div>`;
 }).join('');
-
+};
   renderBankList(active,al);
   renderBankList(daily,dl);
   renderBankList(weekly,wl);
