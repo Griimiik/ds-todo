@@ -747,7 +747,7 @@ function renderHistory(){
 }
 
 function renderRewards(){
-  const rl=document.getElementById('rlist'),pl=document.getElementById('plist');
+  const rl=document.getElementById('rlist'), pl=document.getElementById('plist');
   if (document.getElementById('rscore')) document.getElementById('rscore').textContent=`Body: ${state.score}`;
   
   rl.innerHTML=state.rewards.length
@@ -759,11 +759,13 @@ function renderRewards(){
           <div class="rn">${r.name}</div>
           <div class="rc">${r.cost} bodů${!ok?` · chybí ${r.cost-state.score}`:''}</div>
         </div>
-         <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useReward('${r.id}')`:''}">
-          ${ok?'Uplatnit':'✗ Málo bodů'}
-        </button>
-        ${role==='dom'?`<button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>` : ''}
-        ${role==='dom'?`<button class="bm d" onclick="delReward('${r.id}')">✕</button>`:''}
+        <div style="display:flex; gap:4px; align-items:center">
+          <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useReward('${r.id}')`:''}">
+            ${ok?'Uplatnit':'✗ Málo bodů'}
+          </button>
+          ${role==='dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
+          ${role==='dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
+        </div>
       </div>`;}).join('')
     :'<div class="empty" style="padding:20px"><div class="ei">🏆</div>Žádné odměny</div>';
 
@@ -771,10 +773,12 @@ function renderRewards(){
     ?state.punishments.map(p=>`
       <div class="rpi">
         <div class="rpi2"><div class="rn">${p.name}</div><div class="rc">${p.cost} bodů</div></div>
-        ${role==='dom'?`
-          <button class="rpb" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,.3);color:var(--red)">Aplikovat</button>
-          <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>`:''}
-          <button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>` : ''}
+        <div style="display:flex; gap:4px; align-items:center">
+          ${role==='dom'?`
+            <button class="rpb" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,.3);color:var(--red)">Aplikovat</button>
+            <button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>
+            <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>`:''}
+        </div>
       </div>`).join('')
     :'<div class="empty" style="padding:20px"><div class="ei">⛓️</div>Žádné tresty</div>';
 }
@@ -784,7 +788,6 @@ function renderTrips(){
   const cl=document.getElementById('trips-completed-list');
   if(!tl) return;
 
-  // Aktivní výlety
   tl.innerHTML=(state.trips&&state.trips.length)
     ?state.trips.map(t=>`
       <div class="rpi">
@@ -792,14 +795,15 @@ function renderTrips(){
           <div class="rn">${t.name}</div>
           <div class="rc" style="color:var(--dim)">Přidáno ${new Date(t.addedAt||Date.now()).toLocaleDateString('cs-CZ')}</div>
         </div>
-        ${role==='dom'?`
-          <button class="bm done-btn" onclick="completeTrip('${t.id}')" title="Splněno">✓</button>
-          <button class="bm edit-btn" onclick="editItem('trips','${t.id}')">✎</button>` : ''}
-          <button class="bm d" onclick="delTrip('${t.id}')">✕</button>`:''}
+        <div style="display:flex; gap:4px; align-items:center">
+          ${role==='dom'?`
+            <button class="bm done-btn" onclick="completeTrip('${t.id}')" title="Splněno">✓</button>
+            <button class="bm edit-btn" onclick="editItem('trips','${t.id}')">✎</button>
+            <button class="bm d" onclick="delTrip('${t.id}')">✕</button>`:''}
+        </div>
       </div>`).join('')
     :'<div class="empty" style="padding:20px"><div class="ei">🌲</div>Žádné výlety</div>';
 
-  // Splněné výlety
   if(!cl) return;
   cl.innerHTML=(state.completedTrips&&state.completedTrips.length)
     ?state.completedTrips.map(t=>`
@@ -808,7 +812,11 @@ function renderTrips(){
           <div class="rn" style="text-decoration:line-through;opacity:.6">${t.name}</div>
           <div class="rc">Splněno ${new Date(t.completedAt).toLocaleDateString('cs-CZ')}</div>
         </div>
-        ${role==='dom'?`<button class="bm d" onclick="delCompletedTrip('${t.id}')">✕</button>`:''}
+        <div style="display:flex; gap:4px; align-items:center">
+          ${role==='dom'?`
+            <button class="bm edit-btn" onclick="editItem('completedTrips','${t.id}')">✎</button>
+            <button class="bm d" onclick="delCompletedTrip('${t.id}')">✕</button>`:''}
+        </div>
       </div>`).join('')
     :'<div class="empty" style="padding:16px 10px"><div class="ei">🏁</div>Žádné splněné výlety</div>';
 }
