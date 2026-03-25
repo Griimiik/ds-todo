@@ -648,8 +648,8 @@ async function manualRefreshTasks() {
   state.todos = state.todos.filter(t => t.type !== 'daily' && t.type !== 'weekly');
   
   // Vylosujeme nové
-  autoFillFromBank('daily', 6);
-  autoFillFromBank('weekly', 6);
+  autoFillFromBank('daily', 5);
+  autoFillFromBank('weekly', 5);
   
   await save();
   renderAll();
