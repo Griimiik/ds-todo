@@ -712,27 +712,39 @@ function renderIdeas(){
   const typeLabels={activity:'🎯 Aktivita',punishment:'⛓️ Trest',reward:'🏆 Odměna',trip:'🌲 Výlet'};
   const subtypeLabels={active:'Aktivní',daily:'Denní',weekly:'Týdenní'};
   const typeCls={activity:'idea-tag-activity',punishment:'idea-tag-punishment',reward:'idea-tag-reward',trip:'idea-tag-trip'};
-  l.innerHTML=state.ideas.map(x=>`
+  l.innerHTML = state.ideas.map(x => {
+  const parts = x.name.split('|');
+  const title = parts[0].trim();
+  const desc = parts[1] ? parts[1].trim() : '';
+
+  return `
     <div class="idea-item">
       <div class="idea-checks">
-        <div class="idea-check ${x.checkedDom?'checked':''}" onclick="toggleIdeaCheck('${x.id}','dom')" title="Dom souhlasí">🔑</div>
-        <div class="idea-check ${x.checkedSub?'checked':''}" onclick="toggleIdeaCheck('${x.id}','sub')" title="Sub souhlasí">🦮</div>
+        <div class="idea-check ${x.checkedDom ? 'checked' : ''}" onclick="toggleIdeaCheck('${x.id}','dom')" title="Dom souhlasí">🔑</div>
+        <div class="idea-check ${x.checkedSub ? 'checked' : ''}" onclick="toggleIdeaCheck('${x.id}','sub')" title="Sub souhlasí">🦮</div>
       </div>
       <div class="idea-info">
-        <div class="idea-name ${x.checkedDom&&x.checkedSub?'idea-agreed':''}">${x.name}</div>
+        <details onclick="event.stopPropagation()">
+          <summary class="idea-name ${x.checkedDom && x.checkedSub ? 'idea-agreed' : ''}">
+            ${title}
+            ${desc ? '<span class="info-icon">info</span>' : ''}
+          </summary>
+          ${desc ? `<div class="tdesc">${desc}</div>` : ''}
+        </details>
         <div style="display:flex;gap:5px;margin-top:4px;align-items:center;flex-wrap:wrap">
-          <span class="idea-type-tag ${typeCls[x.type]||''}">${typeLabels[x.type]||x.type}</span>
-          ${x.type==='activity'&&x.subtype?`<span class="idea-type-tag" style="background:var(--bg3);color:var(--dim);border:1px solid var(--border)">${subtypeLabels[x.subtype]||x.subtype}</span>`:''}
-          ${x.checkedDom&&x.checkedSub?'<span style="font-size:9px;color:var(--green);letter-spacing:.08em">✓ oba souhlasí</span>':''}
+          <span class="idea-type-tag ${typeCls[x.type] || ''}">${typeLabels[x.type] || x.type}</span>
+          ${x.type === 'activity' && x.subtype ? `<span class="idea-type-tag" style="background:var(--bg3);color:var(--dim);border:1px solid var(--border)">${subtypeLabels[x.subtype] || x.subtype}</span>` : ''}
+          ${x.checkedDom && x.checkedSub ? '<span style="font-size:9px;color:var(--green);letter-spacing:.08em">✓ oba souhlasí</span>' : ''}
         </div>
       </div>
-      ${role==='dom'?`
+      ${role === 'dom' ? `
         <div class="idea-dom-actions">
           <button class="badd" onclick="activateIdea('${x.id}')" style="font-size:10px;padding:5px 8px">▶ Aktivovat</button>
           <button class="bm edit-btn" onclick="editItem('ideas','${x.id}')">✎</button>
           <button class="bm d" onclick="deleteIdea('${x.id}')">✕</button>
-        </div>`:''}
-    </div>`).join('');
+        </div>` : ''}
+    </div>`;
+}).join('');
 }
 
 function renderHistory(){
@@ -1014,21 +1026,30 @@ function renderBank(){
       return;
     }
     const sorted=[...items].sort((a,b)=>(a.lastUsed||0)-(b.lastUsed||0));
-    list.innerHTML=sorted.map(b=>{
-      const lastUsed=b.lastUsed?`Naposledy: ${new Date(b.lastUsed).toLocaleDateString('cs-CZ')}`:'Ještě nepoužito';
-      return `
-        <div class="ti">
-          <div class="ttx">
-            <div class="tn">${b.name}</div>
-            <div class="tp" style="color:var(--dim)">${b.pts?`+${b.pts} bodů · `:''}<span style="font-size:10px">${lastUsed}</span></div>
-          </div>
-          ${role==='dom'?`
-            <button class="bm edit-btn" onclick="editItem('bank','${b.id}')">✎</button>
-            <button class="bm done-btn" onclick="rollSpecific('${b.id}')" title="Přidat do úkolů">▶</button>
-            <button class="bm d" onclick="deleteFromBank('${b.id}')">✕</button>`:''}
-        </div>`;
-    }).join('');
-  };
+    list.innerHTML = sorted.map(b => {
+    const parts = b.name.split('|');
+    const title = parts[0].trim();
+    const desc = parts[1] ? parts[1].trim() : '';
+    const lastUsed = b.lastUsed ? `Naposledy: ${new Date(b.lastUsed).toLocaleDateString('cs-CZ')}` : 'Ještě nepoužito';
+
+    return `
+      <div class="ti">
+        <div class="ttx">
+          <details onclick="event.stopPropagation()">
+            <summary class="tn">
+              ${title}
+              ${desc ? '<span class="info-icon">info</span>' : ''}
+            </summary>
+            ${desc ? `<div class="tdesc">${desc}</div>` : ''}
+          </details>
+          <div class="tp" style="color:var(--dim)">${b.pts ? `+${b.pts} bodů · ` : ''}<span style="font-size:10px">${lastUsed}</span></div>
+        </div>
+        ${role === 'dom' ? `
+          <button class="bm edit-btn" onclick="editItem('bank','${b.id}')">✎</button>
+          <button class="bm done-btn" onclick="rollSpecific('${b.id}')" title="Přidat do úkolů">▶</button>
+          <button class="bm d" onclick="deleteFromBank('${b.id}')">✕</button>` : ''}
+      </div>`;
+}).join('');
 
   renderBankList(active,al);
   renderBankList(daily,dl);
