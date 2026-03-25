@@ -729,6 +729,7 @@ function renderIdeas(){
       ${role==='dom'?`
         <div class="idea-dom-actions">
           <button class="badd" onclick="activateIdea('${x.id}')" style="font-size:10px;padding:5px 8px">▶ Aktivovat</button>
+          <button class="bm edit-btn" onclick="editItem('ideas','${x.id}')">✎</button>
           <button class="bm d" onclick="deleteIdea('${x.id}')">✕</button>
         </div>`:''}
     </div>`).join('');
@@ -758,9 +759,10 @@ function renderRewards(){
           <div class="rn">${r.name}</div>
           <div class="rc">${r.cost} bodů${!ok?` · chybí ${r.cost-state.score}`:''}</div>
         </div>
-        <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useReward('${r.id}')`:''}">
+         <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useReward('${r.id}')`:''}">
           ${ok?'Uplatnit':'✗ Málo bodů'}
         </button>
+        ${role==='dom'?`<button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>` : ''}
         ${role==='dom'?`<button class="bm d" onclick="delReward('${r.id}')">✕</button>`:''}
       </div>`;}).join('')
     :'<div class="empty" style="padding:20px"><div class="ei">🏆</div>Žádné odměny</div>';
@@ -772,6 +774,7 @@ function renderRewards(){
         ${role==='dom'?`
           <button class="rpb" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,.3);color:var(--red)">Aplikovat</button>
           <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>`:''}
+          <button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>` : ''}
       </div>`).join('')
     :'<div class="empty" style="padding:20px"><div class="ei">⛓️</div>Žádné tresty</div>';
 }
@@ -791,6 +794,7 @@ function renderTrips(){
         </div>
         ${role==='dom'?`
           <button class="bm done-btn" onclick="completeTrip('${t.id}')" title="Splněno">✓</button>
+          <button class="bm edit-btn" onclick="editItem('trips','${t.id}')">✎</button>` : ''}
           <button class="bm d" onclick="delTrip('${t.id}')">✕</button>`:''}
       </div>`).join('')
     :'<div class="empty" style="padding:20px"><div class="ei">🌲</div>Žádné výlety</div>';
@@ -844,16 +848,19 @@ async function editItem(collection, id) {
   const newName = prompt(`Upravit název (použij | pro popisek):`, item.name);
   if (newName === null) return;
 
-  const newPts = prompt(`Upravit body:`, item.pts || item.cost || 0);
-  if (newPts === null) return;
+  // Rozhodneme, zda upravujeme body (pts) nebo cenu (cost)
+  const currentVal = item.pts !== undefined ? item.pts : (item.cost !== undefined ? item.cost : "");
+  const newVal = (item.pts !== undefined || item.cost !== undefined) 
+    ? prompt(`Upravit hodnotu/cenu:`, currentVal) 
+    : null;
 
   item.name = newName.trim();
-  if (item.pts !== undefined) item.pts = parseInt(newPts) || 0;
-  if (item.cost !== undefined) item.cost = parseInt(newPts) || 0;
+  if (item.pts !== undefined) item.pts = parseInt(newVal) || 0;
+  if (item.cost !== undefined) item.cost = parseInt(newVal) || 0;
 
   renderAll();
   await save();
-  showToast('✓ Upraveno');
+  showToast('✓ Položka upravena');
 }
 
 async function addTodoToBank() {
