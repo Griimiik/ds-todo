@@ -611,13 +611,28 @@ async function checkAutoReset() {
 
 // Pomocná funkce pro losování z banky
 function autoFillFromBank(type, count) {
+  // 1. Najdeme všechny úkoly daného typu v bance
   const pool = (state.bank || []).filter(b => b.type === type);
   if (!pool.length) return;
 
-  const shuffled = [...pool].sort(() => 0.5 - Math.random());
+  // 2. Seřadíme je od nejstarších (aby rotace fungovala správně)
+  // Úkoly, které nebyly nikdy použity (lastUsed = 0), budou první
+  const sorted = [...pool].sort((a, b) => (a.lastUsed || 0) - (b.lastUsed || 0));
+  
+  // 3. Vezmeme prvních X kandidátů (nejméně používaných) a z nich náhodně vybereme
+  // Tím zajistíme, že se úkoly budou točit a nebudou se opakovat ty stejné
+  const candidates = sorted.slice(0, Math.min(count + 5, sorted.length));
+  const shuffled = candidates.sort(() => 0.5 - Math.random());
   const selected = shuffled.slice(0, count);
 
   selected.forEach(picked => {
+    // NASTAVENÍ ČASU POUŽITÍ (Tohle v kódu chybělo!)
+    const bankItem = state.bank.find(b => b.id === picked.id);
+    if (bankItem) {
+      bankItem.lastUsed = Date.now();
+    }
+
+    // Přidání do aktuálních úkolů
     state.todos.push({
       id: uid(),
       name: picked.name,
