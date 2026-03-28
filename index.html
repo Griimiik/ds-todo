@@ -291,6 +291,16 @@
         <div><div class="strl">Přemíchat úkoly</div><div class="strs">Smaže aktivní a vylosuje 6 nových</div></div>
         <button class="bst" onclick="manualRefreshTasks()" style="background:var(--accent-d); color:var(--accent); border-color:var(--accent)">🎲 Zamíchat</button>
       </div>
+      <div class="str dom-only">
+        <div>
+          <div class="strl">Záloha Banky</div>
+          <div class="strs">Exportovat nebo nahrát úkoly</div>
+        </div>
+        <div style="display:flex; gap:6px">
+          <button class="bst" onclick="exportBank()">💾 Export</button>
+          <button class="bst" onclick="importBank()" style="border-color:var(--accent); color:var(--accent)">📂 Import</button>
+        </div>
+      </div>
       <div class="str">
         <div><div class="strl">Přepnout na Sub</div><div class="strs">Dom → Sub režim</div></div>
         <button class="bst" onclick="switchToSub()">Přepnout</button>
