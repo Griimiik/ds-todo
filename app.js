@@ -759,40 +759,56 @@ function renderHistory(){
 }
 
 function renderRewards(){
-  const rl=document.getElementById('rlist'), pl=document.getElementById('plist');
-  if (document.getElementById('rscore')) document.getElementById('rscore').textContent=`Body: ${state.score}`;
+  const rl = document.getElementById('rlist'), pl = document.getElementById('plist');
+  if (document.getElementById('rscore')) document.getElementById('rscore').textContent = `Body: ${state.score}`;
   
-  rl.innerHTML=state.rewards.length
-    ?state.rewards.map(r=>{
-      const ok=state.score>=r.cost;
-      const canUse=ok;
+  // SEKCE ODMĚN
+  rl.innerHTML = state.rewards.length
+    ? state.rewards.map(r => {
+      const ok = state.score >= r.cost;
+      const canUse = ok;
       return `<div class="rpi">
         <div class="rpi2">
           <div class="rn">${r.name}</div>
-          <div class="rc">${r.cost} bodů${!ok?` · chybí ${r.cost-state.score}`:''}</div>
+          <div class="rc">${r.cost} bodů${!ok ? ` · chybí ${r.cost-state.score}` : ''}</div>
         </div>
         <div style="display:flex; gap:4px; align-items:center">
-          <button class="rpb${canUse?'':' na'}" onclick="${canUse?`useReward('${r.id}')`:''}">
-            ${ok?'Uplatnit':'✗ Málo bodů'}
+          <button class="rpb${canUse ? '' : ' na'}" onclick="${canUse ? `useReward('${r.id}')` : ''}">
+            ${ok ? 'Uplatnit' : '✗ Málo bodů'}
           </button>
-          ${role==='dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
-          ${role==='dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
+          ${role === 'dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
+          ${role === 'dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
         </div>
       </div>`;}).join('')
-    :'<div class="empty" style="padding:20px"><div class="ei">🏆</div>Žádné odměny</div>';
+    : '<div class="empty" style="padding:20px"><div class="ei">🏆</div>Žádné odměny</div>';
 
-  pl.innerHTML=state.punishments.length
-    ?state.punishments.map(p=>`
+  // SEKCE TRESTŮ (Tady je ta oprava pro info kartu)
+  pl.innerHTML = state.punishments.length
+    ? state.punishments.map(p => {
+      const parts = p.name.split('|');
+      const title = parts[0].trim();
+      const desc = parts[1] ? parts[1].trim() : '';
+
+      return `
       <div class="rpi">
-        <div class="rpi2"><div class="rn">${p.name}</div><div class="rc">${p.cost} bodů</div></div>
+        <div class="rpi2">
+          <details onclick="event.stopPropagation()">
+            <summary class="rn">
+              ${title}
+              ${desc ? '<span class="info-icon">info</span>' : ''}
+            </summary>
+            ${desc ? `<div class="tdesc">${desc}</div>` : ''}
+          </details>
+          <div class="rc">${p.cost} bodů (pokuta)</div>
+        </div>
         <div style="display:flex; gap:4px; align-items:center">
-          ${role==='dom'?`
+          ${role === 'dom' ? `
             <button class="rpb" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,.3);color:var(--red)">Aplikovat</button>
             <button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>
-            <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>`:''}
+            <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>` : ''}
         </div>
-      </div>`).join('')
-    :'<div class="empty" style="padding:20px"><div class="ei">⛓️</div>Žádné tresty</div>';
+      </div>`;}).join('')
+    : '<div class="empty" style="padding:20px"><div class="ei">⛓️</div>Žádné tresty</div>';
 }
 
 function renderTrips(){
