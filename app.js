@@ -405,23 +405,23 @@ function rollRandomPunishment() {
     return;
   }
 
-  // Reset předchozího zvýraznění
+  // Odstraníme předchozí zvýraznění
   items.forEach(el => {
-    el.style.borderColor = '';
-    el.style.boxShadow = '';
-    el.style.transform = '';
+    el.style.borderColor = 'var(--border)'; // Návrat k původnímu rámečku
+    el.style.background = 'var(--bg2)';     // Návrat k původnímu pozadí
   });
 
+  // Vybereme náhodný index
   const randomIndex = Math.floor(Math.random() * items.length);
   const selected = items[randomIndex];
 
-  // Efektní zvýraznění
+  // Efektní zvýraznění pomocí TVÝCH CSS PROMĚNNÝCH
   selected.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  selected.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-  selected.style.borderColor = 'var(--accent)';
-  selected.style.boxShadow = '0 0 20px rgba(201, 110, 110, 0.5)';
-  selected.style.transform = 'scale(1.02)';
   
+  selected.style.transition = 'all 0.3s ease';
+  selected.style.borderColor = 'var(--accent)';   // Tvůj zlatavý akcent #c9a96e
+  selected.style.background = 'var(--accent-d)';  // Tvé jemné pozadí (0.15 průhlednost)
+
   showToast('🎲 Osud vybral tento trest...');
 }
 
