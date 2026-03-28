@@ -380,31 +380,6 @@ function renderActivePunishments(){
         </div>`;
     }).join('');
   }
-
-function rollRandomPunishment() {
-  const items = document.querySelectorAll('#plist .rpi');
-  if (items.length === 0) {
-    showToast('✗ Seznam trestů je prázdný');
-    return;
-  }
-
-  // Odstraníme předchozí zvýraznění
-  items.forEach(el => el.style.boxShadow = '');
-  items.forEach(el => el.style.borderColor = '');
-
-  // Vybereme náhodný index
-  const randomIndex = Math.floor(Math.random() * items.length);
-  const selected = items[randomIndex];
-
-  // Efektní zvýraznění
-  selected.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  selected.style.transition = 'all 0.5s ease';
-  selected.style.borderColor = 'var(--accent)';
-  selected.style.boxShadow = '0 0 15px var(--accent)';
-  
-  showToast('🎲 Osud vybral tento trest...');
-}
-
   
   // ── ODMĚNY ──
   if(!rList) return;
@@ -421,6 +396,33 @@ function rollRandomPunishment() {
         ${role==='dom'?`<button class="bm d" onclick="removeActiveReward('${r.id}')">✕</button>`:''}
       </div>`).join('');
   }
+}
+
+function rollRandomPunishment() {
+  const items = document.querySelectorAll('#plist .rpi');
+  if (!items || items.length === 0) {
+    showToast('✗ Seznam trestů je prázdný');
+    return;
+  }
+
+  // Reset předchozího zvýraznění
+  items.forEach(el => {
+    el.style.borderColor = '';
+    el.style.boxShadow = '';
+    el.style.transform = '';
+  });
+
+  const randomIndex = Math.floor(Math.random() * items.length);
+  const selected = items[randomIndex];
+
+  // Efektní zvýraznění
+  selected.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  selected.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+  selected.style.borderColor = 'var(--accent)';
+  selected.style.boxShadow = '0 0 20px rgba(201, 110, 110, 0.5)';
+  selected.style.transform = 'scale(1.02)';
+  
+  showToast('🎲 Osud vybral tento trest...');
 }
 
 async function removeActiveReward(id){
