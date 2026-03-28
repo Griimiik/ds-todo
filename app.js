@@ -1250,4 +1250,50 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+// EXPORT BANKY
+function exportBank() {
+  if (!state.bank || state.bank.length === 0) {
+    showToast('✗ Banka je prázdná');
+    return;
+  }
+  const data = JSON.stringify(state.bank, null, 2);
+  const blob = new Blob([data], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `banka_zaloha_${new Date().toLocaleDateString('cs-CZ').replace(/\s/g, '')}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast('💾 Záloha banky stažena');
+}
+
+// IMPORT BANKY
+function importBank() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const importedBank = JSON.parse(event.target.result);
+        if (!Array.isArray(importedBank)) throw new Error('Neplatný formát');
+        
+        if (confirm(`Importovat ${importedBank.length} úkolů? Aktuální banka bude přepsána.`)) {
+          state.bank = importedBank;
+          renderBank();
+          await save();
+          showToast('✓ Banka úspěšně nahrána');
+        }
+      } catch (err) {
+        showToast('✗ Chyba při čtení souboru');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+
 init();
