@@ -381,6 +381,31 @@ function renderActivePunishments(){
     }).join('');
   }
 
+function rollRandomPunishment() {
+  const items = document.querySelectorAll('#plist .rpi');
+  if (items.length === 0) {
+    showToast('✗ Seznam trestů je prázdný');
+    return;
+  }
+
+  // Odstraníme předchozí zvýraznění
+  items.forEach(el => el.style.boxShadow = '');
+  items.forEach(el => el.style.borderColor = '');
+
+  // Vybereme náhodný index
+  const randomIndex = Math.floor(Math.random() * items.length);
+  const selected = items[randomIndex];
+
+  // Efektní zvýraznění
+  selected.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  selected.style.transition = 'all 0.5s ease';
+  selected.style.borderColor = 'var(--accent)';
+  selected.style.boxShadow = '0 0 15px var(--accent)';
+  
+  showToast('🎲 Osud vybral tento trest...');
+}
+
+  
   // ── ODMĚNY ──
   if(!rList) return;
   if(!state.activeRewards||!state.activeRewards.length){
