@@ -1182,18 +1182,35 @@ async function addPunishment(){
   renderRewards();await save();
 }
 async function delPunishment(id){state.punishments=state.punishments.filter(x=>x.id!==id);renderRewards();await save();}
-async function usePunishment(id){
-  if(role!=='dom'){showToast('🔒 Pouze Dom může udělit trest');return;}
-  const p=state.punishments.find(x=>x.id===id);if(!p)return;
-  
-  if(!confirm(`Udělit trest "${p.name}"?\nBody (${p.cost}) se odečtou POUZE pokud trest NEBUDE splněn.`)) return;
-  
-  // Naplníme modal daty z katalogu
+async function usePunishment(id) {
+  if (role !== 'dom') { showToast('🔒 Pouze Dom může udělit trest'); return; }
+  const p = state.punishments.find(x => x.id === id);
+  if (!p) return;
+
+  let finalName = p.name;
+
+  // Detekce proměnných [X], [Y] atd.
+  if (finalName.includes('[X]') || finalName.includes('[Y]')) {
+    const xVal = prompt(`Zadej hodnotu za [X] (např. počet):`);
+    if (xVal === null) return;
+    finalName = finalName.replace('[X]', xVal);
+
+    if (finalName.includes('[Y]')) {
+      const yVal = prompt(`Zadej hodnotu za [Y] (např. místo/text):`);
+      if (yVal === null) return;
+      finalName = finalName.replace('[Y]', yVal);
+    }
+  } else {
+    // Pokud nemá proměnné, stačí klasické potvrzení
+    if (!confirm(`Udělit trest "${p.name}"?`)) return;
+  }
+
+  // Naplnění modalu pro aktivní trest (ap-modal)
   const nameEl = document.getElementById('ap-name');
-  nameEl.value = p.name;
-  nameEl.dataset.cost = p.cost; // Tady ukládáme body pro pozdější použití
+  nameEl.value = finalName;
+  nameEl.dataset.cost = p.cost; 
   
-  apType='task';
+  apType = 'task';
   setApType('task');
   document.getElementById('ap-modal').classList.add('open');
 }
