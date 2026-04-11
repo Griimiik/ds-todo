@@ -804,13 +804,17 @@ function renderRewards(){
   const rl = document.getElementById('rlist'), pl = document.getElementById('plist');
   if (document.getElementById('rscore')) document.getElementById('rscore').textContent = `Body: ${state.score}`;
   
-  // SEKCE ODMĚN (OPRAVENO o svislítko a info)
-  rl.innerHTML = state.rewards.length
-    ? state.rewards.map(r => {
+  // 1. SEŘAZENÍ ODMĚN (od nejlevnější)
+  const sortedRewards = [...(state.rewards || [])].sort((a, b) => a.cost - b.cost);
+
+  // 2. SEŘAZENÍ TRESTŮ (od nejlevnější/nejmírnější pokuty)
+  const sortedPunishments = [...(state.punishments || [])].sort((a, b) => a.cost - b.cost);
+
+  // VYKRESLENÍ ODMĚN
+  rl.innerHTML = sortedRewards.length
+    ? sortedRewards.map(r => {
       const ok = state.score >= r.cost;
       const canUse = ok;
-      
-      // Rozdělení názvu a popisu
       const parts = r.name.split('|');
       const title = parts[0].trim();
       const desc = parts[1] ? parts[1].trim() : '';
@@ -835,10 +839,10 @@ function renderRewards(){
         </div>
       </div>`;}).join('')
     : '<div class="empty" style="padding:20px"><div class="ei">🏆</div>Žádné odměny</div>';
-  
-// SEKCE TRESTŮ (Ponecháno tak, jak jsi měl)
-  pl.innerHTML = state.punishments.length
-    ? state.punishments.map(p => {
+
+  // VYKRESLENÍ TRESTŮ
+  pl.innerHTML = sortedPunishments.length
+    ? sortedPunishments.map(p => {
       const parts = p.name.split('|');
       const title = parts[0].trim();
       const desc = parts[1] ? parts[1].trim() : '';
