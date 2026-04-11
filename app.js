@@ -804,14 +804,26 @@ function renderRewards(){
   const rl = document.getElementById('rlist'), pl = document.getElementById('plist');
   if (document.getElementById('rscore')) document.getElementById('rscore').textContent = `Body: ${state.score}`;
   
-  // SEKCE ODMĚN
+  // SEKCE ODMĚN (OPRAVENO o svislítko a info)
   rl.innerHTML = state.rewards.length
     ? state.rewards.map(r => {
       const ok = state.score >= r.cost;
       const canUse = ok;
+      
+      // Rozdělení názvu a popisu
+      const parts = r.name.split('|');
+      const title = parts[0].trim();
+      const desc = parts[1] ? parts[1].trim() : '';
+
       return `<div class="rpi">
         <div class="rpi2">
-          <div class="rn">${r.name}</div>
+          <details onclick="event.stopPropagation()">
+            <summary class="rn">
+              ${title}
+              ${desc ? '<span class="info-icon">info</span>' : ''}
+            </summary>
+            ${desc ? `<div class="tdesc">${desc}</div>` : ''}
+          </details>
           <div class="rc">${r.cost} bodů${!ok ? ` · chybí ${r.cost-state.score}` : ''}</div>
         </div>
         <div style="display:flex; gap:4px; align-items:center">
@@ -823,8 +835,8 @@ function renderRewards(){
         </div>
       </div>`;}).join('')
     : '<div class="empty" style="padding:20px"><div class="ei">🏆</div>Žádné odměny</div>';
-
-  // SEKCE TRESTŮ (Tady je ta oprava pro info kartu)
+  
+// SEKCE TRESTŮ (Ponecháno tak, jak jsi měl)
   pl.innerHTML = state.punishments.length
     ? state.punishments.map(p => {
       const parts = p.name.split('|');
@@ -1196,13 +1208,19 @@ async function delReward(id){state.rewards=state.rewards.filter(x=>x.id!==id);re
 async function useReward(id){
   const r=state.rewards.find(x=>x.id===id);if(!r)return;
   if(state.score<r.cost){showToast('✗ Nedostatek bodů');return;}
-  if(!confirm(`Uplatnit "${r.name}" za ${r.cost} bodů?`)) return;
+  
+  // Zobrazíme celý název (i s popisem) v potvrzení, aby věděla, co kupuje
+  const titleOnly = r.name.split('|')[0].trim();
+  if(!confirm(`Uplatnit "${titleOnly}" za ${r.cost} bodů?`)) return;
+  
   await addPoints(-r.cost,`🏆 Odměna: ${r.name}`,true);
   if(!state.activeRewards) state.activeRewards=[];
-  state.activeRewards.push({id:uid(),name:r.name,usedAt:new Date().toISOString()});
+  
+  // Do aktivních odměn pošleme celý název včetně svislítka
+  state.activeRewards.push({id:uid(), name:r.name, usedAt:new Date().toISOString()});
   renderActivePunishments();
   await save();
-  showToast(`✓ Odměna "${r.name}" aktivována`);
+  showToast(`✓ Odměna "${titleOnly}" aktivována`);
 }
 
 // ── TRIPS LOGIC ──────────────────────────────────────────────────────────
