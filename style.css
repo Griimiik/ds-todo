@@ -12,7 +12,10 @@
   --hdr-bg:rgba(10,10,15,0.93);
 }
 [data-theme="light"] {
-  --bg:#f5f2ec; --bg2:#ffffff; --bg3:#ede9e1; --bg4:#e4e0d8;
+  --bg: #f8f9fa; 
+  --bg2: #ffffff; 
+  --bg3: #f1f3f5; 
+  --bg4: #e9ecef;
   --border:rgba(0,0,0,0.08); --border-h:rgba(0,0,0,0.2);
   --text:#1a1814; --dim:#6b6560; --dimmer:#b0aba5;
   --accent:#8b6914; --accent-d:rgba(139,105,20,0.12); --accent-g:rgba(139,105,20,0.05);
@@ -127,17 +130,24 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .card {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  /* Místo fixní barvy použijeme tvou proměnnou pro pozadí s průhledností */
   background: var(--bg2); 
   opacity: 0.98;
   border: 1px solid var(--border);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
   margin-bottom: 15px;
+  border-radius: var(--r); /* Aby se zachovalo zaoblení z tvého kódu */
 }
 
-/* Pokud chceš zachovat ten "glass" efekt, přidej tohle specificky pro tmavé motivy */
-[data-theme="dark"] .card, [data-theme="bdsm"] .card {
+/* 2. Specifické úpravy pro SVĚTLÉ téma */
+[data-theme="light"] .card {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.05);
+  background: #ffffff; /* Čistě bílá pro světlý režim */
+}
+
+/* 3. Specifické úpravy pro TMAVÁ témata (skleněný efekt) */
+[data-theme="dark"] .card, [data-theme="pink"] .card, [data-theme="bdsm"] .card {
   background: rgba(20, 20, 25, 0.8);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 .ch{padding:10px 14px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
 
