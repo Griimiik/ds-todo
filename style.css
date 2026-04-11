@@ -126,9 +126,18 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* CARD */
 .card {
   backdrop-filter: blur(10px);
-  background: rgba(24, 24, 31, 0.8); /* Poloprůhledné pozadí */
+  -webkit-backdrop-filter: blur(10px);
+  /* Místo fixní barvy použijeme tvou proměnnou pro pozadí s průhledností */
+  background: var(--bg2); 
+  opacity: 0.98;
   border: 1px solid var(--border);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  margin-bottom: 15px;
+}
+
+/* Pokud chceš zachovat ten "glass" efekt, přidej tohle specificky pro tmavé motivy */
+[data-theme="dark"] .card, [data-theme="bdsm"] .card {
+  background: rgba(20, 20, 25, 0.8);
 }
 .ch{padding:10px 14px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
 
