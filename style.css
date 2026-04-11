@@ -50,7 +50,20 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{max-width:100%;overflow-x:hidden}
 body{background:var(--bg);color:var(--text);font-family:var(--fm);font-size:13px;min-height:100vh;transition:background .3s,color .3s}
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.5}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  /* Jemný vzor kosočtverců/mřížky pro "ritinu" */
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 L20 0 L40 20 L20 40 Z' fill='none' stroke='%23ffffff' stroke-opacity='0.03' stroke-width='1'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Pro světlé téma vzor ztmavíme */
+[data-theme="light"]::before {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 L20 0 L40 20 L20 40 Z' fill='none' stroke='%23000000' stroke-opacity='0.03' stroke-width='1'/%3E%3C/svg%3E");
+}
 
 /* LOADING */
 #ls{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:14px}
@@ -132,7 +145,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   -webkit-backdrop-filter: blur(10px);
   background: var(--bg2); 
   opacity: 0.98;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-h);
+  box-shadow: 0 0 15px var(--accent-g);
+  transition: all 0.3s ease;
   margin-bottom: 15px;
   border-radius: var(--r); /* Aby se zachovalo zaoblení z tvého kódu */
 }
@@ -145,16 +160,32 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 }
 
 /* 3. Specifické úpravy pro TMAVÁ témata (skleněný efekt) */
-[data-theme="dark"] .card, [data-theme="pink"] .card, [data-theme="bdsm"] .card {
+[data-theme="dark"] .card, [data-theme="pink"] .card {
   background: rgba(20, 20, 25, 0.8);
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
+
+/* 4. Specifické úpravy pro BDSM téma (skleněný efekt) */
+[data-theme="bdsm"] .card {
+  background: rgba(20, 20, 25, 0.8);
+  box-shadow: 0 0 20px rgba(196, 64, 90, 0.2);
+  border-color: rgba(196, 64, 90, 0.4);
+}
+
+[data-theme="bdsm"] .sval {
+  text-shadow: 0 0 10px var(--accent); /* Neonové zářící skóre */
+}
+
 .ch{padding:10px 14px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
 
 /* TODO */
 .ti{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);transition:background .15s;cursor:pointer}
 .ti:last-child{border-bottom:none}
 .ti:active{background:var(--bg3)}
+.ti:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-d); /* Neonový glow efekt */
+}
 .ti.done{opacity:.4}
 .tck{width:18px;height:18px;border:1px solid var(--border-h);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s}
 .ti.done {
