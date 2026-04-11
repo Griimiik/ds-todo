@@ -819,8 +819,8 @@ function renderRewards(){
       const title = parts[0].trim();
       const desc = parts[1] ? parts[1].trim() : '';
 
-      return `<div class="rpi">
-        <div class="rpi2">
+      return `<div class="rpi ${ok ? 'available' : ''}">
+      <div class="rpi2">
           <details onclick="event.stopPropagation()">
             <summary class="rn">
               ${title}
