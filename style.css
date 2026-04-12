@@ -109,12 +109,12 @@ body::before {
 .slbl{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
 .sval {
   font-family: var(--ff);
-  font-size: 62px;
+  font-size: 64px;
   font-weight: 300;
   line-height: 1;
   color: var(--accent);
-  letter-spacing: -.02em;
-  /* Místo neonu dáme elegantní hloubku */
+  letter-spacing: -0.02em;
+  /* Elegantní hloubka místo neonové mlhy */
   text-shadow: 2px 2px 0px var(--bg), 4px 4px 0px var(--accent-g);
 }
 
@@ -311,17 +311,51 @@ body::before {
 .hv{font-family:var(--ff);font-size:18px;font-weight:300;flex-shrink:0}
 
 /* REWARDS / TRIPS */
-.rpi{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border);gap:8px}
+.rpi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
 .rpi:last-child{border-bottom:none}
-.rpi2{flex:1;min-width:0}
+.rpi2 {
+  flex: 1;
+  min-width: 0; /* Důležité pro oříznutí dlouhého textu */
+}
 .rpi.available{border-color:var(--accent);background:linear-gradient(145deg, var(--bg2) 0%, var(--accent-g) 100%);box-shadow: 0 0 15px var(--accent-d);position: relative; overflow: hidden;}
 .rpi.available::after {content: '';position: absolute;top: 0; left: -100%;width: 50%; height: 100%;background: linear-gradient(90deg, transparent, rgba(201,169,110,0.1), transparent);animation: shine 3s infinite;}
 @keyframes shine {0% { left: -100%; }20% { left: 100%; }100% { left: 100%; }}
 .rn{font-size:13px;color:var(--text);word-break:break-word}
 .rc{font-size:10px;color:var(--dim);margin-top:2px}
-.rpb{background:linear-gradient(180deg, var(--accent-d) 0%, transparent 100%);1px solid var(--border-h);border-radius:var(--rs);color:var(--dim);font-family:inherit;font-size:10px;padding:5px 8px;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;text-transform: uppercase;letter-spacing: 0.05em;font-weight: 600;}
+.rpb {
+  width: 38px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 16px; /* Aby ikonka byla hezky vidět */
+  flex-shrink: 0;
+}
 .rpb:hover{border-color:var(--accent);color:var(--accent)}
-.rpb.na{border-color:rgba(201,110,110,.35);color:var(--red);cursor:not-allowed;opacity:.65}
+
+.rpb.na {
+  opacity: 0.3;
+  cursor: not-allowed;
+  filter: grayscale(1);
+  border-style: dashed;
+}
+.rpb:hover:not(.na) {
+  border-color: var(--accent);
+  background: var(--accent-g);
+  transform: translateY(-1px);
+}
 
 /* BANK */
 .bank-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
