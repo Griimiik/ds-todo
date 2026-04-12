@@ -311,7 +311,8 @@ body::before {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 10px 14px;
+  position: relative;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border);
   align-items: flex-start; /* Zarovnání nahoru, aby se info rozbalovalo dolů */
 }
@@ -321,7 +322,12 @@ body::before {
   min-width: 0; /* Důležité pro oříznutí dlouhého textu */
 }
 .rpi-btns {
-  margin-top: 2px; /* Zarovnání k prvnímu řádku textu */
+  display: flex;
+  gap: 4px;
+  align-items: center; /* Všechna tlačítka v jedné lajně */
+  justify-content: flex-end;
+  flex-shrink: 0;
+  margin-top: 0; /* Zrušíme posun, aby to lícovalo s textem */
 }
 .rpi.available{border-color:var(--accent);background:linear-gradient(145deg, var(--bg2) 0%, var(--accent-g) 100%);box-shadow: 0 0 15px var(--accent-d);position: relative; overflow: hidden;}
 .rpi.available::after {content: '';position: absolute;top: 0; left: -100%;width: 50%; height: 100%;background: linear-gradient(90deg, transparent, rgba(201,169,110,0.1), transparent);animation: shine 3s infinite;}
@@ -461,10 +467,19 @@ details summary::-webkit-details-marker { display: none; }
 
 /* Styl pro rozbalovací info - Čistý a zorganizovaný */
 .info-det {
-  margin-top: 8px;
-  width: 100%;
+  display: inline-block;
+  margin-top: 0;
+  width: auto;
 }
-
+.info-det[open] {
+  position: static; /* Aby popis neodsunul tlačítka v řadě */
+}
+.info-det summary.bm {
+  list-style: none;
+  font-family: var(--fm);
+  font-weight: bold;
+}
+.info-det summary::-webkit-details-marker { display: none; }
 .tdesc {
   font-size: 11px;
   color: var(--dim);
@@ -489,7 +504,9 @@ details summary::-webkit-details-marker { display: none; }
   display: inline-block;
   padding: 2px 0;
 }
-
+.info-sum {
+  display: none; /* Nepotřebujeme starý text */
+}
 .info-sum::-webkit-details-marker { display: none; }
 .info-sum:hover { opacity: 1; }
 
