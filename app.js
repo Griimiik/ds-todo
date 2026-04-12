@@ -832,8 +832,8 @@ function renderRewards(){
         </div>
         <div style="display:flex; gap:4px; align-items:center">
           <button class="rpb${canUse ? '' : ' na'}" onclick="${canUse ? `useReward('${r.id}')` : ''}">
-            ${ok ? 'Uplatnit' : '✗ Málo bodů'}
-          </button>
+  ${ok ? '💰' : '🔒'}
+</button>
           ${role === 'dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
           ${role === 'dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
         </div>
@@ -861,7 +861,9 @@ function renderRewards(){
         </div>
         <div style="display:flex; gap:4px; align-items:center">
           ${role === 'dom' ? `
-            <button class="rpb" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,.3);color:var(--red)">Aplikovat</button>
+            <button class="rpb" onclick="usePunishment('${p.id}')" style="color:var(--red)">
+  ⚡
+</button>
             <button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>
             <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>` : ''}
         </div>
