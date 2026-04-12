@@ -819,25 +819,21 @@ function renderRewards(){
       const title = parts[0].trim();
       const desc = parts[1] ? parts[1].trim() : '';
 
-      return `<div class="rpi ${ok ? 'available' : ''}">
+return `<div class="rpi ${ok ? 'available' : ''}">
       <div class="rpi2">
-          <details onclick="event.stopPropagation()">
-            <summary class="rn">
-              ${title}
-              ${desc ? '<span class="info-icon">info</span>' : ''}
-            </summary>
-            ${desc ? `<div class="tdesc">${desc}</div>` : ''}
-          </details>
-          <div class="rc">${r.cost} bodů${!ok ? ` · chybí ${r.cost-state.score}` : ''}</div>
+        <div class="rn-row">
+          <span class="rn">${title}</span>
+          ${desc ? `<button class="info-btn" onclick="toggleTooltip(this, '${desc.replace(/'/g, "\\'")}')">i</button>` : ''}
         </div>
-        <div style="display:flex; gap:4px; align-items:center">
-          <button class="rpb${canUse ? '' : ' na'}" onclick="${canUse ? `useReward('${r.id}')` : ''}">
-            ${ok ? '💰' : '🔒'}
-          </button>
-          ${role === 'dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
-          ${role === 'dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
-        </div>
-      </div>`;}).join('')
+        <div class="rc">${r.cost} bodů${!ok ? ` · chybí ${r.cost-state.score}` : ''}</div>
+      </div>
+      <div class="rpi-btns">
+        <button class="rpb${ok ? '' : ' na'}" onclick="${ok ? `useReward('${r.id}')` : ''}">${ok ? '💰' : '🔒'}</button>
+        ${role === 'dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
+        ${role === 'dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
+      </div>
+    </div>`;
+  }).join('')
     : '<div class="empty" style="padding:20px"><div class="ei">🏆</div>Žádné odměny</div>';
 
   // VYKRESLENÍ TRESTŮ
@@ -1347,6 +1343,29 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+// --- TOOLTIPS -------------------------------------------------
+function toggleTooltip(btn, text) {
+  // Odstraníme stávající tooltipy
+  document.querySelectorAll('.tooltip').forEach(el => el.remove());
+  
+  const tooltip = document.createElement('div');
+  tooltip.className = 'tooltip';
+  tooltip.textContent = text;
+  document.body.appendChild(tooltip);
+  
+  const rect = btn.getBoundingClientRect();
+  tooltip.style.top = (rect.top + window.scrollY - tooltip.offsetHeight - 10) + 'px';
+  tooltip.style.left = (rect.left + window.scrollX - (tooltip.offsetWidth / 2) + 10) + 'px';
+  
+  // Zavření po kliknutí kamkoliv jinam
+  setTimeout(() => {
+    window.onclick = () => {
+      tooltip.remove();
+      window.onclick = null;
+    };
+  }, 10);
+}
+
 // EXPORT BANKY
 function exportBank() {
   if (!state.bank || state.bank.length === 0) {
@@ -1391,6 +1410,5 @@ function importBank() {
   };
   input.click();
 }
-
 
 init();
