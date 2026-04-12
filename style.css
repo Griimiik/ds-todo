@@ -446,6 +446,53 @@ details summary::-webkit-details-marker { display: none; }
   padding: 1px 4px;
   border-radius: 4px;
 }
+.info-btn {
+  background: var(--accent-g);
+  border: 1px solid var(--accent-d);
+  color: var(--accent);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  flex-shrink: 0;
+  font-family: var(--fm);
+}
+.tooltip {
+  position: absolute;
+  background: var(--bg4);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  font-size: 11px;
+  max-width: 200px;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  pointer-events: none;
+  line-height: 1.4;
+  animation: tooltipFade 0.2s ease-out;
+}
+@keyframes tooltipFade {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Srovnání řádku */
+.rn-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap; /* Tohle zabrání rozpadu na písmenka */
+}
+
+.rpi-btns {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
 .tdesc {
   font-size: 11px;
   color: var(--dim);
