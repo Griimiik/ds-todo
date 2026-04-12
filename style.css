@@ -313,11 +313,15 @@ body::before {
   gap: 10px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--border);
+  align-items: flex-start; /* Zarovnání nahoru, aby se info rozbalovalo dolů */
 }
 .rpi:last-child{border-bottom:none}
 .rpi2 {
   flex: 1;
   min-width: 0; /* Důležité pro oříznutí dlouhého textu */
+}
+.rpi-btns {
+  margin-top: 2px; /* Zarovnání k prvnímu řádku textu */
 }
 .rpi.available{border-color:var(--accent);background:linear-gradient(145deg, var(--bg2) 0%, var(--accent-g) 100%);box-shadow: 0 0 15px var(--accent-d);position: relative; overflow: hidden;}
 .rpi.available::after {content: '';position: absolute;top: 0; left: -100%;width: 50%; height: 100%;background: linear-gradient(90deg, transparent, rgba(201,169,110,0.1), transparent);animation: shine 3s infinite;}
@@ -446,64 +450,54 @@ details summary::-webkit-details-marker { display: none; }
   padding: 1px 4px;
   border-radius: 4px;
 }
-.info-btn {
-  background: var(--accent-g);
-  border: 1px solid var(--accent-d);
-  color: var(--accent);
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  font-size: 10px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 6px;
-  flex-shrink: 0;
-  font-family: var(--fm);
-}
-.tooltip {
-  position: absolute;
-  background: var(--bg4);
-  color: var(--text);
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--accent);
-  font-size: 11px;
-  max-width: 200px;
-  z-index: 1000;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-  pointer-events: none;
-  line-height: 1.4;
-  animation: tooltipFade 0.2s ease-out;
-}
-@keyframes tooltipFade {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+
 /* Srovnání řádku */
 .rn-row {
   display: flex;
-  align-items: center;
-  flex-wrap: nowrap; /* Tohle zabrání rozpadu na písmenka */
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2px;
 }
 
-.rpi-btns {
-  display: flex;
-  gap: 4px;
-  align-items: center;
+/* Styl pro rozbalovací info - Čistý a zorganizovaný */
+.info-det {
+  margin-top: 8px;
+  width: 100%;
 }
+
 .tdesc {
   font-size: 11px;
   color: var(--dim);
   line-height: 1.5;
-  margin-top: 6px;
-  padding: 8px;
+  margin-top: 4px;
+  padding: 10px;
   font-style: italic;
+  background: var(--accent-g); /* Slabě zvýrazněný background */
   border-left: 2px solid var(--accent-d);
-  background: var(--accent-g);
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 6px 6px 0;
+  animation: slideIn 0.2s ease-out;
 }
+
+.info-sum {
+  list-style: none;
+  font-size: 10px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  opacity: 0.7;
+  display: inline-block;
+  padding: 2px 0;
+}
+
+.info-sum::-webkit-details-marker { display: none; }
+.info-sum:hover { opacity: 1; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Základní malé tlačítko (tužka, info, atd.) */
 .bm {
   background: none;
