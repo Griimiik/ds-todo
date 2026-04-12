@@ -698,9 +698,9 @@ async function manualRefreshTasks() {
   showToast('🎲 Úkoly byly ručně přemíchány');
 }
 
+// ── RENDER TODO ────────────────────────────────────────────────────────
 function renderTodoBlock(todos, emptyIcon, emptyText) {
   if (!todos.length) return `<div class="empty" style="padding:18px 10px"><div class="ei">${emptyIcon}</div>${emptyText}</div>`;
-  
   return todos.map(t => {
     const parts = t.name.split('|');
     const title = parts[0].trim();
@@ -709,23 +709,22 @@ function renderTodoBlock(todos, emptyIcon, emptyText) {
     return `
     <div class="ti ${t.done ? 'done' : ''}">
       <div class="tck" onclick="toggleTodo('${t.id}')">${t.done ? '✓' : ''}</div>
-      
-    <div class="ttx">
-      <div class="rn-row"><span class="tn">${title}</span></div>
-      ${t.pts ? `<div class="tp">+${t.pts} bodů</div>` : ''}
-    </div>
-    
-    <div class="rpi-btns">
-     ${desc ? `
-     <details class="info-det">
-       <summary class="bm">i</summary>
-       <div class="tdesc">${desc}</div>
-     </details>` : ''}
-      ${role === 'dom' ? `<button class="bm edit-btn" onclick="event.stopPropagation();editItem('todos','${t.id}')">✎</button>` : ''}
-      ${role === 'dom' ? `<button class="bm d" onclick="event.stopPropagation();delTodo('${t.id}')">✕</button>` : ''}
-     </div>
+      <div class="ttx">
+        <details onclick="event.stopPropagation()">
+          <summary class="tn">
+            ${title}
+            ${desc ? '<span class="info-icon">info</span>' : ''}
+          </summary>
+          ${desc ? `<div class="tdesc">${desc}</div>` : ''}
+        </details>
+        ${t.pts ? `<div class="tp">+${t.pts} bodů</div>` : ''}
+      </div>
+      <div style="display:flex; gap:4px">
+        ${role === 'dom' ? `<button class="bm edit-btn" onclick="event.stopPropagation();editItem('todos','${t.id}')">✎</button>` : ''}
+        ${role === 'dom' ? `<button class="bm d" onclick="event.stopPropagation();delTodo('${t.id}')">✕</button>` : ''}
+      </div>
     </div>`;
-  }).join(''); // Nezapomeň na .join('') na konci!
+  }).join('');
 }
 
 function renderTodo(){
@@ -747,58 +746,47 @@ function renderTodo(){
 }
 
 function renderIdeas(){
-  const l = document.getElementById('llist');
-  if(!state.ideas || !state.ideas.length){
-    l.innerHTML = '<div class="empty"><div class="ei">💡</div>Žádné nápady<br><span style="font-size:11px">Přidej první nápad níže</span></div>';
+  const l=document.getElementById('llist');
+  if(!state.ideas||!state.ideas.length){
+    l.innerHTML='<div class="empty"><div class="ei">💡</div>Žádné nápady<br><span style="font-size:11px">Přidej první nápad níže</span></div>';
     return;
   }
-  
-  const typeLabels = {activity:'🎯 Aktivita', punishment:'⛓️ Trest', reward:'🏆 Odměna', trip:'🌲 Výlet'};
-  const subtypeLabels = {active:'Aktivní', daily:'Denní', weekly:'Týdenní'};
-  const typeCls = {activity:'idea-tag-activity', punishment:'idea-tag-punishment', reward:'idea-tag-reward', trip:'idea-tag-trip'};
-
+  const typeLabels={activity:'🎯 Aktivita',punishment:'⛓️ Trest',reward:'🏆 Odměna',trip:'🌲 Výlet'};
+  const subtypeLabels={active:'Aktivní',daily:'Denní',weekly:'Týdenní'};
+  const typeCls={activity:'idea-tag-activity',punishment:'idea-tag-punishment',reward:'idea-tag-reward',trip:'idea-tag-trip'};
   l.innerHTML = state.ideas.map(x => {
-    const parts = x.name.split('|');
-    const title = parts[0].trim();
-    const desc = parts[1] ? parts[1].trim() : '';
+  const parts = x.name.split('|');
+  const title = parts[0].trim();
+  const desc = parts[1] ? parts[1].trim() : '';
 
-    return `
+  return `
     <div class="idea-item">
       <div class="idea-checks">
         <div class="idea-check ${x.checkedDom ? 'checked' : ''}" onclick="toggleIdeaCheck('${x.id}','dom')" title="Dom souhlasí">🔑</div>
         <div class="idea-check ${x.checkedSub ? 'checked' : ''}" onclick="toggleIdeaCheck('${x.id}','sub')" title="Sub souhlasí">🦮</div>
       </div>
-
       <div class="idea-info">
-        <div class="rn-row">
-          <span class="idea-name ${x.checkedDom && x.checkedSub ? 'idea-agreed' : ''}">
+        <details onclick="event.stopPropagation()">
+          <summary class="idea-name ${x.checkedDom && x.checkedSub ? 'idea-agreed' : ''}">
             ${title}
-          </span>
-        </div>
-
-        <div style="display:flex; gap:5px; margin-top:4px; align-items:center; flex-wrap:wrap">
+            ${desc ? '<span class="info-icon">info</span>' : ''}
+          </summary>
+          ${desc ? `<div class="tdesc">${desc}</div>` : ''}
+        </details>
+        <div style="display:flex;gap:5px;margin-top:4px;align-items:center;flex-wrap:wrap">
           <span class="idea-type-tag ${typeCls[x.type] || ''}">${typeLabels[x.type] || x.type}</span>
           ${x.type === 'activity' && x.subtype ? `<span class="idea-type-tag" style="background:var(--bg3);color:var(--dim);border:1px solid var(--border)">${subtypeLabels[x.subtype] || x.subtype}</span>` : ''}
           ${x.checkedDom && x.checkedSub ? '<span style="font-size:9px;color:var(--green);letter-spacing:.08em">✓ oba souhlasí</span>' : ''}
         </div>
-
-        ${desc ? `
-        <details class="info-det">
-          <summary class="info-sum">Více informací</summary>
-          <div class="tdesc">${desc}</div>
-        </details>` : ''}
       </div>
-
       ${role === 'dom' ? `
         <div class="idea-dom-actions">
-          <button class="badd" onclick="activateIdea('${x.id}')" style="font-size:10px; padding:5px 8px">▶ Aktivovat</button>
-          <div style="display:flex; gap:4px; margin-top:4px; justify-content:flex-end">
-            <button class="bm edit-btn" onclick="editItem('ideas','${x.id}')">✎</button>
-            <button class="bm d" onclick="deleteIdea('${x.id}')">✕</button>
-          </div>
+          <button class="badd" onclick="activateIdea('${x.id}')" style="font-size:10px;padding:5px 8px">▶ Aktivovat</button>
+          <button class="bm edit-btn" onclick="editItem('ideas','${x.id}')">✎</button>
+          <button class="bm d" onclick="deleteIdea('${x.id}')">✕</button>
         </div>` : ''}
     </div>`;
-  }).join('');
+}).join('');
 }
 
 function renderHistory(){
@@ -831,44 +819,53 @@ function renderRewards(){
       const title = parts[0].trim();
       const desc = parts[1] ? parts[1].trim() : '';
 
-return `<div class="rpi ${ok ? 'available' : ''}">
-  <div class="rpi2">
-    <div class="rn-row"><span class="rn">${title}</span></div>
-    <div class="rc">${r.cost} bodů${!ok ? ` · chybí ${r.cost-state.score}` : ''}</div>
-  </div>
-  
-  <div class="rpi-btns">
-    ${desc ? `<details class="info-det"><summary class="bm">i</summary><div class="tdesc">${desc}</div></details>` : ''}
-    <button class="rpb${ok ? '' : ' na'}" onclick="${ok ? `useReward('${r.id}')` : ''}">${ok ? '💰' : '🔒'}</button>
-    ${role === 'dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
-    ${role === 'dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
-  </div>
-</div>`;
-  }).join('')
+      return `<div class="rpi ${ok ? 'available' : ''}">
+      <div class="rpi2">
+          <details onclick="event.stopPropagation()">
+            <summary class="rn">
+              ${title}
+              ${desc ? '<span class="info-icon">info</span>' : ''}
+            </summary>
+            ${desc ? `<div class="tdesc">${desc}</div>` : ''}
+          </details>
+          <div class="rc">${r.cost} bodů${!ok ? ` · chybí ${r.cost-state.score}` : ''}</div>
+        </div>
+        <div style="display:flex; gap:4px; align-items:center">
+          <button class="rpb${canUse ? '' : ' na'}" onclick="${canUse ? `useReward('${r.id}')` : ''}">
+            ${ok ? 'Uplatnit' : '✗ Málo bodů'}
+          </button>
+          ${role === 'dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
+          ${role === 'dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
+        </div>
+      </div>`;}).join('')
     : '<div class="empty" style="padding:20px"><div class="ei">🏆</div>Žádné odměny</div>';
 
-// VYKRESLENÍ TRESTŮ
+  // VYKRESLENÍ TRESTŮ
   pl.innerHTML = sortedPunishments.length
     ? sortedPunishments.map(p => {
       const parts = p.name.split('|');
       const title = parts[0].trim();
       const desc = parts[1] ? parts[1].trim() : '';
 
-return `
-<div class="rpi">
-  <div class="rpi2">
-    <div class="rn-row"><span class="rn">${title}</span></div>
-    <div class="rc">${p.cost} bodů (pokuta)</div>
-  </div>
-  
-  <div class="rpi-btns">
-    ${desc ? `<details class="info-det"><summary class="bm">i</summary><div class="tdesc">${desc}</div></details>` : ''}
-    ${role === 'dom' ? `<button class="rpb" onclick="usePunishment('${p.id}')" style="color:var(--red)">⚡</button>` : ''}
-    ${role === 'dom' ? `<button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>` : ''}
-    ${role === 'dom' ? `<button class="bm d" onclick="delPunishment('${p.id}')">✕</button>` : ''}
-  </div>
-</div>`;
-  }).join('')
+      return `
+      <div class="rpi">
+        <div class="rpi2">
+          <details onclick="event.stopPropagation()">
+            <summary class="rn">
+              ${title}
+              ${desc ? '<span class="info-icon">info</span>' : ''}
+            </summary>
+            ${desc ? `<div class="tdesc">${desc}</div>` : ''}
+          </details>
+          <div class="rc">${p.cost} bodů (pokuta)</div>
+        </div>
+        <div style="display:flex; gap:4px; align-items:center">
+          ${role === 'dom' ? `
+            <button class="rpb" onclick="usePunishment('${p.id}')" style="border-color:rgba(201,110,110,.3);color:var(--red)">Aplikovat</button>
+            <button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>
+            <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>` : ''}
+        </div>
+      </div>`;}).join('')
     : '<div class="empty" style="padding:20px"><div class="ei">⛓️</div>Žádné tresty</div>';
 }
 
@@ -1350,29 +1347,6 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-// --- TOOLTIPS -------------------------------------------------
-function toggleTooltip(btn, text) {
-  // Odstraníme stávající tooltipy
-  document.querySelectorAll('.tooltip').forEach(el => el.remove());
-  
-  const tooltip = document.createElement('div');
-  tooltip.className = 'tooltip';
-  tooltip.textContent = text;
-  document.body.appendChild(tooltip);
-  
-  const rect = btn.getBoundingClientRect();
-  tooltip.style.top = (rect.top + window.scrollY - tooltip.offsetHeight - 10) + 'px';
-  tooltip.style.left = (rect.left + window.scrollX - (tooltip.offsetWidth / 2) + 10) + 'px';
-  
-  // Zavření po kliknutí kamkoliv jinam
-  setTimeout(() => {
-    window.onclick = () => {
-      tooltip.remove();
-      window.onclick = null;
-    };
-  }, 10);
-}
-
 // EXPORT BANKY
 function exportBank() {
   if (!state.bank || state.bank.length === 0) {
@@ -1417,5 +1391,6 @@ function importBank() {
   };
   input.click();
 }
+
 
 init();
