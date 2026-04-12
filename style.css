@@ -306,14 +306,13 @@ body::before {
 .hv{font-family:var(--ff);font-size:18px;font-weight:300;flex-shrink:0}
 
 /* REWARDS / TRIPS */
-.rpi{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border);gap:8px}
 .rpi {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
+  padding: 11px 14px;
+  border-bottom:1px solid var(--border);gap:8px;
 }
 .rpi2 {
   flex: 1;
