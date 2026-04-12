@@ -706,24 +706,26 @@ function renderTodoBlock(todos, emptyIcon, emptyText) {
     const title = parts[0].trim();
     const desc = parts[1] ? parts[1].trim() : '';
 
-    return `
-    <div class="ti ${t.done ? 'done' : ''}">
-      <div class="tck" onclick="toggleTodo('${t.id}')">${t.done ? '✓' : ''}</div>
-      <div class="ttx">
-        <details onclick="event.stopPropagation()">
-          <summary class="tn">
-            ${title}
-            ${desc ? '<span class="info-icon">info</span>' : ''}
-          </summary>
-          ${desc ? `<div class="tdesc">${desc}</div>` : ''}
-        </details>
-        ${t.pts ? `<div class="tp">+${t.pts} bodů</div>` : ''}
-      </div>
-      <div style="display:flex; gap:4px">
-        ${role === 'dom' ? `<button class="bm edit-btn" onclick="event.stopPropagation();editItem('todos','${t.id}')">✎</button>` : ''}
-        ${role === 'dom' ? `<button class="bm d" onclick="event.stopPropagation();delTodo('${t.id}')">✕</button>` : ''}
-      </div>
-    </div>`;
+return `
+<div class="ti ${t.done ? 'done' : ''}">
+  <div class="tck" onclick="toggleTodo('${t.id}')">${t.done ? '✓' : ''}</div>
+  <div class="ttx">
+    <div class="rn-row"><span class="tn">${title}</span></div>
+    
+    ${t.pts ? `<div class="tp">+${t.pts} bodů</div>` : ''}
+
+    ${desc ? `
+    <details class="info-det" onclick="event.stopPropagation()">
+      <summary class="info-sum">info</summary>
+      <div class="tdesc">${desc}</div>
+    </details>` : ''}
+  </div>
+  
+  <div class="rpi-btns">
+    ${role === 'dom' ? `<button class="bm edit-btn" onclick="event.stopPropagation();editItem('todos','${t.id}')">✎</button>` : ''}
+    ${role === 'dom' ? `<button class="bm d" onclick="event.stopPropagation();delTodo('${t.id}')">✕</button>` : ''}
+  </div>
+</div>`;
   }).join('');
 }
 
@@ -759,34 +761,46 @@ function renderIdeas(){
   const title = parts[0].trim();
   const desc = parts[1] ? parts[1].trim() : '';
 
-  return `
+l.innerHTML = state.ideas.map(x => {
+    const parts = x.name.split('|');
+    const title = parts[0].trim();
+    const desc = parts[1] ? parts[1].trim() : '';
+
+    return `
     <div class="idea-item">
       <div class="idea-checks">
         <div class="idea-check ${x.checkedDom ? 'checked' : ''}" onclick="toggleIdeaCheck('${x.id}','dom')" title="Dom souhlasí">🔑</div>
         <div class="idea-check ${x.checkedSub ? 'checked' : ''}" onclick="toggleIdeaCheck('${x.id}','sub')" title="Sub souhlasí">🦮</div>
       </div>
+      
       <div class="idea-info">
-        <details onclick="event.stopPropagation()">
-          <summary class="idea-name ${x.checkedDom && x.checkedSub ? 'idea-agreed' : ''}">
-            ${title}
-            ${desc ? '<span class="info-icon">info</span>' : ''}
-          </summary>
-          ${desc ? `<div class="tdesc">${desc}</div>` : ''}
-        </details>
+        <div class="rn-row">
+          <span class="idea-name ${x.checkedDom && x.checkedSub ? 'idea-agreed' : ''}">${title}</span>
+        </div>
+
         <div style="display:flex;gap:5px;margin-top:4px;align-items:center;flex-wrap:wrap">
           <span class="idea-type-tag ${typeCls[x.type] || ''}">${typeLabels[x.type] || x.type}</span>
           ${x.type === 'activity' && x.subtype ? `<span class="idea-type-tag" style="background:var(--bg3);color:var(--dim);border:1px solid var(--border)">${subtypeLabels[x.subtype] || x.subtype}</span>` : ''}
           ${x.checkedDom && x.checkedSub ? '<span style="font-size:9px;color:var(--green);letter-spacing:.08em">✓ oba souhlasí</span>' : ''}
         </div>
+
+        ${desc ? `
+        <details class="info-det" onclick="event.stopPropagation()">
+          <summary class="info-sum">info</summary>
+          <div class="tdesc">${desc}</div>
+        </details>` : ''}
       </div>
+
       ${role === 'dom' ? `
         <div class="idea-dom-actions">
           <button class="badd" onclick="activateIdea('${x.id}')" style="font-size:10px;padding:5px 8px">▶ Aktivovat</button>
-          <button class="bm edit-btn" onclick="editItem('ideas','${x.id}')">✎</button>
-          <button class="bm d" onclick="deleteIdea('${x.id}')">✕</button>
+          <div style="display:flex; gap:4px; margin-top:4px; justify-content:flex-end">
+            <button class="bm edit-btn" onclick="editItem('ideas','${x.id}')">✎</button>
+            <button class="bm d" onclick="deleteIdea('${x.id}')">✕</button>
+          </div>
         </div>` : ''}
     </div>`;
-}).join('');
+  }).join('');
 }
 
 function renderHistory(){
@@ -819,25 +833,27 @@ function renderRewards(){
       const title = parts[0].trim();
       const desc = parts[1] ? parts[1].trim() : '';
 
-      return `<div class="rpi ${ok ? 'available' : ''}">
-      <div class="rpi2">
-          <details onclick="event.stopPropagation()">
-            <summary class="rn">
-              ${title}
-              ${desc ? '<span class="info-icon">info</span>' : ''}
-            </summary>
-            ${desc ? `<div class="tdesc">${desc}</div>` : ''}
-          </details>
-          <div class="rc">${r.cost} bodů${!ok ? ` · chybí ${r.cost-state.score}` : ''}</div>
-        </div>
-        <div style="display:flex; gap:4px; align-items:center">
-          <button class="rpb${canUse ? '' : ' na'}" onclick="${canUse ? `useReward('${r.id}')` : ''}">
-  ${ok ? '💰' : '🔒'}
-</button>
-          ${role === 'dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
-          ${role === 'dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
-        </div>
-      </div>`;}).join('')
+// Část pro Odměny
+return `<div class="rpi ${ok ? 'available' : ''}">
+  <div class="rpi2">
+    <div class="rn-row"><span class="rn">${title}</span></div>
+    
+    <div class="rc">${r.cost} bodů${!ok ? ` · chybí ${r.cost-state.score}` : ''}</div>
+    
+    ${desc ? `
+    <details class="info-det" onclick="event.stopPropagation()">
+      <summary class="info-sum">info</summary>
+      <div class="tdesc">${desc}</div>
+    </details>` : ''}
+  </div>
+  
+  <div class="rpi-btns">
+    <button class="rpb${ok ? '' : ' na'}" onclick="${ok ? `useReward('${r.id}')` : ''}">${ok ? '💰' : '🔒'}</button>
+    ${role === 'dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
+    ${role === 'dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
+  </div>
+</div>`;
+    }).join('')
     : '<div class="empty" style="padding:20px"><div class="ei">🏆</div>Žádné odměny</div>';
 
   // VYKRESLENÍ TRESTŮ
@@ -847,27 +863,29 @@ function renderRewards(){
       const title = parts[0].trim();
       const desc = parts[1] ? parts[1].trim() : '';
 
-      return `
-      <div class="rpi">
-        <div class="rpi2">
-          <details onclick="event.stopPropagation()">
-            <summary class="rn">
-              ${title}
-              ${desc ? '<span class="info-icon">info</span>' : ''}
-            </summary>
-            ${desc ? `<div class="tdesc">${desc}</div>` : ''}
-          </details>
-          <div class="rc">${p.cost} bodů (pokuta)</div>
-        </div>
-        <div style="display:flex; gap:4px; align-items:center">
-          ${role === 'dom' ? `
-            <button class="rpb" onclick="usePunishment('${p.id}')" style="color:var(--red)">
-  ⚡
-</button>
-            <button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>
-            <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>` : ''}
-        </div>
-      </div>`;}).join('')
+// Část pro Tresty
+return `
+<div class="rpi">
+  <div class="rpi2">
+    <div class="rn-row"><span class="rn">${title}</span></div>
+    
+    <div class="rc">${p.cost} bodů (pokuta)</div>
+    
+    ${desc ? `
+    <details class="info-det" onclick="event.stopPropagation()">
+      <summary class="info-sum">info</summary>
+      <div class="tdesc">${desc}</div>
+    </details>` : ''}
+  </div>
+  
+  <div class="rpi-btns">
+    ${role === 'dom' ? `
+      <button class="rpb" onclick="usePunishment('${p.id}')" style="color:var(--red)">⚡</button>
+      <button class="bm edit-btn" onclick="editItem('punishments','${p.id}')">✎</button>
+      <button class="bm d" onclick="delPunishment('${p.id}')">✕</button>` : ''}
+  </div>
+</div>`;
+    }).join('')
     : '<div class="empty" style="padding:20px"><div class="ei">⛓️</div>Žádné tresty</div>';
 }
 
