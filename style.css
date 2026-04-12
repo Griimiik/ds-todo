@@ -513,7 +513,7 @@ details summary::-webkit-details-marker { display: none; }
 
 /* Ikona tužky pro editaci - mírně potlačená, dokud na ni nenajedeš */
 .edit-btn {
-  opacity: 0.5;
+  opacity: 1;
 }
 
 .edit-btn:hover {
