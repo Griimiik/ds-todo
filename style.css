@@ -109,13 +109,18 @@ body::before {
 .slbl{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
 .sval {
   font-family: var(--ff);
-  font-size: 64px;
+  font-size: 62px;
   font-weight: 300;
   line-height: 1;
   color: var(--accent);
-  letter-spacing: -0.02em;
-  /* Elegantní hloubka místo neonové mlhy */
+  letter-spacing: -.02em;
+  /* Místo neonu dáme elegantní hloubku */
   text-shadow: 2px 2px 0px var(--bg), 4px 4px 0px var(--accent-g);
+}
+
+/* Specificky pro BDSM - jemná linka kolem čísla pro "vyskočení" */
+[data-theme="bdsm"] .sval {
+  text-shadow: 1px 1px 0px var(--bg), 2px 2px 0px var(--accent), 0 0 10px var(--accent-d);
 }
 
 .sval.neg{color:var(--red)}
@@ -306,61 +311,17 @@ body::before {
 .hv{font-family:var(--ff);font-size:18px;font-weight:300;flex-shrink:0}
 
 /* REWARDS / TRIPS */
-.rpi {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  position: relative;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
-  align-items: flex-start; /* Zarovnání nahoru, aby se info rozbalovalo dolů */
-}
+.rpi{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border);gap:8px}
 .rpi:last-child{border-bottom:none}
-.rpi2 {
-  flex: 1;
-  min-width: 0; /* Důležité pro oříznutí dlouhého textu */
-}
-.rpi-btns {
-  display: flex;
-  gap: 4px;
-  align-items: center; /* Všechna tlačítka v jedné lajně */
-  justify-content: flex-end;
-  flex-shrink: 0;
-  margin-top: 0; /* Zrušíme posun, aby to lícovalo s textem */
-}
+.rpi2{flex:1;min-width:0}
 .rpi.available{border-color:var(--accent);background:linear-gradient(145deg, var(--bg2) 0%, var(--accent-g) 100%);box-shadow: 0 0 15px var(--accent-d);position: relative; overflow: hidden;}
 .rpi.available::after {content: '';position: absolute;top: 0; left: -100%;width: 50%; height: 100%;background: linear-gradient(90deg, transparent, rgba(201,169,110,0.1), transparent);animation: shine 3s infinite;}
 @keyframes shine {0% { left: -100%; }20% { left: 100%; }100% { left: 100%; }}
 .rn{font-size:13px;color:var(--text);word-break:break-word}
 .rc{font-size:10px;color:var(--dim);margin-top:2px}
-.rpb {
-  width: 38px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 16px; /* Aby ikonka byla hezky vidět */
-  flex-shrink: 0;
-}
+.rpb{background:linear-gradient(180deg, var(--accent-d) 0%, transparent 100%);1px solid var(--border-h);border-radius:var(--rs);color:var(--dim);font-family:inherit;font-size:10px;padding:5px 8px;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;text-transform: uppercase;letter-spacing: 0.05em;font-weight: 600;}
 .rpb:hover{border-color:var(--accent);color:var(--accent)}
-
-.rpb.na {
-  opacity: 0.3;
-  cursor: not-allowed;
-  filter: grayscale(1);
-  border-style: dashed;
-}
-.rpb:hover:not(.na) {
-  border-color: var(--accent);
-  background: var(--accent-g);
-  transform: translateY(-1px);
-}
+.rpb.na{border-color:rgba(201,110,110,.35);color:var(--red);cursor:not-allowed;opacity:.65}
 
 /* BANK */
 .bank-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
@@ -456,65 +417,17 @@ details summary::-webkit-details-marker { display: none; }
   padding: 1px 4px;
   border-radius: 4px;
 }
-
-/* Srovnání řádku */
-.rn-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2px;
-}
-
-/* Styl pro rozbalovací info - Čistý a zorganizovaný */
-.info-det {
-  display: inline-block;
-  margin-top: 0;
-  width: auto;
-}
-.info-det[open] {
-  position: static; /* Aby popis neodsunul tlačítka v řadě */
-}
-.info-det summary.bm {
-  list-style: none;
-  font-family: var(--fm);
-  font-weight: bold;
-}
-.info-det summary::-webkit-details-marker { display: none; }
 .tdesc {
   font-size: 11px;
   color: var(--dim);
   line-height: 1.5;
-  margin-top: 4px;
-  padding: 10px;
+  margin-top: 6px;
+  padding: 8px;
   font-style: italic;
-  background: var(--accent-g); /* Slabě zvýrazněný background */
   border-left: 2px solid var(--accent-d);
-  border-radius: 0 6px 6px 0;
-  animation: slideIn 0.2s ease-out;
+  background: var(--accent-g);
+  border-radius: 0 4px 4px 0;
 }
-
-.info-sum {
-  list-style: none;
-  font-size: 10px;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  opacity: 0.7;
-  display: inline-block;
-  padding: 2px 0;
-}
-.info-sum {
-  display: none; /* Nepotřebujeme starý text */
-}
-.info-sum::-webkit-details-marker { display: none; }
-.info-sum:hover { opacity: 1; }
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 /* Základní malé tlačítko (tužka, info, atd.) */
 .bm {
   background: none;
