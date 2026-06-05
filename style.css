@@ -512,6 +512,21 @@ details summary::-webkit-details-marker { display: none; }
   color: var(--red);
   box-shadow: 0 0 8px var(--red-d);
 }
+/* Zvýraznění stavu ticketů v záhlaví odměn */
+#rscore span {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Speciální neonový nádech pro dostupné lístky u levných odměn */
+.rpi-btns button[title*="Ticket"] {
+  animation: ticketGlow 2s infinite ease-in-out;
+}
+
+@keyframes ticketGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(110,201,138,0.2); }
+  50% { box-shadow: 0 0 10px rgba(110,201,138,0.5); }
+}
 
 /* Ikona tužky pro editaci - mírně potlačená, dokud na ni nenajedeš */
 .edit-btn {
