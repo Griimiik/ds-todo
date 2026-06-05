@@ -1,7 +1,7 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
 const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
-let state={score:0,totalPlus:0,totalMinus:0,tickets50:0,tickets100:0,todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
+let state={score:0,totalPlus:0,totalMinus:0,tickets50:0,tickets100:0,discordWebhook:"",todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role='';
 let countdownInterval=null;
@@ -111,6 +111,7 @@ async function syncNow(){
     if(!state.rollLog) state.rollLog={};
     if(!state.tickets50) state.tickets50=0;
     if(!state.tickets100) state.tickets100=0;
+    if(!state.discordWebhook) state.discordWebhook="";
     checkAutoReset();
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
@@ -485,6 +486,10 @@ async function addActivePunishment(){
   
   document.getElementById('ap-modal').classList.remove('open');
   renderActivePunishments();
+
+  // DISCORD NOTIFIKACE
+  sendDiscordNotification(`⛓️ **Udělen aktivní trest:** "${name}" ${apType === 'expiry' ? `s expirací do ${new Date(newPunishment.until).toLocaleString('cs-CZ')}` : "ke splnění"}.`);
+  
   await save();
   showToast('⛓️ Trest přesunut do aktivních. Body se strhnou jen při nesplnění.');
 }
@@ -928,6 +933,7 @@ function uid(){return Math.random().toString(36).slice(2,9)}
 function ts(){const n=new Date();return n.toLocaleDateString('cs-CZ')+' '+n.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}
 
 async function addPoints(pts,reason,force=false){
+  
   if(role!=='dom'&&!force){showToast('🔒 Pouze Dom může měnit body');return;}
   
   // Pokud body přidáváme, spočítáme staré a nové tickety
@@ -954,7 +960,11 @@ async function addPoints(pts,reason,force=false){
     state.score += pts;
     state.totalMinus += Math.abs(pts);
   }
-  
+
+  // DISCORD NOTIFIKACE
+  const emoji = pts > 0 ? "🟢" : "🔴";
+  sendDiscordNotification(`${emoji} **Změna bodů:** ${reason} (${pts > 0 ? "+" : ""}${pts} bodů) · Aktuální stav: **${state.score}** bodů`);
+
   state.history.push({id:uid(),pts,reason,time:ts()});
   renderAll();
   await save();
@@ -1263,6 +1273,10 @@ async function useReward(id){
   // Do aktivních odměn pošleme celý název včetně svislítka
   state.activeRewards.push({id:uid(), name:r.name, usedAt:new Date().toISOString()});
   renderActivePunishments();
+
+  // DISCORD NOTIFIKACE
+  sendDiscordNotification(`🏆 **Odměna uplatněna:** "${titleOnly}" za ${r.cost} bodů.`);
+
   await save();
   showToast(`✓ Odměna "${titleOnly}" aktivována`);
 }
@@ -1289,6 +1303,11 @@ async function useRewardWithTicket(id) {
   state.activeRewards.push({id: uid(), name: `[🎟️ Ticket] ${r.name}`, usedAt: new Date().toISOString()});
   
   renderAll();
+
+  // DISCORD NOTIFIKACE
+  sendDiscordNotification(`🎟️ **Odměna uplatněna přes TICKET:** "${titleOnly}" (zdarma za Ticket do ${ticketType}b).`);
+
+  
   await save();
   showToast(`✓ Odměna aktivována přes Ticket`);
 }
@@ -1489,6 +1508,33 @@ async function changeTicketsManual(type, amount) {
   renderAll();
   await save();
   showToast(`✓ Počet lístků upraven`);
+}
+
+async function sendDiscordNotification(text) {
+  if (!state.discordWebhook) return; // Pokud webhook není nastaven, nic neděláme
+  try {
+    await fetch(state.discordWebhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: text })
+    });
+  } catch (e) {
+    console.error('Chyba odesílání na Discord:', e);
+  }
+}
+
+// Funkce pro uložení webhooku Domem z nastavení
+async function saveDiscordWebhook() {
+  if (role !== 'dom') return;
+  const current = state.discordWebhook || "";
+  const input = prompt("Vlož URL Discord Webhooku (nebo nech prázdné pro vypnutí):", current);
+  if (input === null) return;
+  state.discordWebhook = input.trim();
+  await save();
+  if (state.discordWebhook) {
+    await sendDiscordNotification("🔗 **D/s Tracker byl úspěšně propojen s tímto kanálem!**");
+  }
+  showToast("✓ Nastavení Discordu uloženo");
 }
 
 init();
