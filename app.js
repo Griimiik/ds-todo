@@ -1,7 +1,7 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
 const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
-let state={score:0,totalPlus:0,totalMinus:0,todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
+let state={score:0,totalPlus:0,totalMinus:0,tickets50:0,tickets100:0,todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role='';
 let countdownInterval=null;
@@ -109,6 +109,8 @@ async function syncNow(){
     if(!state.trips) state.trips=[];
     if(!state.completedTrips) state.completedTrips=[];
     if(!state.rollLog) state.rollLog={};
+    if(!state.tickets50) state.tickets50=0;
+    if(!state.tickets100) state.tickets100=0;
     checkAutoReset();
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
@@ -805,7 +807,13 @@ function renderHistory(){
 
 function renderRewards(){
   const rl = document.getElementById('rlist'), pl = document.getElementById('plist');
-  if (document.getElementById('rscore')) document.getElementById('rscore').textContent = `Body: ${state.score}`;
+  if (document.getElementById('rscore')) {
+    document.getElementById('rscore').innerHTML = `
+      <span style="margin-right:10px">Body: ${state.score}</span>
+      <span style="color:var(--green)">🎟️50: ${state.tickets50 || 0}x</span> · 
+      <span style="color:var(--purple)">🎟️100: ${state.tickets100 || 0}x</span>
+    `;
+  }
   
   const sortedRewards = [...(state.rewards || [])].sort((a, b) => a.cost - b.cost);
   const sortedPunishments = [...(state.punishments || [])].sort((a, b) => a.cost - b.cost);
@@ -816,6 +824,11 @@ function renderRewards(){
       const parts = r.name.split('|');
       const title = parts[0].trim();
       const desc = parts[1] ? parts[1].trim() : '';
+
+      // Podmínky pro použití ticketů
+      const canUseTicket50 = r.cost <= 50 && state.tickets50 > 0;
+      const canUseTicket100 = r.cost <= 100 && state.tickets100 > 0;
+      const hasAnyTicketOption = (r.cost <= 50 && state.tickets50 > 0) || (r.cost <= 100 && state.tickets100 > 0);
 
       return `<div class="rpi ${ok ? 'available' : ''}">
         <div class="rpi2">
@@ -828,6 +841,10 @@ function renderRewards(){
           </details>` : ''}
         </div>
         <div class="rpi-btns">
+          ${hasAnyTicketOption ? `
+            <button class="rpb" onclick="useRewardWithTicket('${r.id}')" title="Uplatnit za Ticket (0 bodů)" style="background:var(--green-d); border-color:var(--green)">🎟️</button>
+          ` : ''}
+          
           <button class="rpb${ok ? '' : ' na'}" onclick="${ok ? `useReward('${r.id}')` : ''}">${ok ? '💰' : '🔒'}</button>
           ${role === 'dom' ? `<button class="bm edit-btn" onclick="editItem('rewards','${r.id}')">✎</button>` : ''}
           ${role === 'dom' ? `<button class="bm d" onclick="delReward('${r.id}')">✕</button>` : ''}
@@ -908,8 +925,32 @@ function ts(){const n=new Date();return n.toLocaleDateString('cs-CZ')+' '+n.toLo
 
 async function addPoints(pts,reason,force=false){
   if(role!=='dom'&&!force){showToast('🔒 Pouze Dom může měnit body');return;}
-  state.score+=pts;
-  if(pts>0)state.totalPlus+=pts;else state.totalMinus+=Math.abs(pts);
+  
+  // Pokud body přidáváme, spočítáme staré a nové tickety
+  if(pts > 0) {
+    const oldT50 = Math.floor(state.totalPlus / 125);
+    const oldT100 = Math.floor(state.totalPlus / 250);
+    
+    state.score += pts;
+    state.totalPlus += pts;
+    
+    const newT50 = Math.floor(state.totalPlus / 125);
+    const newT100 = Math.floor(state.totalPlus / 250);
+    
+    // Pokud vznikl nárok, lístky automaticky přičteme
+    if(newT50 > oldT50) {
+      state.tickets50 += (newT50 - oldT50);
+      showToast(`🎟️ Získán Ticket do 50b!`);
+    }
+    if(newT100 > oldT100) {
+      state.tickets100 += (newT100 - oldT100);
+      showToast(`🎟️ Získán Ticket do 100b!`);
+    }
+  } else {
+    state.score += pts;
+    state.totalMinus += Math.abs(pts);
+  }
+  
   state.history.push({id:uid(),pts,reason,time:ts()});
   renderAll();
   await save();
@@ -1221,6 +1262,32 @@ async function useReward(id){
   await save();
   showToast(`✓ Odměna "${titleOnly}" aktivována`);
 }
+async function useRewardWithTicket(id) {
+  const r = state.rewards.find(x => x.id === id); if (!r) return;
+  
+  let ticketType = 0;
+  if (r.cost <= 50 && state.tickets50 > 0) ticketType = 50;
+  else if (r.cost <= 100 && state.tickets100 > 0) ticketType = 100;
+  
+  if (ticketType === 0) { showToast('✗ Nemáš vhodný lístek'); return; }
+  
+  const titleOnly = r.name.split('|')[0].trim();
+  if (!confirm(`Uplatnit "${titleOnly}" zdarma za Ticket do ${ticketType}b?`)) return;
+  
+  // Odebereme ticket
+  if (ticketType === 50) state.tickets50--;
+  else state.tickets100--;
+  
+  // Zapíšeme do historie (0 bodů)
+  state.history.push({id: uid(), pts: 0, reason: `🎟️ Ticket ${ticketType}b: ${r.name}`, time: ts()});
+  
+  if (!state.activeRewards) state.activeRewards = [];
+  state.activeRewards.push({id: uid(), name: `[🎟️ Ticket] ${r.name}`, usedAt: new Date().toISOString()});
+  
+  renderAll();
+  await save();
+  showToast(`✓ Odměna aktivována přes Ticket`);
+}
 
 // ── TRIPS LOGIC ──────────────────────────────────────────────────────────
 async function addTrip(){
@@ -1387,5 +1454,17 @@ function importBank() {
   input.click();
 }
 
+// Ticket managment
+async function changeTicketsManual(type, amount) {
+  if (role !== 'dom') return;
+  if (type === 50) {
+    state.tickets50 = Math.max(0, state.tickets50 + amount);
+  } else {
+    state.tickets100 = Math.max(0, state.tickets100 + amount);
+  }
+  renderAll();
+  await save();
+  showToast(`✓ Počet lístků upraven`);
+}
 
 init();
