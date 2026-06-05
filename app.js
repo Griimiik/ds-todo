@@ -598,8 +598,10 @@ function renderScore(){
   e.textContent=state.score;e.className='sval'+(state.score<0?' neg':'');
   document.getElementById('splus').textContent=state.totalPlus;
   document.getElementById('sminus').textContent=state.totalMinus;
-  document.getElementById('main-t50').textContent = state.tickets50 || 0;
-  document.getElementById('main-t100').textContent = state.tickets100 || 0;
+  
+  // Aktualizace počítadla ticketů na hlavní kartě
+  if(document.getElementById('main-t50')) document.getElementById('main-t50').textContent = state.tickets50 || 0;
+  if(document.getElementById('main-t100')) document.getElementById('main-t100').textContent = state.tickets100 || 0;
 }
 
 // ── BEZPEČNÝ AUTO REFRESH (SYNCHRONIZOVANÝ) ──────────────────────────
@@ -1362,8 +1364,28 @@ async function usePunishment(id) {
 async function clearHistory(){if(!confirm('Vymazat historii?'))return;state.history=[];renderHistory();await save();}
 async function resetScore(){
   if(role!=='dom'){showToast('🔒 Pouze Dom může resetovat skóre');return;}
-  if(!confirm('Vynulovat skóre?'))return;
-  state.score=0;state.totalPlus=0;state.totalMinus=0;renderScore();await save();
+  
+  const mode = prompt('Zadej "1" pro reset pouze aktuálního skóre.\nZadej "2" pro KOMPLETNÍ RESET (aktuální body + celkově získané body + tickety):');
+  
+  if(mode === '1') {
+    if(!confirm('Vynulovat aktuální skóre? (Statistika zisku a tickety zůstanou)')) return;
+    state.score = 0;
+    showToast('✓ Aktuální skóre vynulováno');
+  } else if(mode === '2') {
+    if(!confirm('⚠️ POZOR: Opravdu chceš kompletně smazat aktuální body, celkovou statistiku zisku i všechny tickety? Tato akce je nevratná!')) return;
+    state.score = 0;
+    state.totalPlus = 0;
+    state.totalMinus = 0;
+    state.tickets50 = 0;
+    state.tickets100 = 0;
+    showToast('💥 Kompletní reset trackeru úspěšný');
+  } else {
+    if(mode !== null) showToast('✗ Neplatná volba');
+    return;
+  }
+  
+  renderAll();
+  await save();
 }
 
 // ── MODAL ──────────────────────────────────────────────────────────────
