@@ -598,6 +598,8 @@ function renderScore(){
   e.textContent=state.score;e.className='sval'+(state.score<0?' neg':'');
   document.getElementById('splus').textContent=state.totalPlus;
   document.getElementById('sminus').textContent=state.totalMinus;
+  document.getElementById('main-t50').textContent = state.tickets50 || 0;
+  document.getElementById('main-t100').textContent = state.tickets100 || 0;
 }
 
 // ── BEZPEČNÝ AUTO REFRESH (SYNCHRONIZOVANÝ) ──────────────────────────
