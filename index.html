@@ -80,6 +80,7 @@
         <div class="ssub">
           <div class="sstat"><div class="dot dg"></div><span>+<span id="splus">0</span> získáno</span></div>
           <div class="sstat"><div class="dot dr"></div><span>−<span id="sminus">0</span> odečteno</span></div>
+          <div class="sstat" style="margin-left:5px"><span>🎟️ <span id="main-t50" style="color:var(--green)">0</span> / <span id="main-t100" style="color:var(--purple)">0</span></span></div>
         </div>
       </div>
       <div class="role-block">
@@ -292,6 +293,21 @@
       <div class="str">
         <div><div class="strl">Změnit Sub heslo</div><div class="strs">Heslo pro přístup Sub</div></div>
         <button class="bst" onclick="changeSubPassword()">Změnit</button>
+      </div>
+      <div class="str dom-only" style="background: rgba(110,201,138,0.02); border-left: 3px solid var(--green)">
+        <div><div class="strl">Správa Ticketů (DOM)</div><div class="strs">Ruční přidání/odebrání lístků subince</div></div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; gap:4px; align-items:center; justify-content:flex-end">
+            <span style="font-size:11px; margin-right:4px">Do 50b:</span>
+            <button class="bm" onclick="changeTicketsManual(50, -1)">-1</button>
+            <button class="bm" onclick="changeTicketsManual(50, 1)">+1</button>
+          </div>
+          <div style="display:flex; gap:4px; align-items:center; justify-content:flex-end">
+            <span style="font-size:11px; margin-right:4px">Do 100b:</span>
+            <button class="bm" onclick="changeTicketsManual(100, -1)">-1</button>
+            <button class="bm" onclick="changeTicketsManual(100, 1)">+1</button>
+          </div>
+        </div>
       </div>
       <div class="str dom-only">
         <div><div class="strl">Přemíchat úkoly</div><div class="strs">Smaže aktivní a vylosuje 6 nových</div></div>
