@@ -1,7 +1,7 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
 const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
-let state={score:0,totalPlus:0,totalMinus:0,tickets50:0,tickets100:0,discordWebhook:"",todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
+let state={score:0,totalPlus:0,totalMinus:0,tickets50:0,tickets100:0,discordWebhook:"",limits:{},todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role='';
 let countdownInterval=null;
@@ -112,6 +112,7 @@ async function syncNow(){
     if(!state.tickets50) state.tickets50=0;
     if(!state.tickets100) state.tickets100=0;
     if(!state.discordWebhook) state.discordWebhook="";
+    if(!state.limits) state.limits={};
     checkAutoReset();
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
@@ -595,7 +596,7 @@ async function changeSubPassword(){
 
 // ── RENDER ─────────────────────────────────────────────────────────────
 function renderAll(){
-  renderScore();renderTodo();renderIdeas();renderHistory();renderRewards();renderTrips();renderActivePunishments();renderBank();
+  renderScore();renderTodo();renderIdeas();renderHistory();renderRewards();renderTrips();renderActivePunishments();renderBank();renderLimits();
 }
 
 function renderScore(){
@@ -1428,7 +1429,7 @@ async function confirmModal(){
 
 // ── TABS ───────────────────────────────────────────────────────────────
 function sw(n){
-  const ns=['todo','rewards','trips','punishments','active','bank','legend','settings'];
+  const ns=['todo','rewards','trips','punishments','active','bank','legend','limits','settings'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ns[i]===n));
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('sec-'+n).classList.add('active');
@@ -1535,6 +1536,86 @@ async function saveDiscordWebhook() {
     await sendDiscordNotification("🔗 **D/s Tracker byl úspěšně propojen s tímto kanálem!**");
   }
   showToast("✓ Nastavení Discordu uloženo");
+}
+
+// ── LIMITS CONFIG & LOGIC ──────────────────────────────────────────────
+const LIMITS_DATA = {
+  "Bezpečnost a signály": [
+    "Verbální semafor (Zelená / Žlutá / Červená)",
+    "Neverbální signál (puštění předmětu z ruky)",
+    "Neverbální signál (trojí poklepání)",
+    "Aftercare: Fyzický kontakt (objetí, hlazení)",
+    "Aftercare: Teplo a peřina",
+    "Aftercare: Sladký nápoj / čokoláda",
+    "Aftercare: Slovní ujištění a bezpečí",
+    "Aftercare: Ticho a prostor o samotě"
+  ],
+  "Fyzická disciplína": [
+    "Výprask rukou (Spanking)",
+    "Měkké pomůcky (kožená plácačka)",
+    "Tvrdé pomůcky (rákoska, bičík, pádlo)",
+    "Tahání za vlasy",
+    "Led / střídání teplot",
+    "Fyzické cvičení za trest (dřepy, kliky, plank)",
+    "Statické pozice (klečení v koutě, ruce za hlavou)"
+  ],
+  "Restrikce a smysly": [
+    "Měkká pouta (látka, kůže)",
+    "Pevná pouta (kov, úvazy k nábytku)",
+    "Zakrytí očí (šátek, maska)",
+    "Omezení řeči (roubíky)",
+    "Omezení sluchu (sluchátka, bílý šum)"
+  ],
+  "Psychologické vedení a pravidla": [
+    "Formální oslovení (Pane / Mistře)",
+    "Vynucený / zakázaný oční kontakt",
+    "Tresty psaním (opakování vět)",
+    "Domácí úkoly a studium",
+    "Kontrola telefonu / sociálních sítí",
+    "Ranní hlášení (nálada, energie)",
+    "Večerní shrnutí dne"
+  ]
+};
+
+function renderLimits() {
+  const container = document.getElementById('limits-container');
+  if (!container) return;
+
+  const states = [
+    { key: 'yes', label: 'ANO', cls: 'l-yes' },
+    { key: 'maybe', label: 'MOŽNÁ', cls: 'l-maybe' },
+    { key: 'soft', label: 'SOFT', cls: 'l-soft' },
+    { key: 'hard', label: 'HARD', cls: 'l-hard' }
+  ];
+
+  container.innerHTML = Object.entries(LIMITS_DATA).map(([category, items]) => `
+    <div class="card">
+      <div class="ch"><span>${category}</span></div>
+      ${items.map(item => {
+        const current = (state.limits && state.limits[item]) || '';
+        return `
+          <div class="limit-row">
+            <span class="limit-title">${item}</span>
+            <div class="limit-btns">
+              ${states.map(s => `
+                <button class="limit-btn ${s.cls} ${current === s.key ? 'active' : ''}" 
+                  onclick="setLimit('${item.replace(/'/g, "\\'")}', '${s.key}')">
+                  ${s.label}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+async function setLimit(item, value) {
+  if (!state.limits) state.limits = {};
+  state.limits[item] = state.limits[item] === value ? '' : value;
+  renderLimits();
+  await save();
 }
 
 init();
