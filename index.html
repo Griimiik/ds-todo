@@ -110,6 +110,7 @@
     <button class="tab" onclick="sw('active')" title="Aktivní odměny/tresty">⏳<span id="active-count"></span></button>
     <button class="tab" onclick="sw('bank')" title="Banka úkolů">🎲</button>
     <button class="tab" onclick="sw('legend')" title="Nápady">💡</button>
+    <button class="tab" onclick="sw('limits')" title="Limity & Bezpečnost">📋</button>
     <button class="tab dom-only" id="tab-settings" onclick="sw('settings')" title="Nastavení">⚙️</button>
   </div>
 
@@ -263,6 +264,19 @@
     </div>
   </div>
 
+  
+  <div class="sec" id="sec-limits">
+    <div style="font-size:11px;color:var(--dim);margin:0 4px 10px;line-height:1.5">
+      Klepnutím nastavte míru souhlasu: 
+      <b style="color:var(--green)">ANO</b> · 
+      <b style="color:var(--accent)">MOŽNÁ</b> · 
+      <b style="color:var(--purple)">SOFT LIMIT</b> · 
+      <b style="color:var(--red)">HARD LIMIT</b>
+    </div>
+    <div id="limits-container"></div>
+  </div>
+
+  
   <div class="sec" id="sec-settings">
     <div class="card dom-only">
       <div class="ch">
