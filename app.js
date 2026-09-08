@@ -67,7 +67,10 @@ async function ghPut(enc){
     headers:{Authorization:`token ${ghToken}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
     body:JSON.stringify(body)
   });
-  if(!r.ok) throw new Error('GitHub PUT selhal');
+  if(!r.ok) {
+    const errData = await r.json().catch(() => ({}));
+    throw new Error(errData.message || `GitHub PUT selhal (${r.status})`);
+  }
   sha=(await r.json()).content.sha;
 }
 
@@ -119,19 +122,24 @@ async function syncNow(){
 }
 
 async function save(){
+  // Kontrola, zda máme token pro zápis (Sub režim nemůže ukládat na GitHub přímo)
+  if(!ghToken){
+    showToast('🔒 Pouze zařízení s tokenem může ukládat změny');
+    return;
+  }
+
   setSS('syncing','↑ ukládám...');
   try{
-    if(!sha){const f=await ghGet();if(f) sha=f.sha;}
+    // Vždy před uložením načteme nejčerstvější SHA, aby nedošlo ke kolizi
+    const f=await ghGet();
+    if(f && f.sha) sha=f.sha;
+    
     await ghPut(await encrypt(state,encPw));
     setSS('synced','✓ uloženo');
   }catch(e){
-    if(e.message.includes('PUT')){
-      try{
-        const f=await ghGet();if(f) sha=f.sha;
-        await ghPut(await encrypt(state,encPw));
-        setSS('synced','✓ uloženo');
-      }catch(e2){setSS('error','✗ chyba');showToast('✗ Uložení selhalo — '+e2.message);}
-    } else {setSS('error','✗ chyba');showToast('✗ Uložení selhalo — '+e.message);}
+    console.error('Chyba při ukládání:', e);
+    setSS('error','✗ chyba');
+    showToast('✗ Uložení selhalo — '+e.message);
   }
 }
 
