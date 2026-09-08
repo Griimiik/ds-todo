@@ -536,3 +536,57 @@ details summary::-webkit-details-marker { display: none; }
 .edit-btn:hover {
   opacity: 1;
 }
+
+/* LIMITS CHECKLIST */
+.limit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.limit-row:last-child { border-bottom: none; }
+.limit-title {
+  font-size: 12px;
+  color: var(--text);
+  flex: 1;
+  word-break: break-word;
+}
+.limit-btns {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.limit-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--dim);
+  font-size: 9px;
+  padding: 4px 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.limit-btn.active.l-yes {
+  background: var(--green-d);
+  border-color: var(--green);
+  color: var(--green);
+}
+.limit-btn.active.l-maybe {
+  background: var(--accent-d);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.limit-btn.active.l-soft {
+  background: var(--purple-d);
+  border-color: var(--purple);
+  color: var(--purple);
+}
+.limit-btn.active.l-hard {
+  background: var(--red-d);
+  border-color: var(--red);
+  color: var(--red);
+}
