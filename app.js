@@ -1,7 +1,7 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
 const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
-let state={score:0,totalPlus:0,totalMinus:0,tickets50:0,tickets100:0,discordWebhook:"",limits:{},todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
+let state={score:0,totalPlus:0,totalMinus:0,tickets50:0,tickets100:0,discordWebhook:"",limits:{},limitsUpdatedAt:"",todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role='';
 let countdownInterval=null;
@@ -116,6 +116,7 @@ async function syncNow(){
     if(!state.tickets100) state.tickets100=0;
     if(!state.discordWebhook) state.discordWebhook="";
     if(!state.limits) state.limits={};
+    if(!state.limitsUpdatedAt) state.limitsUpdatedAt="";
     checkAutoReset();
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
@@ -1666,7 +1667,12 @@ function renderLimits() {
     { key: 'hard', label: 'HARD', cls: 'l-hard' }
   ];
 
-  container.innerHTML = Object.entries(LIMITS_DATA).map(([category, items]) => `
+  // Čas poslední aktualizace
+  const updateInfo = state.limitsUpdatedAt 
+    ? `<div style="font-size:10px;color:var(--dim);margin: -4px 4px 10px;text-align:right">🕒 Poslední úprava: <b>${state.limitsUpdatedAt}</b></div>`
+    : '';
+
+  container.innerHTML = updateInfo + Object.entries(LIMITS_DATA).map(([category, items]) => `
     <div class="card">
       <div class="ch"><span>${category}</span></div>
       ${items.map(item => {
@@ -1691,7 +1697,25 @@ function renderLimits() {
 
 async function setLimit(id, value) {
   if (!state.limits) state.limits = {};
-  state.limits[id] = state.limits[id] === value ? '' : value;
+  const previous = state.limits[id] || '';
+  const newVal = previous === value ? '' : value;
+  
+  state.limits[id] = newVal;
+  state.limitsUpdatedAt = ts(); // Uloží datum a čas ve formátu DD.MM.YYYY HH:MM
+
+  // Nalezení štítku pro notifikaci
+  let itemLabel = id;
+  for (const list of Object.values(LIMITS_DATA)) {
+    const found = list.find(x => x.id === id);
+    if (found) { itemLabel = found.label; break; }
+  }
+
+  const valLabels = { yes: '🟢 ANO', maybe: '🟡 MOŽNÁ', soft: '🟣 SOFT LIMIT', hard: '🔴 HARD LIMIT', '': '⚪ SMAZÁNO' };
+  const who = role === 'dom' ? '🔑 Dom' : '🦮 Sub';
+  
+  // DISCORD NOTIFIKACE
+  sendDiscordNotification(`📋 **Změna limitu (${who}):**\n• Položka: *${itemLabel}*\n• Nová volba: **${valLabels[newVal]}**`);
+
   renderLimits();
   await save();
 }
