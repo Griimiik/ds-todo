@@ -1549,109 +1549,109 @@ async function saveDiscordWebhook() {
 // ── LIMITS CONFIG & LOGIC ──────────────────────────────────────────────
 const LIMITS_DATA = {
   "1. Komunikace, bezpečnost a aftercare": [
-    "Verbální semafor (Zelená / Žlutá / Červená)",
-    "Specifické záchranné slovo (např. jméno zvířete/předmětu)",
-    "Neverbální signál (puštění předmětu z ruky / šátku)",
-    "Neverbální signál (trojí poklepání na tělo/podlahu)",
-    "Check-in během scény (dotazy na stav)",
-    "Aftercare: Fyzický kontakt (mazlení, peřina, hlazení)",
-    "Aftercare: Teplý nápoj / sladkost / glukóza",
-    "Aftercare: Slovní ujištění a pochvala",
-    "Aftercare: Ticho a prostor o samotě bez mluvení",
-    "Zpětná vazba po scéně (Check-in do 24 hodin)"
+    { id: "comm_traffic_light", label: "Verbální semafor (Zelená / Žlutá / Červená)" },
+    { id: "comm_safeword", label: "Specifické záchranné slovo (např. jméno zvířete/předmětu)" },
+    { id: "comm_drop_signal", label: "Neverbální signál (puštění předmětu z ruky / šátku)" },
+    { id: "comm_tap_signal", label: "Neverbální signál (trojí poklepání na tělo/podlahu)" },
+    { id: "comm_checkin", label: "Check-in během scény (dotazy na stav)" },
+    { id: "after_touch", label: "Aftercare: Fyzický kontakt (mazlení, peřina, hlazení)" },
+    { id: "after_drink", label: "Aftercare: Teplý nápoj / sladkost / glukóza" },
+    { id: "after_words", label: "Aftercare: Slovní ujištění a pochvala" },
+    { id: "after_silence", label: "Aftercare: Ticho a prostor o samotě bez mluvení" },
+    { id: "after_nextday", label: "Zpětná vazba po scéně (Check-in do 24 hodin)" }
   ],
   "2. Vztahová dynamika a hierarchie (D/s)": [
-    "Oslovení (Pane, Mistře, Dom / Doma)",
-    "Třetí osoba při oslovování sebe sama",
-    "Pozice těla (klečení u nohou, sed na patách, ruce za zády)",
-    "Oční kontakt (pouze se svolením / zákaz dívat se do očí)",
-    "Oční kontakt (vynucený pohled do očí)",
-    "Povolení k mluvení (mluvit jen na vyzvání)",
-    "Rituály vítání a loučení (předání kabátu, klečení u dveří)",
-    "Odevzdání rozhodování o běžném dni",
-    "Tresty formou domácích prací a úkolů navíc",
-    "Kontrola telefonu, hesel a sociálních sítí"
+    { id: "ds_titles", label: "Oslovení (Pane, Mistře, Dom / Doma)" },
+    { id: "ds_third_person", label: "Třetí osoba při oslovování sebe sama" },
+    { id: "ds_body_positions", label: "Pozice těla (klečení u nohou, sed na patách, ruce za zády)" },
+    { id: "ds_eye_denial", label: "Oční kontakt (pouze se svolením / zákaz dívat se do očí)" },
+    { id: "ds_eye_forced", label: "Oční kontakt (vynucený pohled do očí)" },
+    { id: "ds_speech_permission", label: "Povolení k mluvení (mluvit jen na vyzvání)" },
+    { id: "ds_rituals", label: "Rituály vítání a loučení (předání kabátu, klečení u dveří)" },
+    { id: "ds_routine_control", label: "Odevzdání rozhodování o běžném dni" },
+    { id: "ds_chores_punishment", label: "Tresty formou domácích prací a úkolů navíc" },
+    { id: "ds_digital_control", label: "Kontrola telefonu, hesel a sociálních sítí" }
   ],
   "3. Roleplay, Petplay & Ageplay": [
-    "Klasický scénářový roleplay (studentka/učitel, šéf/sekretářka)",
-    "Maid / Služebná (úklid v kostýmu, obsluha Doma)",
-    "Petplay: Štěně / Pes (Puppy play - obojek, vodítko, aport, miska)",
-    "Petplay: Kotě / Kočka (Kitten play - ouška, ocásek, hlazení, předení)",
-    "Petplay: Kůň / Poník (Pony play - uzdečka, postroj, bičík)",
-    "Petplay: Nošení doplňků (ouška, ocásek s plugem, tlapky)",
-    "Petplay: Zákaz lidské řeči (pouze štěkání, mňoukání, zvuky)",
-    "Ageplay / Little: Režim 'Little girl' (chování dítěte, bezstarostnost)",
-    "Ageplay / Little: Caregiver dynamika (péče, krmení, čtení pohádek)",
-    "Ageplay / Little: Dětské rekvizity (plyšáci, dudlík, dětské lahvičky)",
-    "Ageplay / Little: Plenky (ABDL / Diaper play)",
-    "Medical play (vyšetření, role doktor / pacientka)"
+    { id: "rp_scenarios", label: "Klasický scénářový roleplay (studentka/učitel, šéf/sekretářka)" },
+    { id: "rp_maid", label: "Maid / Služebná (úklid v kostýmu, obsluha Doma)" },
+    { id: "pet_puppy", label: "Petplay: Štěně / Pes (Puppy play - obojek, vodítko, aport, miska)" },
+    { id: "pet_kitten", label: "Petplay: Kotě / Kočka (Kitten play - ouška, ocásek, hlazení, předení)" },
+    { id: "pet_pony", label: "Petplay: Kůň / Poník (Pony play - uzdečka, postroj, bičík)" },
+    { id: "pet_accessories", label: "Petplay: Nošení doplňků (ouška, ocásek s plugem, tlapky)" },
+    { id: "pet_no_human_speech", label: "Petplay: Zákaz lidské řeči (pouze štěkání, mňoukání, zvuky)" },
+    { id: "age_little_girl", label: "Ageplay / Little: Režim 'Little girl' (chování dítěte, bezstarostnost)" },
+    { id: "age_caregiver", label: "Ageplay / Little: Caregiver dynamika (péče, krmení, čtení pohádek)" },
+    { id: "age_props", label: "Ageplay / Little: Dětské rekvizity (plyšáci, dudlík, dětské lahvičky)" },
+    { id: "age_diapers", label: "Ageplay / Little: Plenky (ABDL / Diaper play)" },
+    { id: "rp_medical", label: "Medical play (vyšetření, role doktor / pacientka)" }
   ],
   "4. Bondage a restrikce pohybu": [
-    "Měkká látková pouta / pásky",
-    "Kožená pouta na ruce / nohy",
-    "Kovová policejní pouta",
-    "Uvazování k nábytku / pevným bodům",
-    "Lana a složitější japonské úvazy (Shibari)",
-    "Klec / uzavření do stísněného prostoru",
-    "Svěrací kazajka / fixace paží k tělu",
-    "Kukla / plné zakrytí hlavy",
-    "Pozice se zvednutýma rukama nad hlavu (zavěšení bez váhy)",
-    "Znehybnění na delší čas (nad 30 minut)"
+    { id: "bon_soft_cuffs", label: "Měkká látková pouta / pásky" },
+    { id: "bon_leather_cuffs", label: "Kožená pouta na ruce / nohy" },
+    { id: "bon_metal_cuffs", label: "Kovová policejní pouta" },
+    { id: "bon_furniture", label: "Uvazování k nábytku / pevným bodům" },
+    { id: "bon_shibari", label: "Lana a složitější japonské úvazy (Shibari)" },
+    { id: "bon_cage", label: "Klec / uzavření do stísněného prostoru" },
+    { id: "bon_straitjacket", label: "Svěrací kazajka / fixace paží k tělu" },
+    { id: "bon_hood", label: "Kukla / plné zakrytí hlavy" },
+    { id: "bon_suspension_light", label: "Pozice se zvednutýma rukama nad hlavu (zavěšení bez váhy)" },
+    { id: "bon_long_term", label: "Znehybnění na delší čas (nad 30 minut)" }
   ],
   "5. Smyslová deprivace a stimulace": [
-    "Páska přes oči / neprůhledná maska",
-    "Špunty do uší / sluchátka s bílým šumem",
-    "Roubíky – měkké (šátek, silikonová koule)",
-    "Roubíky – pevné (pavoučí roubík, kruhový)",
-    "Senzorické peříčko / jemné dotyky",
-    "Horký vosk (kapání z nízko tavných svíček)",
-    "Led / střídání horka a chladu",
-    "Štípání kolíčky (na prsty, tělo)",
-    "Wartenbergovo kolečko (ostrá senzorická stimulace)"
+    { id: "sens_blindfold", label: "Páska přes oči / neprůhledná maska" },
+    { id: "sens_earplugs", label: "Špunty do uší / sluchátka s bílým šumem" },
+    { id: "sens_soft_gag", label: "Roubíky – měkké (šátek, silikonová koule)" },
+    { id: "sens_hard_gag", label: "Roubíky – pevné (pavoučí roubík, kruhový)" },
+    { id: "sens_feather", label: "Senzorické peříčko / jemné dotyky" },
+    { id: "sens_wax", label: "Horký vosk (kapání z nízko tavných svíček)" },
+    { id: "sens_ice", label: "Led / střídání horka a chladu" },
+    { id: "sens_clothespins", label: "Štípání kolíčky (na prsty, tělo)" },
+    { id: "sens_wartenberg", label: "Wartenbergovo kolečko (ostrá senzorická stimulace)" }
   ],
   "6. Fyzická disciplína a bolest (Impact Play)": [
-    "Výprask dlaní (Spanking) na hýždě",
-    "Výprask přes oblečení / prádlo",
-    "Výprask na holou kůži",
-    "Kožená plácačka / pádélko (měkčí dopad)",
-    "Tvrdé pádlo (dřevo, plast - plošná tupá bolest)",
-    "Rákoska / tenký jezdecký bičík (ostrá bodová bolest)",
-    "Devítiocasá kočka (víceocasé měkké biče)",
-    "Fyzické cvičení za trest (dřepy, kliky, vzpor)",
-    "Klečení v koutě / na zrní či tvrdém povrchu",
-    "Fackování (Face slapping)",
-    "Tahání za vlasy",
-    "Tresty zanechávající stopy (červené pruhy, modřiny)"
+    { id: "imp_spanking_butt", label: "Výprask dlaní (Spanking) na hýždě" },
+    { id: "imp_spanking_clothed", label: "Výprask přes oblečení / prádlo" },
+    { id: "imp_spanking_bare", label: "Výprask na holou kůži" },
+    { id: "imp_leather_paddle", label: "Kožená plácačka / pádélko (měkčí dopad)" },
+    { id: "imp_hard_paddle", label: "Tvrdé pádlo (dřevo, plast - plošná tupá bolest)" },
+    { id: "imp_cane_crop", label: "Rákoska / tenký jezdecký bičík (ostrá bodová bolest)" },
+    { id: "imp_flogger", label: "Devítiocasá kočka (víceocasé měkké biče)" },
+    { id: "imp_exercise", label: "Fyzické cvičení za trest (dřepy, kliky, vzpor)" },
+    { id: "imp_kneeling_hard", label: "Klečení v koutě / na zrní či tvrdém povrchu" },
+    { id: "imp_face_slap", label: "Fackování (Face slapping)" },
+    { id: "imp_hair_pull", label: "Tahání za vlasy" },
+    { id: "imp_marks", label: "Tresty zanechávající stopy (červené pruhy, modřiny)" }
   ],
   "7. Psychologická kontrola, stud a ponižování": [
-    "Verbální ponížení / sprostá slova / nadávky",
-    "Tresty psaním (opakování vět jako ve škole)",
-    "Předčítání erotických či poslušných textů nahlas",
-    "Vynucená nahota v soukromí",
-    "Vynucená nahota před kamerou (soukromý hovor s Domem)",
-    "Vystavení lehkému studu na veřejnosti (tajný příkaz)",
-    "Nošení obojku v soukromí",
-    "Diskrétní nošení obojku / šperku na veřejnosti"
+    { id: "psy_degradation", label: "Verbální ponížení / sprostá slova / nadávky" },
+    { id: "psy_lines", label: "Tresty psaním (opakování vět jako ve škole)" },
+    { id: "psy_reading", label: "Předčítání erotických či poslušných textů nahlas" },
+    { id: "psy_naked_private", label: "Vynucená nahota v soukromí" },
+    { id: "psy_naked_cam", label: "Vynucená nahota před kamerou (soukromý hovor s Domem)" },
+    { id: "psy_public_humiliation", label: "Vystavení lehkému studu na veřejnosti (tajný příkaz)" },
+    { id: "psy_collar_private", label: "Nošení obojku v soukromí" },
+    { id: "psy_collar_public", label: "Diskrétní nošení obojku / šperku na veřejnosti" }
   ],
   "8. Životní styl a denní péče (Napojení na Tracker)": [
-    "Pevně stanovená večerka a kontrola spánku",
-    "Ranní hlášení probuzení a nálady",
-    "Večerní shrnutí dne a zpráva o úkolech",
-    "Kontrola pitného režimu během dne",
-    "Dohled nad stravou / hlášení jídel",
-    "Zákaz sladkostí a nezdravého jídla",
-    "Povinný denní pohyb / procházka",
-    "Předepsaný oděv pro konkrétní dny",
-    "Úprava zevnějšku (oholené tělo, nehty, make-up dle instrukcí)"
+    { id: "life_bedtime", label: "Pevně stanovená večerka a kontrola spánku" },
+    { id: "life_morning_report", label: "Ranní hlášení probuzení a nálady" },
+    { id: "life_evening_report", label: "Večerní shrnutí dne a zpráva o úkolech" },
+    { id: "life_water", label: "Kontrola pitného režimu během dne" },
+    { id: "life_food_diet", label: "Dohled nad stravou / hlášení jídel" },
+    { id: "life_no_sweets", label: "Zákaz sladkostí a nezdravého jídla" },
+    { id: "life_daily_walk", label: "Povinný denní pohyb / procházka" },
+    { id: "life_dresscode", label: "Předepsaný oděv pro konkrétní dny" },
+    { id: "life_grooming", label: "Úprava zevnějšku (oholené tělo, nehty, make-up dle instrukcí)" }
   ],
   "9. Těžká tabu a rizikové praktiky (Extreme)": [
-    "Škrcení / dušení rukou (Choking / Breathplay)",
-    "Zakrytí dýchacích cest (fólie, plastový pytel)",
-    "Záměrné vyvolávání paniky a pláče",
-    "Trvalé tělesné značení (tetování, branding)",
-    "Trhání a řezání kůže (Bloodplay / Cutting)",
-    "Hraní s odpady / toaletní disciplína (Watersports / Scat)",
-    "Použití elektrických šoků (TENS přístroj)"
+    { id: "ext_breathplay_hands", label: "Škrcení / dušení rukou (Choking / Breathplay)" },
+    { id: "ext_breathplay_bag", label: "Zakrytí dýchacích cest (fólie, plastový pytel)" },
+    { id: "ext_panic_crying", label: "Záměrné vyvolávání paniky a pláče" },
+    { id: "ext_permanent_marks", label: "Trvalé tělesné značení (tetování, branding)" },
+    { id: "ext_bloodplay", label: "Trhání a řezání kůže (Bloodplay / Cutting)" },
+    { id: "ext_watersports", label: "Hraní s odpady / toaletní disciplína (Watersports / Scat)" },
+    { id: "ext_electro", label: "Použití elektrických šoků (TENS přístroj)" }
   ]
 };
 
@@ -1670,14 +1670,14 @@ function renderLimits() {
     <div class="card">
       <div class="ch"><span>${category}</span></div>
       ${items.map(item => {
-        const current = (state.limits && state.limits[item]) || '';
+        const current = (state.limits && state.limits[item.id]) || '';
         return `
           <div class="limit-row">
-            <span class="limit-title">${item}</span>
+            <span class="limit-title">${item.label}</span>
             <div class="limit-btns">
               ${states.map(s => `
                 <button class="limit-btn ${s.cls} ${current === s.key ? 'active' : ''}" 
-                  onclick="setLimit('${item.replace(/'/g, "\\'")}', '${s.key}')">
+                  onclick="setLimit('${item.id}', '${s.key}')">
                   ${s.label}
                 </button>
               `).join('')}
@@ -1689,9 +1689,9 @@ function renderLimits() {
   `).join('');
 }
 
-async function setLimit(item, value) {
+async function setLimit(id, value) {
   if (!state.limits) state.limits = {};
-  state.limits[item] = state.limits[item] === value ? '' : value;
+  state.limits[id] = state.limits[id] === value ? '' : value;
   renderLimits();
   await save();
 }
