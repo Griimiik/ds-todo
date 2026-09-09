@@ -667,3 +667,61 @@ details summary::-webkit-details-marker { display: none; }
   color: var(--dim);
   font-style: italic;
 }
+
+/* ── RESPONSIVE TLAČÍTKA PRO PC / VĚTŠÍ DISPLEJE ────────────────── */
+@media (min-width: 768px) {
+  /* Základní systémová tlačítka (tužka ✎, křížek ✕, fajfka ✓) */
+  .bm {
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    gap: 4px;
+    min-height: 28px;
+    min-width: 28px;
+  }
+
+  /* Tlačítka pro nákup odměn a udělení trestu (ikony 💰, 🎟️, 🔒, ⚡) */
+  .rpb {
+    width: 44px;
+    height: 40px;
+    font-size: 19px;
+    border-radius: 8px;
+  }
+
+  /* Tlačítka voleb v Limitech (ANO / MOŽNÁ / SOFT / HARD) */
+  .limit-btns {
+    gap: 8px;
+  }
+  .limit-btn {
+    font-size: 11px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Tlačítka v rozbalovací legendě limitů */
+  .legend-item .limit-btn {
+    width: 65px;
+    padding: 6px 0;
+    font-size: 11px;
+  }
+
+  /* Akční tlačítka v kartách (+ Přidat, Uložit, Banka) */
+  .badd {
+    font-size: 12px;
+    padding: 10px 16px;
+  }
+
+  /* Čtvereček checkboxu u úkolů pro snazší kliknutí myší */
+  .tck {
+    width: 22px;
+    height: 22px;
+    font-size: 13px;
+  }
+
+  /* Tlačítka typu u aktivního trestu (S expirací / Ke splnění) */
+  .ap-type-btn {
+    padding: 10px;
+    font-size: 12px;
+  }
+}
