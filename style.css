@@ -668,14 +668,13 @@ details summary::-webkit-details-marker { display: none; }
   font-style: italic;
 }
 
-/* ── VÝRAZNÉ ZVĚTŠENÍ PRO PC / TABLET (od 768px výše) ───────────── */
+/* ── KOMPLETNÍ A VÝRAZNÉ ZVĚTŠENÍ PRO PC / TABLET (od 768px výše) ── */
 @media (min-width: 768px) {
-  /* Celkové zvětšení základního písma aplikace pro desktop */
   body {
     font-size: 14px;
   }
 
-  /* Systémové akční ikony (tužka ✎, křížek ✕, fajfka ✓) */
+  /* 1. SYSTÉMOVÉ IKONY (✎, ✕, ✓, tlačítka v řádcích) */
   .bm {
     font-size: 15px;
     padding: 7px 14px;
@@ -685,29 +684,57 @@ details summary::-webkit-details-marker { display: none; }
     cursor: pointer;
   }
 
-  /* Kontejner tlačítek na řádku úkolu/odměny - větší rozestupy */
   .rpi-btns {
     gap: 8px;
   }
 
-  /* Nákup odměn a udělení trestů (💰, 🎟️, 🔒, ⚡) */
-  .rpb {
-    width: 52px;
-    height: 44px;
-    font-size: 22px;
-    border-radius: 8px;
+  /* 2. AKTIVNÍ TRESTY & AKTIVNÍ ODMĚNY (karta ⏳) */
+  .ap-item {
+    padding: 16px 18px;
+    gap: 14px;
+  }
+  .ap-name {
+    font-size: 15px;
+  }
+  .ap-until {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .ap-countdown {
+    font-size: 24px;
+  }
+  .done-btn {
+    font-size: 13px;
+    padding: 8px 14px;
   }
 
-  /* Čtvereček checkboxu u úkolů pro pohodlný klik myší */
-  .tck {
-    width: 26px;
-    height: 26px;
-    font-size: 16px;
+  /* 3. LIMITY & BEZPEČNOST (karta 📋) */
+  .limit-row {
+    padding: 14px 18px;
+    gap: 16px;
+  }
+  .limit-title {
+    font-size: 14px;
+  }
+  .limit-btns {
+    gap: 8px;
+  }
+  .limit-btn {
+    font-size: 11px;
+    padding: 7px 14px;
     border-radius: 6px;
-    margin-top: 0;
+    letter-spacing: 0.05em;
+  }
+  .legend-item .limit-btn {
+    width: 68px;
+    padding: 6px 0;
+    font-size: 11px;
+  }
+  .legend-desc {
+    font-size: 12px;
   }
 
-  /* Řádky úkolů a odměn - větší vnitřní prostor */
+  /* 4. ÚKOLY, ODMĚNY, VÝLETY, HISTORIE, NÁPADY */
   .ti, .rpi, .hsti, .idea-item {
     padding: 16px 18px;
     gap: 14px;
@@ -715,29 +742,41 @@ details summary::-webkit-details-marker { display: none; }
   .tn, .rn, .idea-name {
     font-size: 15px;
   }
+  .rc, .tp {
+    font-size: 12px;
+  }
+  .tck {
+    width: 26px;
+    height: 26px;
+    font-size: 16px;
+    border-radius: 6px;
+    margin-top: 0;
+  }
+  .rpb {
+    width: 52px;
+    height: 44px;
+    font-size: 22px;
+    border-radius: 8px;
+  }
 
-  /* Hlavní tlačítka pro přidání (+ Přidat, Uložit, Aktivovat) */
+  /* 5. FORMULÁŘE, INPUTY A TLAČÍTKA PŘIDÁNÍ */
   .badd {
     font-size: 13px;
     padding: 11px 18px;
     border-radius: 8px;
   }
-
-  /* Vstupní formulářová pole (inputy a selecty) */
   .inp {
     font-size: 13px;
     padding: 11px 14px;
     border-radius: 8px;
   }
-
-  /* Tlačítka v nastavení (Sync, Heslo, Discord...) */
   .bst, .bdng {
     font-size: 12px;
     padding: 9px 16px;
     border-radius: 8px;
   }
 
-  /* Tlačítka rychlých akcí pod skóre (+ Přidat / - Odebrat body) */
+  /* 6. HORNÍ LIŠTY A RYCHLÉ AKCE */
   .ba {
     padding: 16px 18px;
   }
@@ -747,8 +786,6 @@ details summary::-webkit-details-marker { display: none; }
   .btm {
     font-size: 14px;
   }
-
-  /* Horní lišta záložek */
   .tabs {
     padding: 6px;
     gap: 6px;
