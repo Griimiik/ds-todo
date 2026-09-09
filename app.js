@@ -1548,40 +1548,110 @@ async function saveDiscordWebhook() {
 
 // ── LIMITS CONFIG & LOGIC ──────────────────────────────────────────────
 const LIMITS_DATA = {
-  "Bezpečnost a signály": [
+  "1. Komunikace, bezpečnost a aftercare": [
     "Verbální semafor (Zelená / Žlutá / Červená)",
-    "Neverbální signál (puštění předmětu z ruky)",
-    "Neverbální signál (trojí poklepání)",
-    "Aftercare: Fyzický kontakt (objetí, hlazení)",
-    "Aftercare: Teplo a peřina",
-    "Aftercare: Sladký nápoj / čokoláda",
-    "Aftercare: Slovní ujištění a bezpečí",
-    "Aftercare: Ticho a prostor o samotě"
+    "Specifické záchranné slovo (např. jméno zvířete/předmětu)",
+    "Neverbální signál (puštění předmětu z ruky / šátku)",
+    "Neverbální signál (trojí poklepání na tělo/podlahu)",
+    "Check-in během scény (dotazy na stav)",
+    "Aftercare: Fyzický kontakt (mazlení, peřina, hlazení)",
+    "Aftercare: Teplý nápoj / sladkost / glukóza",
+    "Aftercare: Slovní ujištění a pochvala",
+    "Aftercare: Ticho a prostor o samotě bez mluvení",
+    "Zpětná vazba po scéně (Check-in do 24 hodin)"
   ],
-  "Fyzická disciplína": [
-    "Výprask rukou (Spanking)",
-    "Měkké pomůcky (kožená plácačka)",
-    "Tvrdé pomůcky (rákoska, bičík, pádlo)",
+  "2. Vztahová dynamika a hierarchie (D/s)": [
+    "Oslovení (Pane, Mistře, Dom / Doma)",
+    "Třetí osoba při oslovování sebe sama",
+    "Pozice těla (klečení u nohou, sed na patách, ruce za zády)",
+    "Oční kontakt (pouze se svolením / zákaz dívat se do očí)",
+    "Oční kontakt (vynucený pohled do očí)",
+    "Povolení k mluvení (mluvit jen na vyzvání)",
+    "Rituály vítání a loučení (předání kabátu, klečení u dveří)",
+    "Odevzdání rozhodování o běžném dni",
+    "Tresty formou domácích prací a úkolů navíc",
+    "Kontrola telefonu, hesel a sociálních sítí"
+  ],
+  "3. Roleplay, Petplay & Ageplay": [
+    "Klasický scénářový roleplay (studentka/učitel, šéf/sekretářka)",
+    "Maid / Služebná (úklid v kostýmu, obsluha Doma)",
+    "Petplay: Štěně / Pes (Puppy play - obojek, vodítko, aport, miska)",
+    "Petplay: Kotě / Kočka (Kitten play - ouška, ocásek, hlazení, předení)",
+    "Petplay: Kůň / Poník (Pony play - uzdečka, postroj, bičík)",
+    "Petplay: Nošení doplňků (ouška, ocásek s plugem, tlapky)",
+    "Petplay: Zákaz lidské řeči (pouze štěkání, mňoukání, zvuky)",
+    "Ageplay / Little: Režim 'Little girl' (chování dítěte, bezstarostnost)",
+    "Ageplay / Little: Caregiver dynamika (péče, krmení, čtení pohádek)",
+    "Ageplay / Little: Dětské rekvizity (plyšáci, dudlík, dětské lahvičky)",
+    "Ageplay / Little: Plenky (ABDL / Diaper play)",
+    "Medical play (vyšetření, role doktor / pacientka)"
+  ],
+  "4. Bondage a restrikce pohybu": [
+    "Měkká látková pouta / pásky",
+    "Kožená pouta na ruce / nohy",
+    "Kovová policejní pouta",
+    "Uvazování k nábytku / pevným bodům",
+    "Lana a složitější japonské úvazy (Shibari)",
+    "Klec / uzavření do stísněného prostoru",
+    "Svěrací kazajka / fixace paží k tělu",
+    "Kukla / plné zakrytí hlavy",
+    "Pozice se zvednutýma rukama nad hlavu (zavěšení bez váhy)",
+    "Znehybnění na delší čas (nad 30 minut)"
+  ],
+  "5. Smyslová deprivace a stimulace": [
+    "Páska přes oči / neprůhledná maska",
+    "Špunty do uší / sluchátka s bílým šumem",
+    "Roubíky – měkké (šátek, silikonová koule)",
+    "Roubíky – pevné (pavoučí roubík, kruhový)",
+    "Senzorické peříčko / jemné dotyky",
+    "Horký vosk (kapání z nízko tavných svíček)",
+    "Led / střídání horka a chladu",
+    "Štípání kolíčky (na prsty, tělo)",
+    "Wartenbergovo kolečko (ostrá senzorická stimulace)"
+  ],
+  "6. Fyzická disciplína a bolest (Impact Play)": [
+    "Výprask dlaní (Spanking) na hýždě",
+    "Výprask přes oblečení / prádlo",
+    "Výprask na holou kůži",
+    "Kožená plácačka / pádélko (měkčí dopad)",
+    "Tvrdé pádlo (dřevo, plast - plošná tupá bolest)",
+    "Rákoska / tenký jezdecký bičík (ostrá bodová bolest)",
+    "Devítiocasá kočka (víceocasé měkké biče)",
+    "Fyzické cvičení za trest (dřepy, kliky, vzpor)",
+    "Klečení v koutě / na zrní či tvrdém povrchu",
+    "Fackování (Face slapping)",
     "Tahání za vlasy",
-    "Led / střídání teplot",
-    "Fyzické cvičení za trest (dřepy, kliky, plank)",
-    "Statické pozice (klečení v koutě, ruce za hlavou)"
+    "Tresty zanechávající stopy (červené pruhy, modřiny)"
   ],
-  "Restrikce a smysly": [
-    "Měkká pouta (látka, kůže)",
-    "Pevná pouta (kov, úvazy k nábytku)",
-    "Zakrytí očí (šátek, maska)",
-    "Omezení řeči (roubíky)",
-    "Omezení sluchu (sluchátka, bílý šum)"
+  "7. Psychologická kontrola, stud a ponižování": [
+    "Verbální ponížení / sprostá slova / nadávky",
+    "Tresty psaním (opakování vět jako ve škole)",
+    "Předčítání erotických či poslušných textů nahlas",
+    "Vynucená nahota v soukromí",
+    "Vynucená nahota před kamerou (soukromý hovor s Domem)",
+    "Vystavení lehkému studu na veřejnosti (tajný příkaz)",
+    "Nošení obojku v soukromí",
+    "Diskrétní nošení obojku / šperku na veřejnosti"
   ],
-  "Psychologické vedení a pravidla": [
-    "Formální oslovení (Pane / Mistře)",
-    "Vynucený / zakázaný oční kontakt",
-    "Tresty psaním (opakování vět)",
-    "Domácí úkoly a studium",
-    "Kontrola telefonu / sociálních sítí",
-    "Ranní hlášení (nálada, energie)",
-    "Večerní shrnutí dne"
+  "8. Životní styl a denní péče (Napojení na Tracker)": [
+    "Pevně stanovená večerka a kontrola spánku",
+    "Ranní hlášení probuzení a nálady",
+    "Večerní shrnutí dne a zpráva o úkolech",
+    "Kontrola pitného režimu během dne",
+    "Dohled nad stravou / hlášení jídel",
+    "Zákaz sladkostí a nezdravého jídla",
+    "Povinný denní pohyb / procházka",
+    "Předepsaný oděv pro konkrétní dny",
+    "Úprava zevnějšku (oholené tělo, nehty, make-up dle instrukcí)"
+  ],
+  "9. Těžká tabu a rizikové praktiky (Extreme)": [
+    "Škrcení / dušení rukou (Choking / Breathplay)",
+    "Zakrytí dýchacích cest (fólie, plastový pytel)",
+    "Záměrné vyvolávání paniky a pláče",
+    "Trvalé tělesné značení (tetování, branding)",
+    "Trhání a řezání kůže (Bloodplay / Cutting)",
+    "Hraní s odpady / toaletní disciplína (Watersports / Scat)",
+    "Použití elektrických šoků (TENS přístroj)"
   ]
 };
 
