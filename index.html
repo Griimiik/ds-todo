@@ -265,14 +265,47 @@
   </div>
 
   
-  <div class="sec" id="sec-limits">
-    <div style="font-size:11px;color:var(--dim);margin:0 4px 10px;line-height:1.5">
-      Klepnutím nastavte míru souhlasu: 
-      <b style="color:var(--green)">ANO</b> · 
-      <b style="color:var(--accent)">MOŽNÁ</b> · 
-      <b style="color:var(--purple)">SOFT LIMIT</b> · 
-      <b style="color:var(--red)">HARD LIMIT</b>
+<div class="sec" id="sec-limits">
+    <!-- Rozbalovací legenda hodnocení -->
+    <div class="card limits-legend-card">
+      <details class="legend-det">
+        <summary class="legend-sum">
+          <span>💡 Jak hodnotit položky (Legenda)</span>
+          <span class="legend-sum-icon">▾</span>
+        </summary>
+        <div class="legend-content">
+          <div class="legend-item">
+            <span class="limit-btn l-yes active">ANO</span>
+            <div class="legend-desc">
+              <b>Chci / Vyžaduji / Těší mě to.</b> Praktika je vítaná, aktivně ji vyhledávám nebo je pro mě přirozenou součástí dynamiky.
+            </div>
+          </div>
+          <div class="legend-item">
+            <span class="limit-btn l-maybe active">MOŽNÁ</span>
+            <div class="legend-desc">
+              <b>S podmínkou / Po dohodě / Zvědavost.</b> Záleží na náladě, únavě či atmosféře. Chci zkusit pomalu a opatrně po předchozí domluvě.
+            </div>
+          </div>
+          <div class="legend-item">
+            <span class="limit-btn l-soft active">SOFT</span>
+            <div class="legend-desc">
+              <b>Měkký limit (Za běžných okolností NE).</b> Aktuálně nezkoušet. Překonání hranice je možné jen po důkladné přípravě a výslovném oboustranném souhlasu.
+            </div>
+          </div>
+          <div class="legend-item">
+            <span class="limit-btn l-hard active">HARD</span>
+            <div class="legend-desc">
+              <b>Tvrdý limit (Absolutní TABU).</b> Nikdy, za žádných okolností a za žádné situace. Zde debata končí a hranice se nepřekračuje.
+            </div>
+          </div>
+          <div class="legend-hint">
+            * Opětovným klepnutím na zvolené tlačítko volbu zrušíš (vrátí se do nevyplněného stavu).
+          </div>
+        </div>
+      </details>
     </div>
+
+    <!-- Samotný seznam kategorií limitů generovaný skriptem -->
     <div id="limits-container"></div>
   </div>
 
