@@ -590,3 +590,80 @@ details summary::-webkit-details-marker { display: none; }
   border-color: var(--red);
   color: var(--red);
 }
+
+/* LEGENDA LIMITŮ */
+.limits-legend-card {
+  margin-bottom: 12px;
+  overflow: hidden;
+  border-color: var(--accent-d);
+}
+
+.legend-sum {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  background: var(--bg3);
+}
+
+.legend-sum-icon {
+  font-size: 13px;
+  transition: transform 0.2s ease;
+}
+
+.legend-det[open] .legend-sum-icon {
+  transform: rotate(180deg);
+}
+
+.legend-det[open] .legend-sum {
+  border-bottom: 1px solid var(--border);
+}
+
+.legend-content {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg2);
+}
+
+.legend-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.legend-item .limit-btn {
+  flex-shrink: 0;
+  width: 52px;
+  text-align: center;
+  padding: 3px 0;
+  margin-top: 1px;
+  cursor: default;
+}
+
+.legend-desc {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.legend-desc b {
+  color: var(--text);
+  display: inline;
+}
+
+.legend-hint {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  font-size: 10px;
+  color: var(--dim);
+  font-style: italic;
+}
