@@ -717,19 +717,215 @@ details summary::-webkit-details-marker { display: none; }
   font-style: italic;
 }
 
-/* Zajištění zobrazení overlaye nad vším ostatním */
+/* ── CONTRACT FULLSCREEN OVERLAY (Globální - platí pro mobil i PC) ── */
 #contract-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: #0d090a;
+  background-image: 
+    radial-gradient(circle at 50% 10%, rgba(201, 169, 110, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 50% 90%, rgba(196, 64, 90, 0.06) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z' fill='none' stroke='%23c9a96e' stroke-opacity='0.02' stroke-width='1'/%3E%3C/svg%3E");
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
+  padding: 50px 16px 80px;
+  animation: fadeInContract 0.3s ease-out forwards;
 }
 
-/* ── KOMPLETNÍ A VÝRAZNÉ ZVĚTŠENÍ PRO PC / TABLET (od 768px výše) ── */
+@keyframes fadeInContract {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tlačítko návratu zpět */
+.contract-back-btn {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 10000;
+  background: rgba(17, 17, 24, 0.9);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-family: var(--fm);
+  font-size: 11px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+}
+.contract-back-btn:active {
+  background: var(--accent-d);
+  transform: scale(0.96);
+}
+
+/* Kontejner listiny */
+.contract-wrapper {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.contract-doc {
+  background: rgba(18, 14, 16, 0.94);
+  border: 1px solid rgba(201, 169, 110, 0.35);
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), 0 0 10px rgba(201, 169, 110, 0.1);
+  border-radius: 4px;
+  padding: 30px 20px;
+  position: relative;
+}
+
+.contract-doc::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(201, 169, 110, 0.15);
+  pointer-events: none;
+}
+
+.contract-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.contract-seal {
+  font-size: 30px;
+  color: var(--accent);
+  margin-bottom: 4px;
+  filter: drop-shadow(0 0 8px rgba(201,169,110,0.4));
+}
+
+.contract-title {
+  font-family: var(--ff);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.contract-subtitle {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.contract-divider {
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.4em;
+  margin-top: 12px;
+  opacity: 0.7;
+}
+
+.contract-section {
+  margin-bottom: 20px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #ded6c9;
+}
+
+.contract-section h2 {
+  font-family: var(--ff);
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid rgba(201, 169, 110, 0.2);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.contract-list {
+  padding-left: 18px;
+  margin-top: 6px;
+}
+
+.contract-list li {
+  margin-bottom: 6px;
+}
+
+.penalty-box {
+  background: rgba(201, 110, 110, 0.05);
+  border-left: 2px solid var(--red);
+  padding: 12px 14px;
+  border-radius: 0 4px 4px 0;
+}
+.penalty-box h2 {
+  color: var(--red);
+  border-color: rgba(201, 110, 110, 0.3);
+}
+
+.contract-limits-link {
+  background: var(--bg3);
+  border: 1px solid var(--border-h);
+  color: var(--accent);
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-family: var(--fm);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.contract-limits-link:active {
+  background: var(--accent-d);
+}
+
+.contract-footer {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(201, 169, 110, 0.2);
+  text-align: center;
+}
+
+.contract-sign-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sign-role {
+  font-family: var(--ff);
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.sign-line {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+}
+
+/* Vypnutí trvalého svícení ikony smlouvy v liště */
+.tab-contract-btn {
+  border: none !important;
+  background: none !important;
+  color: var(--dim) !important;
+}
+.tab-contract-btn:hover {
+  color: var(--accent) !important;
+}
+.tab-contract-btn:active {
+  background: var(--bg3) !important;
+  transform: scale(0.95);
+}
+
+
+
+/* ── VÝRAZNÉ ZVĚTŠENÍ PRO PC / TABLET (od 768px výše) ───────────── */
 @media (min-width: 768px) {
   body {
     font-size: 14px;
   }
 
-  /* 1. SYSTÉMOVÉ IKONY (✎, ✕, ✓, tlačítka v řádcích) */
   .bm {
     font-size: 15px;
     padding: 7px 14px;
@@ -743,7 +939,6 @@ details summary::-webkit-details-marker { display: none; }
     gap: 8px;
   }
 
-  /* 2. AKTIVNÍ TRESTY & AKTIVNÍ ODMĚNY (karta ⏳) */
   .ap-item {
     padding: 16px 18px;
     gap: 14px;
@@ -763,7 +958,6 @@ details summary::-webkit-details-marker { display: none; }
     padding: 8px 14px;
   }
 
-  /* 3. LIMITY & BEZPEČNOST (karta 📋) */
   .limit-row {
     padding: 14px 18px;
     gap: 16px;
@@ -789,7 +983,6 @@ details summary::-webkit-details-marker { display: none; }
     font-size: 12px;
   }
 
-  /* 4. ÚKOLY, ODMĚNY, VÝLETY, HISTORIE, NÁPADY */
   .ti, .rpi, .hsti, .idea-item {
     padding: 16px 18px;
     gap: 14px;
@@ -814,7 +1007,6 @@ details summary::-webkit-details-marker { display: none; }
     border-radius: 8px;
   }
 
-  /* 5. FORMULÁŘE, INPUTY A TLAČÍTKA PŘIDÁNÍ */
   .badd {
     font-size: 13px;
     padding: 11px 18px;
@@ -831,7 +1023,6 @@ details summary::-webkit-details-marker { display: none; }
     border-radius: 8px;
   }
 
-  /* 6. HORNÍ LIŠTY A RYCHLÉ AKCE */
   .ba {
     padding: 16px 18px;
   }
@@ -852,204 +1043,16 @@ details summary::-webkit-details-marker { display: none; }
     font-size: 18px;
     padding: 12px 6px;
   }
-  
 
-    /* ── CONTRACT FULLSCREEN OVERLAY ────────────────────────────────── */
-#contract-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  background-color: #0d090a;
-  /* Hluboký pergamenový přechod s jemnou texturou */
-  background-image: 
-    radial-gradient(circle at 50% 10%, rgba(201, 169, 110, 0.08) 0%, transparent 60%),
-    radial-gradient(circle at 50% 90%, rgba(196, 64, 90, 0.06) 0%, transparent 60%),
-    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z' fill='none' stroke='%23c9a96e' stroke-opacity='0.02' stroke-width='1'/%3E%3C/svg%3E");
-  overflow-y: auto;
-  padding: 40px 16px 80px;
-  animation: fadeInContract 0.4s ease-out forwards;
+  .contract-doc {
+    padding: 40px 28px;
+  }
+  .contract-title {
+    font-size: 32px;
+  }
+  .contract-section h2 {
+    font-size: 18px;
+  }
 }
 
-@keyframes fadeInContract {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Tlačítko návratu zpět */
-.contract-back-btn {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 1000;
-  background: rgba(17, 17, 24, 0.85);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-family: var(--fm);
-  font-size: 11px;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
-.contract-back-btn:hover {
-  background: var(--accent-d);
-  transform: translateY(-1px);
-}
-
-/* Kontejner listiny */
-.contract-wrapper {
-  max-width: 680px;
-  margin: 0 auto;
-}
-
-.contract-doc {
-  background: rgba(18, 14, 16, 0.92);
-  border: 1px solid rgba(201, 169, 110, 0.35);
-  box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), 0 0 10px rgba(201, 169, 110, 0.1);
-  border-radius: 4px;
-  padding: 40px 28px;
-  position: relative;
-}
-
-/* Dvojitý ozdobný lem listiny */
-.contract-doc::before {
-  content: '';
-  position: absolute;
-  inset: 6px;
-  border: 1px solid rgba(201, 169, 110, 0.15);
-  pointer-events: none;
-}
-
-.contract-header {
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.contract-seal {
-  font-size: 32px;
-  color: var(--accent);
-  margin-bottom: 4px;
-  filter: drop-shadow(0 0 8px rgba(201,169,110,0.4));
-}
-
-.contract-title {
-  font-family: var(--ff);
-  font-size: 32px;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 6px;
-}
-
-.contract-subtitle {
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
-
-.contract-divider {
-  font-size: 10px;
-  color: var(--accent);
-  letter-spacing: 0.4em;
-  margin-top: 14px;
-  opacity: 0.7;
-}
-
-.contract-section {
-  margin-bottom: 22px;
-  font-size: 13px;
-  line-height: 1.7;
-  color: #ded6c9;
-}
-
-.contract-section h2 {
-  font-family: var(--ff);
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--accent);
-  letter-spacing: 0.06em;
-  border-bottom: 1px solid rgba(201, 169, 110, 0.2);
-  padding-bottom: 4px;
-  margin-bottom: 10px;
-}
-
-.contract-list {
-  padding-left: 20px;
-  margin-top: 8px;
-}
-
-.contract-list li {
-  margin-bottom: 8px;
-}
-
-.penalty-box {
-  background: rgba(201, 110, 110, 0.05);
-  border-left: 2px solid var(--red);
-  padding: 12px 14px;
-  border-radius: 0 4px 4px 0;
-}
-.penalty-box h2 {
-  color: var(--red);
-  border-color: rgba(201, 110, 110, 0.3);
-}
-
-.contract-limits-link {
-  background: var(--bg3);
-  border: 1px solid var(--border-h);
-  color: var(--accent);
-  padding: 10px 18px;
-  border-radius: 6px;
-  font-family: var(--fm);
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.contract-limits-link:hover {
-  background: var(--accent-d);
-  border-color: var(--accent);
-}
-
-.contract-footer {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 36px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(201, 169, 110, 0.2);
-  text-align: center;
-}
-
-.contract-sign-box {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.sign-role {
-  font-family: var(--ff);
-  font-size: 20px;
-  color: var(--accent);
-  letter-spacing: 0.1em;
-}
-
-.sign-line {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--dim);
-}
-
-
-
-
-
-
-
-
-
-
-  
 }
