@@ -1720,4 +1720,18 @@ async function setLimit(id, value) {
   await save();
 }
 
+// ── CONTRACT FULLSCREEN VIEW ──────────────────────────────────────────
+function openContractView() {
+  const overlay = document.getElementById('contract-overlay');
+  if (overlay) {
+    overlay.style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+}
+
+function closeContractView() {
+  const overlay = document.getElementById('contract-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
 init();
