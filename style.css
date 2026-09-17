@@ -145,9 +145,58 @@ body::before {
 .bts{color:var(--dim);font-size:10px;margin-top:2px;white-space:nowrap}
 
 /* UPRAVENÉ IKONOVÉ TABS */
-.tabs{display:flex;margin:10px 12px 0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:4px;gap:2px}
-.tab{flex:1;padding:10px 2px;text-align:center;cursor:pointer;border-radius:6px;font-size:15px;color:var(--dim);transition:all .2s;border:none;background:none;font-family:inherit;white-space:nowrap}
-.tab.active{background:var(--bg4);color:var(--accent);border:1px solid var(--border-h)}
+/* UPRAVENÉ IKONOVÉ TABS (HORIZONTÁLNĚ POSUVNÉ PRO MOBIL) */
+.tabs {
+  display: flex;
+  margin: 10px 12px 0;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  padding: 4px;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+.tabs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+/* Pevná velikost ikonek pro dotyk bez deformace */
+.tab, .tab-contract-btn {
+  flex: 0 0 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 16px;
+  color: var(--dim);
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.tab.active {
+  background: var(--bg4);
+  color: var(--accent);
+  border: 1px solid var(--border-h);
+}
+
+/* Rituální akcent přímo pro tlačítko smlouvy */
+.tab-contract-btn {
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  background: rgba(201, 169, 110, 0.05);
+}
+.tab-contract-btn:active {
+  background: var(--accent-d);
+  transform: scale(0.95);
+}
 
 /* SECTIONS */
 .sec{display:none;padding:12px 12px 90px}
@@ -668,6 +717,12 @@ details summary::-webkit-details-marker { display: none; }
   font-style: italic;
 }
 
+/* Zajištění zobrazení overlaye nad vším ostatním */
+#contract-overlay {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
 /* ── KOMPLETNÍ A VÝRAZNÉ ZVĚTŠENÍ PRO PC / TABLET (od 768px výše) ── */
 @media (min-width: 768px) {
   body {
@@ -789,11 +844,15 @@ details summary::-webkit-details-marker { display: none; }
   .tabs {
     padding: 6px;
     gap: 6px;
+    overflow-x: visible;
   }
-  .tab {
+  .tab, .tab-contract-btn {
+    flex: 1;
+    height: auto;
     font-size: 18px;
     padding: 12px 6px;
   }
+  
 
     /* ── CONTRACT FULLSCREEN OVERLAY ────────────────────────────────── */
 #contract-overlay {
