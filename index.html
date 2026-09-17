@@ -111,6 +111,7 @@
     <button class="tab" onclick="sw('bank')" title="Banka úkolů">🎲</button>
     <button class="tab" onclick="sw('legend')" title="Nápady">💡</button>
     <button class="tab" onclick="sw('limits')" title="Limity & Bezpečnost">📋</button>
+    <button class="tab" onclick="openContractView()" title="Zkušební protokol (Smlouva)">📜</button>
     <button class="tab dom-only" id="tab-settings" onclick="sw('settings')" title="Nastavení">⚙️</button>
   </div>
 
@@ -395,6 +396,83 @@
     </div>
   </div>
 
+  
+<!-- CELOOOBRAZOVKOVÝ REŽIM SMLOUVY -->
+<div id="contract-overlay" style="display:none">
+  <button class="contract-back-btn" onclick="closeContractView()" title="Zpět do Trackeru">
+    ✕ Zpět do Trackeru
+  </button>
+
+  <div class="contract-wrapper">
+    <div class="contract-doc">
+      <div class="contract-header">
+        <div class="contract-seal">✦</div>
+        <h1 class="contract-title">Zkušební Protokol</h1>
+        <div class="contract-subtitle">Předstupeň plnohodnotné D/s smlouvy · Fáze I.</div>
+        <div class="contract-divider">❖ ❖ ❖</div>
+      </div>
+
+      <div class="contract-section">
+        <h2>I. Účel zkušebního období</h2>
+        <p>
+          Tento protokol slouží k ověření připravenosti, důslednosti a vnitřního nastavení Subinky.
+          Plnohodnotná smlouva není samozřejmostí, nýbrž výsadou, kterou je nutné si zasloužit bezvýhradným plněním základních návyků.
+        </p>
+      </div>
+
+      <div class="contract-section">
+        <h2>II. Základní povinnost (Ranní a večerní pozdrav)</h2>
+        <p>
+          Prvním a nepřekročitelným pilířem je vědomí autority na začátku a na konci každého dne:
+        </p>
+        <ul class="contract-list">
+          <li>
+            <b>Ranní pozdrav:</b> Každé ráno ihned po probuzení Subinka odešle Pánovi uctivý pozdrav včetně informace o probuzení a stavu energie.
+          </li>
+          <li>
+            <b>Večerní pozdrav:</b> Každý večer před spaním Subinka odešle přání dobré noci s poděkováním za uplynulý den.
+          </li>
+        </ul>
+      </div>
+
+      <div class="contract-section penalty-box">
+        <h2>III. Důsledky nedodržení</h2>
+        <p>
+          Zapomenutý, opožděný či neuctivý pozdrav bez předchozí omluvy je považován za selhání pozornosti a bude neprodleně sankcionován:
+        </p>
+        <ul class="contract-list">
+          <li>Automatická bodová srážka v Trackeru.</li>
+          <li>Udělení aktivního trestu Pánem (psaní vět, fyzická disciplína).</li>
+          <li>Oddálení možnosti postoupit k plnohodnotné partnerské smlouvě.</li>
+        </ul>
+      </div>
+
+      <div class="contract-section">
+        <h2>IV. Bezpečnostní ukotvení</h2>
+        <p>
+          Veškeré nároky a tresty striktně respektují nastavené hranice. Závazný přehled bezpečnostních signálů a limitů je nepřetržitě k dispozici v dotazníku.
+        </p>
+        <div style="text-align:center; margin-top:15px">
+          <button class="contract-limits-link" onclick="closeContractView(); sw('limits');">
+            📋 Přejít do evidence Limitů a Bezpečnosti
+          </button>
+        </div>
+      </div>
+
+      <div class="contract-footer">
+        <div class="contract-sign-box">
+          <span class="sign-role">DOM</span>
+          <span class="sign-line">Vedení a dohled</span>
+        </div>
+        <div class="contract-sign-box">
+          <span class="sign-role">SUB</span>
+          <span class="sign-line">Oddanost a plnění</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
 </div><div class="mo" id="modal" onclick="cmo(event)">
   <div class="modal">
     <div class="mt" id="modal-t">Přidat body</div>
