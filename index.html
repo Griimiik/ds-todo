@@ -399,8 +399,8 @@
   
 <!-- CELOOOBRAZOVKOVÝ REŽIM SMLOUVY -->
 <div id="contract-overlay" style="display:none">
-  <button class="contract-back-btn" onclick="closeContractView()" title="Zpět do Trackeru">
-    ✕ Zpět do Trackeru
+  <button class="contract-back-btn" onclick="closeContractView(event)" ontouchstart="closeContractView(event)" title="Zpět do Trackeru">
+  ✕ Zpět do Trackeru
   </button>
 
   <div class="contract-wrapper">
