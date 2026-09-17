@@ -1721,17 +1721,29 @@ async function setLimit(id, value) {
 }
 
 // ── CONTRACT FULLSCREEN VIEW ──────────────────────────────────────────
-function openContractView() {
+function openContractView(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
   const overlay = document.getElementById('contract-overlay');
   if (overlay) {
     overlay.style.display = 'block';
-    window.scrollTo(0, 0);
+    document.body.style.overflow = 'hidden'; // Zabrání scrollování trackeru na pozadí mobilu
+    overlay.scrollTop = 0;
   }
 }
 
-function closeContractView() {
+function closeContractView(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
   const overlay = document.getElementById('contract-overlay');
-  if (overlay) overlay.style.display = 'none';
+  if (overlay) {
+    overlay.style.display = 'none';
+    document.body.style.overflow = ''; // Vrátí scrollování
+  }
 }
 
 init();
