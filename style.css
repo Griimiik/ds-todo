@@ -290,6 +290,57 @@ body::before {
   color: var(--dim);
 }
 
+/* STAV NEÚSPĚCH (FAILED) U ÚKOLU */
+.ti.failed {
+  opacity: 0.75;
+  background: linear-gradient(90deg, rgba(201,110,110,0.08) 0%, transparent 100%);
+  border-left: 3px solid var(--red);
+}
+.ti.failed .tn {
+  text-decoration: line-through;
+  color: var(--red);
+}
+.ti.failed .tck {
+  background: var(--red-d);
+  border-color: var(--red);
+  color: var(--red);
+}
+.bm.fail-btn.active {
+  background: var(--red-d);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* TLAČÍTKA TRESTU U POČÍTADLA NEÚSPĚCHŮ */
+.strike-actions {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 4px;
+}
+.strike-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 11px;
+  cursor: not-allowed;
+  opacity: 0.3;
+  filter: grayscale(1);
+  transition: all 0.2s ease;
+}
+.strike-btn.ready {
+  opacity: 1;
+  filter: none;
+  cursor: pointer;
+  border-color: var(--red);
+  background: var(--red-d);
+  box-shadow: 0 0 8px var(--red-d);
+  animation: pulse 1.5s infinite ease-in-out;
+}
+.strike-btn.ready:hover {
+  transform: scale(1.08);
+}
+
 /* CHECKBOX */
 .tck {
   width: 18px;
