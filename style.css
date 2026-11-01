@@ -312,21 +312,127 @@ body::before {
 }
 
 /* TLAČÍTKA TRESTU U POČÍTADLA NEÚSPĚCHŮ */
-.strike-actions {
-  display: inline-flex;
-  gap: 3px;
-  margin-left: 4px;
+
+/* DROBNÁ BILANCE BODŮ POD HLAVNÍM SKÓRE */
+.scard-history {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--dimmer);
 }
-.strike-btn {
+.sh-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.sh-sep {
+  opacity: 0.4;
+}
+
+/* SPODNÍ MŘÍŽKA V KARTĚ SKÓRE (TICKETY + NEÚSPĚCHY) */
+.scard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 380px) {
+  .scard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sbox {
   background: var(--bg3);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 2px 5px;
-  font-size: 11px;
+  border-radius: var(--rs);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+.sbox-lbl {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* TICKETY UVNITŘ BOXU */
+.sbox-tickets {
+  display: flex;
+  gap: 8px;
+}
+.t-pill {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+}
+.t-num {
+  font-family: var(--ff);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+}
+.t-tag {
+  font-size: 10px;
+  color: var(--dim);
+}
+
+/* NEÚSPĚCHY A VELKÁ TLAČÍTKA PRO DOMA */
+.sbox-strikes:has(.strike-btn.ready) {
+  border-color: rgba(201, 110, 110, 0.45);
+  background: linear-gradient(145deg, var(--bg3) 0%, var(--red-d) 100%);
+}
+.sbox-strikes-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.strike-counter {
+  font-family: var(--ff);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+}
+.strike-max {
+  font-size: 16px;
+  color: var(--dim);
+  font-weight: 300;
+  margin-left: 2px;
+}
+.strike-actions {
+  display: flex;
+  gap: 6px;
+}
+.strike-btn {
+  width: 38px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 16px;
   cursor: not-allowed;
   opacity: 0.3;
   filter: grayscale(1);
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 .strike-btn.ready {
   opacity: 1;
@@ -334,11 +440,14 @@ body::before {
   cursor: pointer;
   border-color: var(--red);
   background: var(--red-d);
-  box-shadow: 0 0 8px var(--red-d);
+  box-shadow: 0 0 10px var(--red-d);
   animation: pulse 1.5s infinite ease-in-out;
 }
 .strike-btn.ready:hover {
-  transform: scale(1.08);
+  transform: translateY(-1px) scale(1.05);
+}
+.strike-btn.ready:active {
+  transform: scale(0.95);
 }
 
 /* CHECKBOX */
@@ -1056,6 +1165,22 @@ details summary::-webkit-details-marker { display: none; }
     height: 44px;
     font-size: 22px;
     border-radius: 8px;
+  }
+
+  .strike-btn {
+    width: 48px;
+    height: 40px;
+    font-size: 20px;
+    border-radius: 8px;
+  }
+  .t-num {
+    font-size: 28px;
+  }
+  .strike-counter {
+    font-size: 34px;
+  }
+  .sbox-lbl {
+    font-size: 10px;
   }
 
   .badd {
