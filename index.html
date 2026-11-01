@@ -81,6 +81,12 @@
           <div class="sstat"><div class="dot dg"></div><span>+<span id="splus">0</span> získáno</span></div>
           <div class="sstat"><div class="dot dr"></div><span>−<span id="sminus">0</span> odečteno</span></div>
           <div class="sstat" style="margin-left:5px"><span>🎟️ <span id="main-t50" style="color:var(--green)">0</span> / <span id="main-t100" style="color:var(--purple)">0</span></span></div>
+          <div class="sstat" style="margin-left:5px; gap:4px"><span>⚠️ <b id="main-strikes" style="color:var(--red)">0</b>/3</span>
+            <span class="dom-only strike-actions">
+              <button class="strike-btn" id="btn-strike-roll" onclick="useStrikeRandom()" title="Vylosovat náhodný trest">🎲</button>
+              <button class="strike-btn" id="btn-strike-ap" onclick="useStrikeCustom()" title="Zadat vlastní aktivní trest">⛓️</button>
+            </span>
+          </div>
         </div>
       </div>
       <div class="role-block">
@@ -314,7 +320,15 @@
   <div class="sec" id="sec-settings">
     <div class="card dom-only">
       <div class="ch">
-        <span>📜 Historie (Dom)</span>
+        <span>⚠️ Neudělané úkoly</span>
+        <button class="bm d" onclick="clearMissedTasks()">Vymazat</button>
+      </div>
+      <div id="mlist" style="max-height: 250px; overflow-y: auto;"></div>
+    </div>
+    
+    <div class="card dom-only">
+      <div class="ch">
+        <span>📜 Historie</span>
         <button class="bm d" onclick="clearHistory()">Vymazat</button>
       </div>
       <div id="hlist" style="max-height: 250px; overflow-y: auto;"></div>
@@ -343,7 +357,7 @@
         <button class="bst" onclick="changeSubPassword()">Změnit</button>
       </div>
       <div class="str dom-only" style="background: rgba(110,201,138,0.02); border-left: 3px solid var(--green)">
-        <div><div class="strl">Správa Ticketů (DOM)</div><div class="strs">Ruční přidání/odebrání lístků subince</div></div>
+        <div><div class="strl">Správa Ticketů</div><div class="strs">Ruční přidání/odebrání lístků subince</div></div>
         <div style="display:flex; flex-direction:column; gap:6px;">
           <div style="display:flex; gap:4px; align-items:center; justify-content:flex-end">
             <span style="font-size:11px; margin-right:4px">Do 50b:</span>
@@ -355,6 +369,17 @@
             <button class="bm" onclick="changeTicketsManual(100, -1)">-1</button>
             <button class="bm" onclick="changeTicketsManual(100, 1)">+1</button>
           </div>
+        </div>
+      </div>
+      <div class="str dom-only" style="background: rgba(201,110,110,0.03); border-left: 3px solid var(--red)">
+        <div>
+          <div class="strl">Správa Neúspěchů</div>
+          <div class="strs">Ruční úprava počítadla neúspěšných úkolů</div>
+        </div>
+        <div style="display:flex; gap:4px; align-items:center">
+          <button class="bm" onclick="changeStrikesManual(-1)">-1</button>
+          <button class="bm" onclick="changeStrikesManual(1)">+1</button>
+          <button class="bm d" onclick="changeStrikesManual(0)">Reset</button>
         </div>
       </div>
       <div class="str dom-only">
