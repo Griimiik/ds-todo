@@ -627,9 +627,8 @@ function renderScore(){
   // Aktualizace počítadla ticketů na hlavní kartě
   if(document.getElementById('main-t50')) document.getElementById('main-t50').textContent = state.tickets50 || 0;
   if(document.getElementById('main-t100')) document.getElementById('main-t100').textContent = state.tickets100 || 0;
-}
 
-// Aktualizace neúspěchů (Strikes) a tlačítek pro Dom
+  // Aktualizace neúspěchů (Strikes) a tlačítek pro Dom
   const strikes = state.strikes || 0;
   const sEl = document.getElementById('main-strikes');
   if (sEl) {
@@ -639,6 +638,8 @@ function renderScore(){
   const canPunish = strikes >= 3;
   document.getElementById('btn-strike-roll')?.classList.toggle('ready', canPunish);
   document.getElementById('btn-strike-ap')?.classList.toggle('ready', canPunish);
+}
+
 // ── BEZPEČNÝ AUTO REFRESH (SYNCHRONIZOVANÝ) ──────────────────────────
 async function checkAutoReset() {
   const now = new Date();
