@@ -72,27 +72,53 @@
     </div>
   </div>
 
-  <div class="scard">
+<div class="scard">
     <div class="scard-top">
       <div>
         <div class="slbl">Celkové body</div>
         <div class="sval" id="score">0</div>
-        <div class="ssub">
-          <div class="sstat"><div class="dot dg"></div><span>+<span id="splus">0</span> získáno</span></div>
-          <div class="sstat"><div class="dot dr"></div><span>−<span id="sminus">0</span> odečteno</span></div>
-          <div class="sstat" style="margin-left:5px"><span>🎟️ <span id="main-t50" style="color:var(--green)">0</span> / <span id="main-t100" style="color:var(--purple)">0</span></span></div>
-          <div class="sstat" style="margin-left:5px; gap:4px"><span>⚠️ <b id="main-strikes" style="color:var(--red)">0</b>/3</span>
-            <span class="dom-only strike-actions">
-              <button class="strike-btn" id="btn-strike-roll" onclick="useStrikeRandom()" title="Vylosovat náhodný trest">🎲</button>
-              <button class="strike-btn" id="btn-strike-ap" onclick="useStrikeCustom()" title="Zadat vlastní aktivní trest">⛓️</button>
-            </span>
-          </div>
+        <div class="scard-history">
+          <span class="sh-item"><span class="dot dg"></span>+<span id="splus">0</span> získáno</span>
+          <span class="sh-sep">·</span>
+          <span class="sh-item"><span class="dot dr"></span>−<span id="sminus">0</span> odečteno</span>
         </div>
       </div>
       <div class="role-block">
         <div class="role-icon" id="role-icon">🔑</div>
         <div class="role-badge" id="role-badge">DOM</div>
         <button class="role-switch-btn" id="role-switch-btn" onclick="requestDomAccess()" style="display:none">Odemknout</button>
+      </div>
+    </div>
+
+    <!-- NOVÉ DVOUPANELOVÉ ROZLOŽENÍ PRO TICKETY A NEÚSPĚCHY -->
+    <div class="scard-grid">
+      <!-- Box 1: Tickety -->
+      <div class="sbox">
+        <div class="sbox-lbl">🎟️ Tickety na odměny</div>
+        <div class="sbox-tickets">
+          <div class="t-pill">
+            <span class="t-num" id="main-t50" style="color:var(--green)">0</span>
+            <span class="t-tag">do 50b</span>
+          </div>
+          <div class="t-pill">
+            <span class="t-num" id="main-t100" style="color:var(--purple)">0</span>
+            <span class="t-tag">do 100b</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Box 2: Neúspěchy -->
+      <div class="sbox sbox-strikes">
+        <div class="sbox-lbl">⚠️ Neúspěchy</div>
+        <div class="sbox-strikes-row">
+          <div class="strike-counter">
+            <span id="main-strikes" style="color:var(--dim)">0</span><span class="strike-max">/3</span>
+          </div>
+          <div class="dom-only strike-actions">
+            <button class="strike-btn" id="btn-strike-roll" onclick="useStrikeRandom()" title="Vylosovat náhodný trest (−3 neúspěchy)">🎲</button>
+            <button class="strike-btn" id="btn-strike-ap" onclick="useStrikeCustom()" title="Zadat vlastní aktivní trest (−3 neúspěchy)">⛓️</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
