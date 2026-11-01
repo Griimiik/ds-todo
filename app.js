@@ -1,7 +1,8 @@
 const OWNER='Griimiik', REPO='ds-todo', FILE='data.json';
 const RAW_URL=`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${FILE}`;
 
-let state={score:0,totalPlus:0,totalMinus:0,tickets50:0,tickets100:0,discordWebhook:"",limits:{},limitsUpdatedAt:"",todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
+let state={score:0,totalPlus:0,totalMinus:0,tickets50:0,tickets100:0,strikes:0,missedTasks:[],discordWebhook:"",limits:{},limitsUpdatedAt:"",todos:[],legend:[],history:[],rewards:[],punishments:[],trips:[],completedTrips:[],activePunishments:[],activeRewards:[],ideas:[],bank:[]};
+let apFromStrikes=false;
 let ghToken='', encPw='', subPw='', modalMode='add', sha=null, theme='dark';
 let role='';
 let countdownInterval=null;
@@ -117,6 +118,8 @@ async function syncNow(){
     if(!state.discordWebhook) state.discordWebhook="";
     if(!state.limits) state.limits={};
     if(!state.limitsUpdatedAt) state.limitsUpdatedAt="";
+    if(state.strikes===undefined) state.strikes=0;
+    if(!state.missedTasks) state.missedTasks=[];
     checkAutoReset();
     renderAll();setSS('synced','✓ synced');showToast('✓ Data synchronizována');
   }catch(e){setSS('error','✗ chyba');showToast('✗ Sync selhal — '+e.message);}
@@ -490,6 +493,13 @@ async function addActivePunishment(){
   if(!state.activePunishments) state.activePunishments=[];
   state.activePunishments.push(newPunishment);
   
+ // PŘIDAT: Odečtení 3 neúspěchů, pokud byl trest spuštěn z počítadla
+  if (apFromStrikes) {
+    state.strikes = Math.max(0, (state.strikes || 0) - 3);
+    apFromStrikes = false;
+    renderScore();
+  }
+  
   // Vyčistíme modal
   nameEl.value = '';
   nameEl.dataset.cost = ''; 
@@ -605,7 +615,7 @@ async function changeSubPassword(){
 
 // ── RENDER ─────────────────────────────────────────────────────────────
 function renderAll(){
-  renderScore();renderTodo();renderIdeas();renderHistory();renderRewards();renderTrips();renderActivePunishments();renderBank();renderLimits();
+  renderScore();renderTodo();renderIdeas();renderHistory();renderMissedTasks();renderRewards();renderTrips();renderActivePunishments();renderBank();renderLimits();
 }
 
 function renderScore(){
@@ -619,38 +629,52 @@ function renderScore(){
   if(document.getElementById('main-t100')) document.getElementById('main-t100').textContent = state.tickets100 || 0;
 }
 
+// Aktualizace neúspěchů (Strikes) a tlačítek pro Dom
+  const strikes = state.strikes || 0;
+  const sEl = document.getElementById('main-strikes');
+  if (sEl) {
+    sEl.textContent = strikes;
+    sEl.style.color = strikes >= 3 ? 'var(--red)' : 'var(--dim)';
+  }
+  const canPunish = strikes >= 3;
+  document.getElementById('btn-strike-roll')?.classList.toggle('ready', canPunish);
+  document.getElementById('btn-strike-ap')?.classList.toggle('ready', canPunish);
 // ── BEZPEČNÝ AUTO REFRESH (SYNCHRONIZOVANÝ) ──────────────────────────
 async function checkAutoReset() {
   const now = new Date();
   const todayStr = now.toDateString();
   const weekStr = `${now.getFullYear()}-W${getWeekNumber(now)}`;
   
-  // DŮLEŽITÉ: Kontrolujeme datum přímo v datech ze serveru (state), 
-  // ne v lokální paměti prohlížeče, aby DOM i SUB viděli totéž.
   let changed = false;
+  if (!state.missedTasks) state.missedTasks = [];
 
   // 1. DENNÍ REFRESH
+  if (state.lastDailyReset && state.lastDailyReset !== todayStr) {
+    state.todos.filter(t => t.type === 'daily' && !t.done && !t.loggedMissed).forEach(t => {
+      state.missedTasks.push({ id: uid(), name: t.name, type: 'daily', status: 'Nesplněno', time: ts() });
+    });
+  }
   if (state.lastDailyReset !== todayStr) {
     state.todos = state.todos.filter(t => t.type !== 'daily');
     autoFillFromBank('daily', 5);
-    
-    // Zapíšeme datum resetu přímo do sdíleného state
     state.lastDailyReset = todayStr;
     changed = true;
   }
 
   // 2. TÝDENNÍ REFRESH
+  if (state.lastWeeklyReset && state.lastWeeklyReset !== weekStr) {
+    state.todos.filter(t => t.type === 'weekly' && !t.done && !t.loggedMissed).forEach(t => {
+      state.missedTasks.push({ id: uid(), name: t.name, type: 'weekly', status: 'Nesplněno', time: ts() });
+    });
+  }
   if (state.lastWeeklyReset !== weekStr) {
     state.todos = state.todos.filter(t => t.type !== 'weekly');
     autoFillFromBank('weekly', 5);
-    
-    // Zapíšeme týden resetu přímo do sdíleného state
     state.lastWeeklyReset = weekStr;
     changed = true;
   }
 
   if (changed) {
-    // Kdo je první (Sub nebo Dom), ten uloží novou sadu úkolů pro oba
     await save();
     renderAll();
     showToast('✨ Úkoly pro tento cyklus byly vygenerovány');
@@ -726,10 +750,12 @@ function renderTodoBlock(todos, emptyIcon, emptyText) {
     const parts = t.name.split('|');
     const title = parts[0].trim();
     const desc = parts[1] ? parts[1].trim() : '';
+    const stateCls = t.failed ? 'failed' : (t.done ? 'done' : '');
+    const checkIcon = t.failed ? '✗' : (t.done ? '✓' : '');
 
     return `
-    <div class="ti ${t.done ? 'done' : ''}">
-      <div class="tck" onclick="toggleTodo('${t.id}')">${t.done ? '✓' : ''}</div>
+    <div class="ti ${stateCls}">
+      <div class="tck" onclick="toggleTodo('${t.id}')">${checkIcon}</div>
       <div class="ttx">
         <div class="rn-row"><span class="tn">${title}</span></div>
         ${t.pts ? `<div class="tp">+${t.pts} bodů</div>` : ''}
@@ -740,6 +766,7 @@ function renderTodoBlock(todos, emptyIcon, emptyText) {
         </details>` : ''}
       </div>
       <div class="rpi-btns">
+        ${role === 'dom' ? `<button class="bm fail-btn ${t.failed ? 'active' : ''}" onclick="event.stopPropagation();failTodo('${t.id}')" title="Označit jako neúspěch">⚠️</button>` : ''}
         ${role === 'dom' ? `<button class="bm edit-btn" onclick="event.stopPropagation();editItem('todos','${t.id}')">✎</button>` : ''}
         ${role === 'dom' ? `<button class="bm d" onclick="event.stopPropagation();delTodo('${t.id}')">✕</button>` : ''}
       </div>
@@ -822,6 +849,105 @@ function renderHistory(){
       <div class="hi2"><div class="hn">${h.reason||(h.pts>0?'Body přidány':'Body odebrány')}</div><div class="htm">${h.time}</div></div>
       <div class="hv" style="color:${h.pts>0?'var(--green)':'var(--red)'}">${h.pts>0?'+':''}${h.pts}</div>
     </div>`).join('');
+}
+
+function renderMissedTasks() {
+  const l = document.getElementById('mlist');
+  if (!l) return;
+  if (!state.missedTasks || !state.missedTasks.length) {
+    l.innerHTML = '<div class="empty"><div class="ei">✓</div>Žádné neudělané úkoly</div>';
+    return;
+  }
+  const typeLabels = { active: '🎯 Aktivní', daily: '☀️ Denní', weekly: '📅 Týdenní' };
+  l.innerHTML = [...state.missedTasks].reverse().map(m => {
+    const title = m.name.split('|')[0].trim();
+    const tLabel = typeLabels[m.type] || '🎯 Aktivní';
+    return `
+      <div class="hsti">
+        <div class="hd" style="background:var(--red)"></div>
+        <div class="hi2">
+          <div class="hn">${title}</div>
+          <div class="htm">${tLabel} · ${m.status || 'Nesplněno'} · ${m.time}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function clearMissedTasks() {
+  if (!confirm('Vymazat historii neudělaných úkolů?')) return;
+  state.missedTasks = [];
+  renderMissedTasks();
+  await save();
+}
+
+// Možnost B: Náhodný trest za 3 neúspěchy (tlačítko 🎲)
+async function useStrikeRandom() {
+  if (role !== 'dom') return;
+  if ((state.strikes || 0) < 3) {
+    showToast('✗ Pro spuštění trestu jsou potřeba alespoň 3 neúspěchy');
+    return;
+  }
+  if (!state.punishments || !state.punishments.length) {
+    showToast('✗ Seznam trestů je prázdný');
+    return;
+  }
+
+  const picked = state.punishments[Math.floor(Math.random() * state.punishments.length)];
+  let finalName = picked.name.split('|')[0].trim();
+
+  if (finalName.includes('[X]') || finalName.includes('[Y]')) {
+    const xVal = prompt(`Vylosován trest: "${finalName}"\nZadej hodnotu za [X]:`);
+    if (xVal === null) return;
+    finalName = finalName.replace('[X]', xVal);
+    if (finalName.includes('[Y]')) {
+      const yVal = prompt(`Zadej hodnotu za [Y]:`);
+      if (yVal === null) return;
+      finalName = finalName.replace('[Y]', yVal);
+    }
+  } else {
+    if (!confirm(`🎲 Osud vybral trest za 3 neúspěchy:\n"${finalName}"\n\nAktivovat a odečíst 3 neúspěchy?`)) return;
+  }
+
+  if (!state.activePunishments) state.activePunishments = [];
+  state.activePunishments.push({
+    id: uid(),
+    name: `[⚠️ 3/3] ${finalName}`,
+    cost: picked.cost || 0,
+    type: 'task',
+    addedAt: new Date().toISOString()
+  });
+
+  state.strikes -= 3;
+  sendDiscordNotification(`🎲 **Vylosován trest za 3 neúspěchy:** "${finalName}" (Zbývá neúspěchů: ${state.strikes})`);
+  renderAll();
+  await save();
+  showToast(`⛓️ Udělen trest: "${finalName}" (−3 neúspěchy)`);
+}
+
+// Možnost A: Vlastní aktivní trest/zákaz za 3 neúspěchy (tlačítko ⛓️)
+function useStrikeCustom() {
+  if (role !== 'dom') return;
+  if ((state.strikes || 0) < 3) {
+    showToast('✗ Pro spuštění trestu jsou potřeba alespoň 3 neúspěchy');
+    return;
+  }
+  apFromStrikes = true;
+  openAddActivePunishment();
+  document.getElementById('ap-name').placeholder = 'Zadej trest / zákaz za 3 neúspěchy...';
+}
+
+// Ruční úprava neúspěchů v Nastavení
+async function changeStrikesManual(amount) {
+  if (role !== 'dom') return;
+  if (amount === 0) {
+    if (!confirm('Vynulovat počítadlo neúspěchů?')) return;
+    state.strikes = 0;
+  } else {
+    state.strikes = Math.max(0, (state.strikes || 0) + amount);
+  }
+  renderAll();
+  await save();
+  showToast(`✓ Počet neúspěchů: ${state.strikes}/3`);
 }
 
 function renderRewards(){
@@ -982,6 +1108,10 @@ async function addPoints(pts,reason,force=false){
 
 async function toggleTodo(id){
   const t=state.todos.find(x=>x.id===id);if(!t)return;
+  if(t.failed){
+    showToast('✗ Tento úkol byl označen jako neúspěšný');
+    return;
+  }
   const wasDone=t.done;
   t.done=!t.done;
   renderTodo();
@@ -992,6 +1122,52 @@ async function toggleTodo(id){
   } else {
     await save();
   }
+}
+
+async function failTodo(id) {
+  if (role !== 'dom') return;
+  const t = state.todos.find(x => x.id === id);
+  if (!t) return;
+
+  const titleOnly = t.name.split('|')[0].trim();
+  if (!state.missedTasks) state.missedTasks = [];
+
+  if (!t.failed) {
+    // Pokud byl úkol odškrtnutý jako hotový, vrátíme body zpět
+    if (t.done) {
+      t.done = false;
+      if (t.pts) await addPoints(-t.pts, `↩ Zrušeno uznání (neúspěch): ${titleOnly}`, true);
+    }
+    t.failed = true;
+    t.loggedMissed = true;
+    state.strikes = (state.strikes || 0) + 1;
+
+    const logId = uid();
+    t.missedLogId = logId;
+    state.missedTasks.push({
+      id: logId,
+      name: t.name,
+      type: t.type || 'active',
+      status: 'Neúspěch (Dom)',
+      time: ts()
+    });
+
+    sendDiscordNotification(`⚠️ **Neúspěšný úkol:** "${titleOnly}" · Počítadlo neúspěchů: **${state.strikes}/3**`);
+    showToast(`⚠️ Neúspěch zapsán (${state.strikes}/3)`);
+  } else {
+    // Odškrtnutí neúspěchu (oprava omylu)
+    t.failed = false;
+    t.loggedMissed = false;
+    state.strikes = Math.max(0, (state.strikes || 0) - 1);
+    if (t.missedLogId) {
+      state.missedTasks = state.missedTasks.filter(m => m.id !== t.missedLogId);
+      delete t.missedLogId;
+    }
+    showToast(`↩ Neúspěch zrušen (${state.strikes}/3)`);
+  }
+
+  renderAll();
+  await save();
 }
 
 async function editItem(collection, id) {
